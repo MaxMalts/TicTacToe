@@ -4,10 +4,10 @@ using UnityEngine;
 
 
 
-public class GameHandlerScript : MonoBehaviour
+public class GameManager : MonoBehaviour
 {
 
-	private const int fieldSize = 3;
+	public const int fieldSize = 3;
 
 	public GameObject cells;
 

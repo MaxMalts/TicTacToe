@@ -70,3 +70,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8af7599b8584ea44b433d83a6dd96d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gridPos: {x: 0, y: 0}
+  clickCollider: {fileID: 0}
+  crossPrefab: {fileID: 0}
+  noughtPrefab: {fileID: 0}
