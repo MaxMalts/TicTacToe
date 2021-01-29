@@ -1,15 +1,23 @@
 {
-    "name": "Cells",
+    "name": "InputActions",
     "maps": [
         {
-            "name": "Cells",
+            "name": "Screen Interactions",
             "id": "2dae36c2-6f64-4394-a212-cf1a13e2a253",
             "actions": [
                 {
                     "name": "Tap",
-                    "type": "Button",
+                    "type": "Value",
                     "id": "651ac608-2c0e-4cc3-8b14-a22d886606e6",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "Position",
+                    "type": "Value",
+                    "id": "9a5c1f4a-2d72-46ed-9204-050f9b4d0d68",
+                    "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": ""
                 }
@@ -17,11 +25,44 @@
             "bindings": [
                 {
                     "name": "",
-                    "id": "176f49da-e106-4bda-9b18-c89d61c3478b",
-                    "path": "<Touchscreen>/primaryTouch/tap",
+                    "id": "2b9d680f-a4ad-48e5-9c81-5b1d7bbefaf8",
+                    "path": "<Touchscreen>/press",
+                    "interactions": "Press(behavior=1)",
+                    "processors": "",
+                    "groups": "Touch",
+                    "action": "Tap",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b04e95f2-5fa3-4ce4-9d79-81f87ac2fa02",
+                    "path": "<Touchscreen>/primaryTouch/position",
                     "interactions": "",
                     "processors": "",
                     "groups": "Touch",
+                    "action": "Position",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4e46141f-df04-415b-b228-8ef598c701c2",
+                    "path": "<Mouse>/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Position",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a293b3fe-f977-41fb-9ed3-667664dbc42e",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "Press(behavior=1)",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
                     "action": "Tap",
                     "isComposite": false,
                     "isPartOfComposite": false

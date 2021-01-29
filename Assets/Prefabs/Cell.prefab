@@ -56,7 +56,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1.7, y: 1.7116657}
+  m_Size: {x: 1.7, y: 1.7}
   m_EdgeRadius: 0
 --- !u!114 &4965408536503062085
 MonoBehaviour:
@@ -70,7 +70,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8af7599b8584ea44b433d83a6dd96d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridPos: {x: 0, y: 0}
-  clickCollider: {fileID: 0}
-  crossPrefab: {fileID: 0}
-  noughtPrefab: {fileID: 0}
+  fieldPos: {x: 0, y: 0}
+  clickCollider: {fileID: 9095915638255572854}
+  crossPrefab: {fileID: 4807039369455083120, guid: e8a9b1615ad3a4749abddb92127d1e50,
+    type: 3}
+  noughtPrefab: {fileID: 5481320303645480407, guid: c53ce0ed745c7334e8995911ea8297f9,
+    type: 3}

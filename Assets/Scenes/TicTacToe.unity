@@ -213,6 +213,7 @@ GameObject:
   m_Component:
   - component: {fileID: 128625034}
   - component: {fileID: 128625035}
+  - component: {fileID: 128625036}
   m_Layer: 0
   m_Name: Game Manager
   m_TagString: Untagged
@@ -246,7 +247,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1ef28f0e50548946a60dd8469e234bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cells: {fileID: 0}
+  cellsManager: {fileID: 188753870}
+  localPlayer: {fileID: 1271207608}
+  opponentPlayer: {fileID: 0}
+--- !u!114 &128625036
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 128625033}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0957fa0a4874fe74e8730fdf44224bd3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &188753868
 GameObject:
   m_ObjectHideFlags: 0
@@ -323,7 +338,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 294734799}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.0066798814, y: -0.067872636, z: -0.4609375}
+  m_LocalPosition: {x: 0, y: 0, z: -0.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 40427686}
@@ -338,6 +353,16 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 188753869}
     m_Modifications:
+    - target: {fileID: 4965408536503062085, guid: dd3684b9225fcfd46bc67d0621821f4f,
+        type: 3}
+      propertyPath: fieldPos.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4965408536503062085, guid: dd3684b9225fcfd46bc67d0621821f4f,
+        type: 3}
+      propertyPath: fieldPos.y
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 9095915638255572852, guid: dd3684b9225fcfd46bc67d0621821f4f,
         type: 3}
       propertyPath: m_Name
@@ -407,6 +432,16 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 188753869}
     m_Modifications:
+    - target: {fileID: 4965408536503062085, guid: dd3684b9225fcfd46bc67d0621821f4f,
+        type: 3}
+      propertyPath: fieldPos.x
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4965408536503062085, guid: dd3684b9225fcfd46bc67d0621821f4f,
+        type: 3}
+      propertyPath: fieldPos.y
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 9095915638255572852, guid: dd3684b9225fcfd46bc67d0621821f4f,
         type: 3}
       propertyPath: m_Name
@@ -476,6 +511,16 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 188753869}
     m_Modifications:
+    - target: {fileID: 4965408536503062085, guid: dd3684b9225fcfd46bc67d0621821f4f,
+        type: 3}
+      propertyPath: fieldPos.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4965408536503062085, guid: dd3684b9225fcfd46bc67d0621821f4f,
+        type: 3}
+      propertyPath: fieldPos.y
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 9095915638255572852, guid: dd3684b9225fcfd46bc67d0621821f4f,
         type: 3}
       propertyPath: m_Name
@@ -628,6 +673,16 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 188753869}
     m_Modifications:
+    - target: {fileID: 4965408536503062085, guid: dd3684b9225fcfd46bc67d0621821f4f,
+        type: 3}
+      propertyPath: fieldPos.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4965408536503062085, guid: dd3684b9225fcfd46bc67d0621821f4f,
+        type: 3}
+      propertyPath: fieldPos.y
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 9095915638255572852, guid: dd3684b9225fcfd46bc67d0621821f4f,
         type: 3}
       propertyPath: m_Name
@@ -709,6 +764,16 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 188753869}
     m_Modifications:
+    - target: {fileID: 4965408536503062085, guid: dd3684b9225fcfd46bc67d0621821f4f,
+        type: 3}
+      propertyPath: fieldPos.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4965408536503062085, guid: dd3684b9225fcfd46bc67d0621821f4f,
+        type: 3}
+      propertyPath: fieldPos.y
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 9095915638255572852, guid: dd3684b9225fcfd46bc67d0621821f4f,
         type: 3}
       propertyPath: m_Name
@@ -778,6 +843,16 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 188753869}
     m_Modifications:
+    - target: {fileID: 4965408536503062085, guid: dd3684b9225fcfd46bc67d0621821f4f,
+        type: 3}
+      propertyPath: fieldPos.x
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4965408536503062085, guid: dd3684b9225fcfd46bc67d0621821f4f,
+        type: 3}
+      propertyPath: fieldPos.y
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 9095915638255572852, guid: dd3684b9225fcfd46bc67d0621821f4f,
         type: 3}
       propertyPath: m_Name
@@ -865,6 +940,16 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 188753869}
     m_Modifications:
+    - target: {fileID: 4965408536503062085, guid: dd3684b9225fcfd46bc67d0621821f4f,
+        type: 3}
+      propertyPath: fieldPos.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4965408536503062085, guid: dd3684b9225fcfd46bc67d0621821f4f,
+        type: 3}
+      propertyPath: fieldPos.y
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 9095915638255572852, guid: dd3684b9225fcfd46bc67d0621821f4f,
         type: 3}
       propertyPath: m_Name
@@ -958,7 +1043,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52d46be2fd817774394a20640cf5b9b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cellsManager: {fileID: 0}
+  cellsManager: {fileID: 188753870}
 --- !u!114 &1271207610
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -968,11 +1053,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1271207608}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9773c722464f22046aeb7fdc2f664c5f, type: 3}
+  m_Script: {fileID: 11500000, guid: 5fff4870b1cd8d04d9873107ff19d879, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  camera: {fileID: 0}
-  cellsManager: {fileID: 0}
+  camera: {fileID: 519420031}
+  cellsManager: {fileID: 188753870}
+  actionsAsset: {fileID: -944628639613478452, guid: bcfab4a894987494f9cf7c77bea694a8,
+    type: 3}
 --- !u!114 &1271207611
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1001,12 +1088,12 @@ MonoBehaviour:
   m_ActionEvents:
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_MethodName: 
-        m_Mode: 1
+      - m_Target: {fileID: 1271207610}
+        m_MethodName: OnPointerRelease
+        m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -1014,9 +1101,24 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 651ac608-2c0e-4cc3-8b14-a22d886606e6
     m_ActionName: Cells/Place[/Touchscreen/primaryTouch/tap]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1271207610}
+        m_MethodName: OnPosition
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 9a5c1f4a-2d72-46ed-9204-050f9b4d0d68
+    m_ActionName: Screen Interactions/Position[/Touchscreen/primaryTouch/position,/Touchscreen/primaryTouch/position,/Mouse/position]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: Touch
-  m_DefaultActionMap: Cells
+  m_DefaultActionMap: Screen Interactions
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
 --- !u!4 &1271207612
@@ -1058,6 +1160,16 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 188753869}
     m_Modifications:
+    - target: {fileID: 4965408536503062085, guid: dd3684b9225fcfd46bc67d0621821f4f,
+        type: 3}
+      propertyPath: fieldPos.x
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4965408536503062085, guid: dd3684b9225fcfd46bc67d0621821f4f,
+        type: 3}
+      propertyPath: fieldPos.y
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 9095915638255572852, guid: dd3684b9225fcfd46bc67d0621821f4f,
         type: 3}
       propertyPath: m_Name
@@ -1212,10 +1324,20 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 188753869}
     m_Modifications:
+    - target: {fileID: 4965408536503062085, guid: dd3684b9225fcfd46bc67d0621821f4f,
+        type: 3}
+      propertyPath: fieldPos.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4965408536503062085, guid: dd3684b9225fcfd46bc67d0621821f4f,
+        type: 3}
+      propertyPath: fieldPos.y
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 9095915638255572852, guid: dd3684b9225fcfd46bc67d0621821f4f,
         type: 3}
       propertyPath: m_Name
-      value: Cell
+      value: Cell 1
       objectReference: {fileID: 0}
     - target: {fileID: 9095915638255572855, guid: dd3684b9225fcfd46bc67d0621821f4f,
         type: 3}
