@@ -8,12 +8,12 @@ using UnityEngine.Assertions;
 
 
 
-public class LocalPlayerController : MonoBehaviour {
+public class LocalPlayerController : MonoBehaviour, PlayerController {
+
+	public PlayerAPI Player { get; private set; }
 
 	[SerializeField] private new Camera camera;
-
 	private PlayerInput playerInput;
-	private PlayerAPI playerController;
 
 	public CellsManager cellsManager;
 
@@ -25,7 +25,7 @@ public class LocalPlayerController : MonoBehaviour {
 		playerInput = GetComponent<PlayerInput>();
 		Assert.IsNotNull(playerInput, "No Player Input Component on Player.");
 
-		playerController = GetComponent<PlayerAPI>();
+		Player = GetComponent<PlayerAPI>();
 		Assert.IsNotNull(playerInput, "No PlayerAPI script on Player.");
 	}
 
@@ -70,22 +70,29 @@ public class LocalPlayerController : MonoBehaviour {
 			return;
 		}
 
-		Debug.Log("Pointer Release: " + context.ToString());
+#if INTERACTION_LOG
+		Debug.Log("Pointer Released: " + context.ToString());
+#endif
 
 		Vector2 pointerPos = pointerPosAction.ReadValue<Vector2>();
 		Vector2 worldPos = camera.ScreenToWorldPoint(pointerPos);
 
 		RaycastHit2D hitInfo = Physics2D.Raycast(worldPos, Vector2.zero, 0);
 		if (hitInfo.collider == null) {
-			Debug.Log("Nothing hit.");
+#if INTERACTION_LOG
+			Debug.Log("Pointer release position was not on colider.");
+#endif
 			return;
 		}
+#if INTERACTION_LOG
+		Debug.Log("Pointer release position was on colider.");
+#endif
 
 		GameObject hitObject = hitInfo.transform.gameObject;
 		Assert.IsNotNull(hitObject, "Hit something but hitObject is null.");
 
 		if (cellsManager.IsCell(hitObject)) {
-			playerController.Place(cellsManager.CellPos(hitObject));
+			Player.Place(cellsManager.CellPos(hitObject));
 		}
 	}
 }

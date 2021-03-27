@@ -60,7 +60,7 @@ public class GameManager : MonoBehaviour {
 	private void OnCellPlaced(PlayerAPI.PlaceContext context) {
 
 		if (context.PlayerType == PlayerAPI.PlayerType.local) {
-			//localPlayerController.DisableInput();
+			localPlayerController.DisableInput();
 		}
 
 		if (CheckWin(context.Sign)) {
@@ -69,7 +69,7 @@ public class GameManager : MonoBehaviour {
 			if (CheckDraw()) {
 				HandleDraw();
 			} else {
-				//SwitchTurn();
+				SwitchTurn();
 			}
 		}
 	}
@@ -109,7 +109,6 @@ public class GameManager : MonoBehaviour {
 		if (ReferenceEquals(CurrentPlayer, localPlayer)) {
 			localPlayerController.DisableInput();
 			CurrentPlayer = opponentPlayer;
-
 
 		} else {
 			Assert.IsTrue(ReferenceEquals(CurrentPlayer, opponentPlayer),
