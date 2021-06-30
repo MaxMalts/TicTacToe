@@ -1,9 +1,9 @@
 ﻿
 interface PlayerController {
 
-	public PlayerAPI Player { get; }
+	PlayerAPI Player { get; }
 
-	public void EnableInput();
+	void EnableInput();
 
-	public void DisableInput();
+	void DisableInput();
 }
