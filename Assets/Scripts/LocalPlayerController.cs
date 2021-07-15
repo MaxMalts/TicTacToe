@@ -37,17 +37,19 @@ public class LocalPlayerController : MonoBehaviour, PlayerController {
 
 
 	public void Update() {
-		if (Mouse.current != null) {
-			InputSystem.EnableDevice(Mouse.current);
-		}
-		if (Pointer.current != null) {
-			InputSystem.EnableDevice(Pointer.current);
-		}
-		if (Touchscreen.current != null) {
-			InputSystem.EnableDevice(Touchscreen.current);
-		}
-	}
+		// I wrote these lines and then realized that when you
+		// have a Simulator tab open then the muse is disabled by default
 
+		//if (Mouse.current != null) {
+		//	InputSystem.EnableDevice(Mouse.current);
+		//}
+		//if (Pointer.current != null) {
+		//	InputSystem.EnableDevice(Pointer.current);
+		//}
+		//if (Touchscreen.current != null) {
+		//	InputSystem.EnableDevice(Touchscreen.current);
+		//}
+	}
 
 
 	//================= public =================

@@ -249,7 +249,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cellsManager: {fileID: 188753870}
   localPlayer: {fileID: 1271207608}
-  remotePlayer: {fileID: 0}
+  remotePlayer: {fileID: 1723389979}
 --- !u!114 &128625036
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1187,21 +1187,10 @@ MonoBehaviour:
     m_ActionId: 651ac608-2c0e-4cc3-8b14-a22d886606e6
     m_ActionName: Cells/Place[/Touchscreen/primaryTouch/tap]
   - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1271207610}
-        m_MethodName: OnPosition
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
     m_ActionId: 9a5c1f4a-2d72-46ed-9204-050f9b4d0d68
     m_ActionName: Screen Interactions/Position[/Touchscreen/primaryTouch/position,/Touchscreen/primaryTouch/position,/Mouse/position]
-  m_NeverAutoSwitchControlSchemes: 0
+  m_NeverAutoSwitchControlSchemes: 1
   m_DefaultControlScheme: Touch
   m_DefaultActionMap: Screen Interactions
   m_SplitScreenIndex: -1

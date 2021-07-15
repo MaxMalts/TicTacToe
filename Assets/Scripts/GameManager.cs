@@ -40,24 +40,35 @@ public class GameManager : MonoBehaviour {
 
 
 	public void Awake() {
+		Assert.IsNotNull(localPlayer, "Local Player was not assigned in inspector.");
+		Assert.IsNotNull(remotePlayer, "Remote Player was not assigned in inspector.");
+
 		localPlayerAPI = localPlayer.GetComponent<PlayerAPI>();
 		Assert.IsNotNull(localPlayerAPI, "No PlayerAPI on Local player object.");
 
 		localPlayerController = localPlayer.GetComponent<LocalPlayerController>();
-		Assert.IsNotNull(localPlayerController, "No LocalPlayerController on Local player object.");
+		Assert.IsNotNull(localPlayerController, "No LocalPlayerController on local player object.");
+		
+		remotePlayerAPI = remotePlayer.GetComponent<PlayerAPI>();
+		Assert.IsNotNull(remotePlayerAPI, "No PlayerAPI on remote player object.");
+
+		remotePlayerController = remotePlayer.GetComponent<RemotePlayerController>();
+		Assert.IsNotNull(remotePlayerController, "No RemotePlayerController on remote player object.");
 
 		object localSignObj;
 		if (!SceneArgsManager.CurSceneArgs.TryGetValue("cell-sign", out localSignObj)) {
-			Assert.IsTrue(false, "No cell-sign passed to current scene.");
+			Debug.LogWarning("No cell-sign passed to current scene. Using cross sign by default.");
+			localSignObj = CellSign.Cross;
 		}
 		CellSign localSign = CellSign.Empty;
 		try {
 			localSign = (CellSign)localSignObj;
-		} catch (InvalidCastException) {
-			Assert.IsTrue(false, "Wrong cell-sign value type.");
+		} catch (InvalidCastException innerException) {
+			throw new ArgumentException("Bad value passed to scene.", "cell-sign", innerException);
 		}
-		Assert.IsTrue(Enum.IsDefined(typeof(CellSign), localSign) &&
-		              localSign != CellSign.Empty, "Bad cell-sign value.");
+		if (!Enum.IsDefined(typeof(CellSign), localSign) || localSign == CellSign.Empty) {
+			throw new ArgumentException("Bad value passed to scene.", "cell-sign");
+		}
 
 		if (localSign == CellSign.Cross) {
 			localPlayerAPI.Sign = CellSign.Cross;
