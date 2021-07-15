@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -23,31 +24,45 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
-	[SerializeField] private GameObject opponentPlayer;
-	public GameObject OpponentPlayer {
+	[SerializeField] private GameObject remotePlayer;
+	public GameObject RemotePlayer {
 		get {
-			return opponentPlayer;
+			return remotePlayer;
 		}
 	}
 
 	private PlayerAPI localPlayerAPI;
 	private LocalPlayerController localPlayerController;
-	private PlayerAPI opponentPlayrAPI;
+	private PlayerAPI remotePlayerAPI;
+	private RemotePlayerController remotePlayerController;
 
 	public GameObject CurrentPlayer { get; private set; }
 
 
-
 	public void Awake() {
-
 		localPlayerAPI = localPlayer.GetComponent<PlayerAPI>();
-		Assert.IsNotNull(localPlayerAPI, "No PlayerAPI on local player object.");
+		Assert.IsNotNull(localPlayerAPI, "No PlayerAPI on Local player object.");
 
 		localPlayerController = localPlayer.GetComponent<LocalPlayerController>();
-		Assert.IsNotNull(localPlayerController, "No LocalPlayerController on local player object.");
+		Assert.IsNotNull(localPlayerController, "No LocalPlayerController on Local player object.");
 
-		localPlayerAPI.Sign = CellSign.cross;
-		localPlayerAPI.Type = PlayerAPI.PlayerType.local;
+		object localSignObj;
+		if (!SceneArgsManager.CurSceneArgs.TryGetValue("cell-sign", out localSignObj)) {
+			Assert.IsTrue(false, "No cell-sign passed to current scene.");
+		}
+		CellSign localSign = CellSign.Empty;
+		try {
+			localSign = (CellSign)localSignObj;
+		} catch (InvalidCastException) {
+			Assert.IsTrue(false, "Wrong cell-sign value type.");
+		}
+		Assert.IsTrue(Enum.IsDefined(typeof(CellSign), localSign) &&
+		              localSign != CellSign.Empty, "Bad cell-sign value.");
+
+		if (localSign == CellSign.Cross) {
+			localPlayerAPI.Sign = CellSign.Cross;
+			remotePlayerAPI.Sign = CellSign.nought;
+		}
 		localPlayerAPI.PlacedListeners.AddListener(OnCellPlaced);
 	}
 
@@ -59,7 +74,7 @@ public class GameManager : MonoBehaviour {
 
 	private void OnCellPlaced(PlayerAPI.PlaceContext context) {
 
-		if (context.PlayerType == PlayerAPI.PlayerType.local) {
+		if (context.PlayerType == PlayerAPI.PlayerType.Local) {
 			localPlayerController.DisableInput();
 		}
 
@@ -96,7 +111,7 @@ public class GameManager : MonoBehaviour {
 			Debug.Log("Local player won.");
 
 		} else {
-			Assert.IsTrue(ReferenceEquals(CurrentPlayer, opponentPlayer),
+			Assert.IsTrue(ReferenceEquals(CurrentPlayer, remotePlayer),
 				"CurrentPlayer not valid.");
 
 			Debug.Log("Local player lost.");
@@ -108,10 +123,10 @@ public class GameManager : MonoBehaviour {
 
 		if (ReferenceEquals(CurrentPlayer, localPlayer)) {
 			localPlayerController.DisableInput();
-			CurrentPlayer = opponentPlayer;
+			CurrentPlayer = remotePlayer;
 
 		} else {
-			Assert.IsTrue(ReferenceEquals(CurrentPlayer, opponentPlayer),
+			Assert.IsTrue(ReferenceEquals(CurrentPlayer, remotePlayer),
 				"CurrentPlayer not valid.");
 
 			CurrentPlayer = localPlayer;

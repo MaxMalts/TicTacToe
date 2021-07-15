@@ -1,7 +1,7 @@
 ﻿
 interface PlayerController {
 
-	PlayerAPI Player { get; }
+	PlayerAPI PlayerApi { get; }
 
 	void EnableInput();
 

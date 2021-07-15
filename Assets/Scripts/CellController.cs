@@ -4,12 +4,6 @@ using UnityEngine;
 using UnityEngine.Assertions;
 
 
-public enum CellSign {
-	empty,
-	cross,
-	nought
-}
-
 
 public class CellController : MonoBehaviour {
 
@@ -26,7 +20,7 @@ public class CellController : MonoBehaviour {
 	[SerializeField] GameObject crossPrefab;
 	[SerializeField] GameObject noughtPrefab;
 
-	public CellSign Sign { get; private set; } = CellSign.empty;
+	public CellSign Sign { get; private set; } = CellSign.Empty;
 
 
 	public void Start() {
@@ -52,15 +46,15 @@ public class CellController : MonoBehaviour {
 		}
 
 		switch (newSign) {
-			case CellSign.empty: {
-				Assert.IsTrue(transform.childCount == 0, "Cell Sign is CellSign.empty but it has children.");
+			case CellSign.Empty: {
+				Assert.IsTrue(transform.childCount == 0, "Cell Sign is CellSign.Empty but it has children.");
 
 				GameObject oldChild = transform.GetChild(0).gameObject;
 				Destroy(oldChild);
 				break;
 			}
 
-			case CellSign.cross: {
+			case CellSign.Cross: {
 				Assert.IsTrue(transform.childCount <= 1, "Cell has more than one child.");
 
 				if (transform.childCount != 0) {

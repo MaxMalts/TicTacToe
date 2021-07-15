@@ -10,7 +10,7 @@ using UnityEngine.Assertions;
 
 public class LocalPlayerController : MonoBehaviour, PlayerController {
 
-	public PlayerAPI Player { get; private set; }
+	public PlayerAPI PlayerApi { get; private set; }
 
 	[SerializeField] private new Camera camera;
 	private PlayerInput playerInput;
@@ -25,8 +25,9 @@ public class LocalPlayerController : MonoBehaviour, PlayerController {
 		playerInput = GetComponent<PlayerInput>();
 		Assert.IsNotNull(playerInput, "No Player Input Component on Player.");
 
-		Player = GetComponent<PlayerAPI>();
-		Assert.IsNotNull(playerInput, "No PlayerAPI script on Player.");
+		PlayerApi = GetComponent<PlayerAPI>();
+		Assert.IsNotNull(PlayerApi, "No PlayerAPI script on PlayerApi.");
+		PlayerApi.Type = PlayerAPI.PlayerType.Local;
 	}
 
 
@@ -92,7 +93,7 @@ public class LocalPlayerController : MonoBehaviour, PlayerController {
 		Assert.IsNotNull(hitObject, "Hit something but hitObject is null.");
 
 		if (cellsManager.IsCell(hitObject)) {
-			Player.Place(cellsManager.CellPos(hitObject));
+			PlayerApi.Place(cellsManager.CellPos(hitObject));
 		}
 	}
 }

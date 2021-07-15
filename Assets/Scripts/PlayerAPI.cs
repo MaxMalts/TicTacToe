@@ -10,8 +10,8 @@ using UnityEngine.Events;
 public class PlayerAPI : MonoBehaviour {
 
 	public enum PlayerType {
-		local,
-		remote
+		Local,
+		Remote
 	}
 
 	public struct PlaceContext {
@@ -35,9 +35,7 @@ public class PlayerAPI : MonoBehaviour {
 	}
 
 	public class PlacedEvent : UnityEvent<PlaceContext> { }
-
 	public PlacedEvent PlacedListeners { get; } = new PlacedEvent();
-
 
 	private PlayerType type;
 	public PlayerType Type {
@@ -59,7 +57,7 @@ public class PlayerAPI : MonoBehaviour {
 		}
 
 		set {
-			Assert.IsTrue(Enum.IsDefined(typeof(CellSign), value) && value != CellSign.empty,
+			Assert.IsTrue(Enum.IsDefined(typeof(CellSign), value) && value != CellSign.Empty,
 				"Bad newSign value.");
 
 			sign = value;
