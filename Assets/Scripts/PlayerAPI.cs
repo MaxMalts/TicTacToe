@@ -72,7 +72,6 @@ public class PlayerAPI : MonoBehaviour {
 		cellsManager.SetCellSign(pos, Sign);
 
 		PlaceContext context = new PlaceContext(Type, Sign, pos, this);
-
 		PlacedListeners.Invoke(context);
 	}
 }

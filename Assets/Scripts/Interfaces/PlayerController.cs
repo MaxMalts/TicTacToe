@@ -1,5 +1,5 @@
 ﻿
-interface PlayerController {
+public interface PlayerController {
 
 	PlayerAPI PlayerApi { get; }
 

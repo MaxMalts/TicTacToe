@@ -54,7 +54,8 @@ public class CellController : MonoBehaviour {
 				break;
 			}
 
-			case CellSign.Cross: {
+			case CellSign.Cross:
+			case CellSign.Nought: {
 				Assert.IsTrue(transform.childCount <= 1, "Cell has more than one child.");
 
 				if (transform.childCount != 0) {
@@ -62,18 +63,7 @@ public class CellController : MonoBehaviour {
 					Destroy(oldChild);
 				}
 
-				Instantiate(crossPrefab, transform);
-				break;
-			}
-
-			case CellSign.nought: {
-				Assert.IsTrue(transform.childCount <= 1, "Cell has more than one child.");
-
-				GameObject oldChild = transform.GetChild(0)?.gameObject;
-				if (oldChild != null)
-					Destroy(oldChild);
-
-				Instantiate(noughtPrefab, transform);
+				Instantiate(newSign == CellSign.Cross ? crossPrefab : noughtPrefab, transform);
 				break;
 			}
 

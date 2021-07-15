@@ -32,6 +32,7 @@ public class MainMenuAPI : MonoBehaviour {
 		Instance = this;
 	}
 
+
 	void OnDisable() {
 		Instance = null;
 	}

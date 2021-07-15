@@ -10,5 +10,5 @@ public enum SceneIndeces {
 public enum CellSign {
 	Empty,
 	Cross,
-	nought
+	Nought
 }

@@ -28,6 +28,8 @@ public class LocalPlayerController : MonoBehaviour, PlayerController {
 		PlayerApi = GetComponent<PlayerAPI>();
 		Assert.IsNotNull(PlayerApi, "No PlayerAPI script on PlayerApi.");
 		PlayerApi.Type = PlayerAPI.PlayerType.Local;
+
+		playerInput.enabled = false;
 	}
 
 
@@ -36,20 +38,20 @@ public class LocalPlayerController : MonoBehaviour, PlayerController {
 	}
 
 
-	public void Update() {
-		// I wrote these lines and then realized that when you
-		// have a Simulator tab open then the muse is disabled by default
+	//public void Update() {
+	//	// I wrote these lines and then realized that when you
+	//	// have a Simulator tab open then the muse is disabled by default
 
-		//if (Mouse.current != null) {
-		//	InputSystem.EnableDevice(Mouse.current);
-		//}
-		//if (Pointer.current != null) {
-		//	InputSystem.EnableDevice(Pointer.current);
-		//}
-		//if (Touchscreen.current != null) {
-		//	InputSystem.EnableDevice(Touchscreen.current);
-		//}
-	}
+	//	//if (Mouse.current != null) {
+	//	//	InputSystem.EnableDevice(Mouse.current);
+	//	//}
+	//	//if (Pointer.current != null) {
+	//	//	InputSystem.EnableDevice(Pointer.current);
+	//	//}
+	//	//if (Touchscreen.current != null) {
+	//	//	InputSystem.EnableDevice(Touchscreen.current);
+	//	//}
+	//}
 
 
 	//================= public =================

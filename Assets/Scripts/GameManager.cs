@@ -72,14 +72,27 @@ public class GameManager : MonoBehaviour {
 
 		if (localSign == CellSign.Cross) {
 			localPlayerAPI.Sign = CellSign.Cross;
-			remotePlayerAPI.Sign = CellSign.nought;
+			remotePlayerAPI.Sign = CellSign.Nought;
+		} else {
+			localPlayerAPI.Sign = CellSign.Nought;
+			remotePlayerAPI.Sign = CellSign.Cross;
 		}
+
 		localPlayerAPI.PlacedListeners.AddListener(OnCellPlaced);
 	}
 
 
 	public void Start() {
-		CurrentPlayer = localPlayer;
+		if (localPlayerAPI.Sign == CellSign.Cross) {
+			CurrentPlayer = localPlayer;
+			localPlayerController.EnableInput();
+
+		} else {
+			Assert.IsTrue(remotePlayerAPI.Sign == CellSign.Cross, "No one has cross sign.");
+
+			CurrentPlayer = remotePlayer;
+			remotePlayerController.EnableInput();
+		}
 	}
 
 
