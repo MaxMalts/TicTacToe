@@ -110,13 +110,6 @@ namespace Network {
 
 			groupEP = new IPEndPoint(IPAddress.Parse(groupAddr), groupPort);
 			prefixByteSize = Encoding.UTF8.GetByteCount(datagramPrefix);
-
-			// temp
-			StartListeningBroadcast();
-			//byte[] datagram = Encoding.UTF8.GetBytes("TicTacToTest");
-			groupClient.Send(datagram, datagram.Length, new IPEndPoint(IPAddress.Parse(groupAddr), groupPort));
-			//SendBroadcast("test");
-			// temp
 		}
 
 		void Update() {
