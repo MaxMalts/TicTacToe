@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
 
+
+
 public class Singleton<T> : MonoBehaviour where T : Singleton<T> {
 
 	private static T instance = null;
