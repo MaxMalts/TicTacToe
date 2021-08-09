@@ -79,17 +79,9 @@ namespace Network {
 			}
 		}
 
-		/// <summary>
-		/// Reads package asynchronously.
-		/// When the package was read,
-		/// the callback is called in a separate thread.
-		/// </summary>
-		/// <param name="callback">
-		/// Callback with byte[] argument - the received packge
-		/// </param>
-		public void ReadAsync(Action<byte[]> callback) {
-			Task.Run(() => {
-				callback(Read());
+		public async Task<byte[]> ReadAsync() {
+			return await Task<byte[]>.Run(() => {
+				return Read();
 			});
 		}
 
