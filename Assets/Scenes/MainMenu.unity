@@ -394,7 +394,7 @@ GameObject:
   - component: {fileID: 658838236}
   - component: {fileID: 658838235}
   m_Layer: 0
-  m_Name: NetworkManager
+  m_Name: UdpGroupWrapper
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

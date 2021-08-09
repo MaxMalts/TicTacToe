@@ -21,7 +21,7 @@ namespace Network {
 
 	public class UdpGroupWrapper : Singleton<UdpGroupWrapper> {
 
-		public class MessageEvent : UnityEvent<Message> {}
+		public class MessageEvent : UnityEvent<Message> { }
 		public MessageEvent groupMessageReceived;
 
 		const string groupAddr = "224.0.23.187";
@@ -37,6 +37,7 @@ namespace Network {
 
 		UdpClient groupClient;
 		ConcurrentQueue<Message> groupMessages;
+
 
 		public void StartListeningBroadcast() {
 			Assert.IsNotNull(groupClient);

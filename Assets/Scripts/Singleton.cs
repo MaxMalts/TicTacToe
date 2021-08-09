@@ -5,6 +5,15 @@ using UnityEngine.Assertions;
 
 
 
+/// <summary>
+/// Implements the singleton pattern.<br/>
+/// You should ingerit from this class to get a singleton class.
+/// </summary>
+/// 
+/// <typeparam name="T">
+/// Class which must be singleton
+/// and which is ingerited from this class.
+/// </typeparam>
 public class Singleton<T> : MonoBehaviour where T : Singleton<T> {
 
 	private static T instance = null;
