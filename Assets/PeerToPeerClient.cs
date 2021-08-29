@@ -111,7 +111,9 @@ namespace Network {
 		}
 
 		void Awake() {
-			groupClient = FindObjectOfType<UdpGroupClient>();
+			groupClient = UdpGroupClient.Instance;
+			packageReceived = new PackageReceiveEvent();
+			receivedPackages = new ConcurrentQueue<byte[]>();
 		}
 
 		void Update() {
