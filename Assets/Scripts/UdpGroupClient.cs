@@ -19,7 +19,7 @@ namespace Network {
 	}
 
 
-	public class UdpGroupWrapper : Singleton<UdpGroupWrapper> {
+	public class UdpGroupClient : Singleton<UdpGroupClient> {
 
 		public class MessageEvent : UnityEvent<Message> { }
 		public MessageEvent groupMessageReceived;
