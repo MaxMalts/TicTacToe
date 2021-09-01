@@ -8,6 +8,8 @@ using UnityEngine.Assertions;
 
 
 
+[RequireComponent(typeof(PlayerInput))]
+[RequireComponent(typeof(PlayerAPI))]
 public class LocalPlayerController : MonoBehaviour, PlayerController {
 
 	public PlayerAPI PlayerApi { get; private set; }

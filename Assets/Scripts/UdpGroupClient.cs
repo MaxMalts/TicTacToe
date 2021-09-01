@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
+using System.Net.NetworkInformation;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Events;
@@ -32,7 +33,7 @@ namespace Network {
 		/// This prefix is added to the beginning of each datagram.
 		/// Only messages with this prefix are handeled.
 		/// </summary>
-		const string datagramPrefix = "TicTacToe";
+		const string datagramPrefix = "UdpGroupClient ";
 		int prefixByteSize;
 
 		UdpClient groupClient;
@@ -57,6 +58,11 @@ namespace Network {
 					return;
 				} finally {
 					groupClient.BeginReceive(OnGroupReceive, null);
+				}
+
+				if (((IPEndPoint)groupClient.Client.LocalEndPoint).Address ==
+					endPoint.Address) {
+					return;
 				}
 
 				bool invalidPrefix = false;
@@ -105,8 +111,8 @@ namespace Network {
 			base.Awake();
 			Assert.IsNull(groupClient);
 
+			groupClient = new UdpClient(new IPEndPoint(GetLocalIP(), groupPort));
 			groupMessageReceived = new MessageEvent();
-			groupClient = new UdpClient(groupPort);
 			groupMessages = new ConcurrentQueue<Message>();
 
 			groupEP = new IPEndPoint(IPAddress.Parse(groupAddr), groupPort);
@@ -118,6 +124,24 @@ namespace Network {
 			while (groupMessages.TryDequeue(out message)) {
 				groupMessageReceived.Invoke(message);
 			}
+		}
+
+		public IPAddress GetLocalIP() {
+			foreach (NetworkInterface item in NetworkInterface.GetAllNetworkInterfaces()) {
+				if (item.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 &&
+					item.OperationalStatus == OperationalStatus.Up) {
+
+					foreach (UnicastIPAddressInformation ip in
+						item.GetIPProperties().UnicastAddresses) {
+
+						if (ip.Address.AddressFamily == AddressFamily.InterNetwork) {
+							return ip.Address;
+						}
+					}
+				}
+			}
+
+			return null;
 		}
 	}
 }

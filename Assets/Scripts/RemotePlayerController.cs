@@ -8,18 +8,19 @@ using Network;
 
 
 
+[RequireComponent(typeof(PlayerAPI))]
 public class RemotePlayerController : MonoBehaviour, PlayerController {
 
 	public PlayerAPI PlayerApi { get; private set; }
 
+	const string remoteCellSignQuery = "cell-sign";
+	const string crossSignValue = "cross";
+	const string noughtSignValue = "nought";
+
+	const string placeCellQuery = "place-cell";
+
 	PeerToPeerClient ptpClient;
 	bool inputEnabled = true;
-
-	string remoteCellSignQuery = "cell-sign";
-	string crossSignValue = "cross";
-	string noughtSignValue = "nought";
-
-	string placeCellQuery = "place-cell";
 
 
 	public void EnableInput() {
@@ -31,10 +32,13 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 	}
 
 	void Awake() {
+		PlayerApi = GetComponent<PlayerAPI>();
+		Assert.IsNotNull(PlayerApi, "No PlayerAPI script on PlayerApi.");
+		PlayerApi.Type = PlayerAPI.PlayerType.Local;
+
 		object ptpClientObj;
 		if (!SceneArgsManager.CurSceneArgs.TryGetValue("ptp-client", out ptpClientObj)) {
 			Debug.LogError("No ptp-client passed to current scene.");
-			Assert.IsNotNull(ptpClientObj);
 		}
 		try {
 			ptpClient = (PeerToPeerClient)ptpClientObj;
@@ -48,8 +52,8 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 		Assert.IsTrue(PlayerApi.Sign == CellSign.Cross ||
 			PlayerApi.Sign == CellSign.Nought);
 
-		ptpClient.packageReceived.AddListener(OnPackageReceived);
-		ptpClient.StartReceiving();
+		ptpClient?.packageReceived.AddListener(OnPackageReceived);
+		ptpClient?.StartReceiving();
 
 		string signValue =
 			PlayerApi.Sign == CellSign.Cross ? crossSignValue : noughtSignValue;
@@ -57,8 +61,6 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 	}
 
 	void OnPackageReceived(byte[] data) {
-
-
 		string queryStr = Encoding.UTF8.GetString(data);
 		if (queryStr.StartsWith(remoteCellSignQuery) &&
 			queryStr.Length > remoteCellSignQuery.Length + 1) {

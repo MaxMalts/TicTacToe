@@ -22,7 +22,7 @@ public class MainMenuAPI : MonoBehaviour {
 
 
 	public void StartGame(CellSign sign) {
-		MainMenu.Instance.StartGame(sign);
+		MainMenu.Instance.ConnectAndStartGame(sign);
 	}
 
 	void OnEnable() {

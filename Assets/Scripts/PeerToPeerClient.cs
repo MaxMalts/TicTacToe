@@ -20,7 +20,7 @@ namespace Network {
 		public class PackageReceiveEvent : UnityEvent<byte[]> { }
 		public PackageReceiveEvent packageReceived;
 
-		const string beaconMessage = "peer-to-peer-request";
+		const string beaconMessage = "PeerToPeerClient-beacon";
 		const int listenPort = 875;
 		const int beaconIntervalMs = 1000;
 
@@ -136,7 +136,6 @@ namespace Network {
 				listener.BeginAcceptTcpClient(OnTcpAccept, listener);
 
 				while (!connected) {
-					UnityEngine.Debug.Log("There");
 					groupClient.SendBroadcast(beaconMessage);
 
 					Stopwatch beaconWaitTime = new Stopwatch();
@@ -153,8 +152,11 @@ namespace Network {
 					}
 
 					beaconWaitTime.Stop();
-					Task.Delay(beaconIntervalMs -
-						(int)beaconWaitTime.ElapsedMilliseconds).Wait();
+					int timeLeft =
+						beaconIntervalMs - (int)beaconWaitTime.ElapsedMilliseconds;
+					if (timeLeft < 0)
+						timeLeft = 0;
+					Task.Delay(timeLeft).Wait();
 				}
 
 				groupClient.StopListeningBroadcast();
@@ -175,7 +177,6 @@ namespace Network {
 					}
 
 					try {
-						UnityEngine.Debug.Log(connectingTcpClient == null);
 						connectingTcpClient.EndConnect(ar);
 					} catch (ObjectDisposedException) {
 						return;

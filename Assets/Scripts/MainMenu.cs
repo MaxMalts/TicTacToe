@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -28,23 +29,43 @@ public class MainMenu : MonoBehaviour {
 	[SerializeField] GameObject connectingPopup;
 
 	PeerToPeerClient ptpClient;
+	Task connectingTask;
+	bool connected;
+	CellSign localCellSign;
 
 
-	public void StartGame(CellSign sign) {
+	public void ConnectAndStartGame(CellSign sign) {
+		if (connectingTask?.Status == TaskStatus.Running) {
+			return;
+		}
+
 		GameObject ptpObject =
 			new GameObject("PeerToPeerClient", typeof(PeerToPeerClient));
 		ptpClient = ptpObject.GetComponent<PeerToPeerClient>();
 		DontDestroyOnLoad(ptpClient);
 
-		Task connectingTask = ptpClient.ConnectToOtherClient();
+		connectingTask = ptpClient.ConnectToOtherClient();
 		connectingPopup.SetActive(true);
 		uiCanvasGroup.interactable = false;
 
 		connectingTask.ContinueWith((Task) => {
-			SceneArgsManager.NextSceneArgs.Add("cell-sign", sign);
+			if (Task.Status != TaskStatus.RanToCompletion) {
+				Debug.LogError("connectingTask not completed successfully. Its status: " +
+					connectingTask.Status + '.');
+				return;
+			}
+
+			localCellSign = sign;
+			connected = true;
+		});
+	}
+
+	void Update() {
+		if (connected) {
+			SceneArgsManager.NextSceneArgs.Add("cell-sign", localCellSign);
 			SceneArgsManager.NextSceneArgs.Add("ptp-client", ptpClient);
 			SceneManager.LoadScene((int)SceneIndeces.TicTacToe);
-		});
+		}
 	}
 
 	void OnEnable() {
