@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.Assertions;
 
@@ -26,12 +27,10 @@ public class MainMenuAPI : MonoBehaviour {
 		SceneManager.LoadScene((int)SceneIndeces.TicTacToe);
 	}
 
-
 	void OnEnable() {
 		Assert.IsNull<MainMenuAPI>(instance, "You've enabled multiple MainMenyAPI's.");
 		Instance = this;
 	}
-
 
 	void OnDisable() {
 		Instance = null;

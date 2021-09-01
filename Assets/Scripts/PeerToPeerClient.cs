@@ -35,6 +35,7 @@ namespace Network {
 		Task readingTask;
 		CancellationTokenSource readingTaskCT;
 
+
 		/// <summary>
 		/// Searches for other PeerToPeerClient in
 		/// local network and connects to it.
@@ -109,6 +110,7 @@ namespace Network {
 
 			readingTaskCT.Cancel();
 		}
+
 
 		void Awake() {
 			groupClient = UdpGroupClient.Instance;
