@@ -1,19 +1,58 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Assertions;
+using Network;
+
+
 
 public class MainMenu : MonoBehaviour {
 
-	CanvasGroup uiGroup;
-	GameObject connectingPopup;
+	static MainMenu instance;
+	public static MainMenu Instance {
+		get {
+			Assert.IsNotNull<MainMenu>(instance, "No instance of MainMenu.");
+			return instance;
+		}
+
+		private set {
+			instance = value;
+		}
+	}
+
+	[SerializeField] [Tooltip("Main Canvas Group of main menu.")]
+	CanvasGroup uiCanvasGroup;
+
+	[SerializeField] GameObject connectingPopup;
+
+	PeerToPeerClient ptpClient;
 
 
-	void Awake() {
-		CanvasGroup[] canvasGroups = FindObjectsOfType<CanvasGroup>();
-		Assert.IsTrue(canvasGroups.Length == 1, "Not single CanvasGroup object");
-		uiGroup = canvasGroups[0];
+	public void StartGame(CellSign sign) {
+		GameObject ptpObject =
+			new GameObject("PeerToPeerClient", typeof(PeerToPeerClient));
+		ptpClient = ptpObject.GetComponent<PeerToPeerClient>();
+		DontDestroyOnLoad(ptpClient);
 
-		connectingPopup = 
+		Task connectingTask = ptpClient.ConnectToOtherClient();
+		connectingPopup.SetActive(true);
+		uiCanvasGroup.interactable = false;
+
+		connectingTask.ContinueWith((Task) => {
+			SceneArgsManager.NextSceneArgs.Add("cell-sign", sign);
+			SceneArgsManager.NextSceneArgs.Add("ptp-client", ptpClient);
+			SceneManager.LoadScene((int)SceneIndeces.TicTacToe);
+		});
+	}
+
+	void OnEnable() {
+		Assert.IsNull<MainMenu>(instance, "You've enabled multiple MainMenyAPI's.");
+		Instance = this;
+	}
+
+	void OnDisable() {
+		Instance = null;
 	}
 }

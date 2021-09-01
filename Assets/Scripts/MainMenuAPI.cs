@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.SceneManagement;
 using UnityEngine.Assertions;
 
 
@@ -23,8 +22,7 @@ public class MainMenuAPI : MonoBehaviour {
 
 
 	public void StartGame(CellSign sign) {
-		SceneArgsManager.NextSceneArgs.Add("cell-sign", sign);
-		SceneManager.LoadScene((int)SceneIndeces.TicTacToe);
+		MainMenu.Instance.StartGame(sign);
 	}
 
 	void OnEnable() {

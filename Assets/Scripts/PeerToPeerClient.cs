@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Assertions;
@@ -44,6 +45,8 @@ namespace Network {
 			if (connectTask == null ||
 				connectTask.Status != TaskStatus.Running) {
 
+				receiveBeacon = new TaskCompletionSource<IPAddress>();
+
 				groupClient.groupMessageReceived.AddListener(OnGroupMessageReceived);
 				groupClient.StartListeningBroadcast();
 
@@ -55,7 +58,7 @@ namespace Network {
 
 		public void Send(byte[] data, int? offset = null, int? size = null) {
 			if (!connected) {
-				Debug.LogWarning("Called Send but not connected to other client.");
+				UnityEngine.Debug.LogWarning("Called Send but not connected to other client.");
 				return;
 			}
 			
@@ -80,14 +83,14 @@ namespace Network {
 		//	return await stream.ReadAsync();
 		//}
 
-		public void StartReading() {
+		public void StartReceiving() {
 			if (!connected) {
-				Debug.LogWarning("Called StartReading but not connected to other client.");
+				UnityEngine.Debug.LogWarning("Called StartReceiving but not connected to other client.");
 				return;
 			}
 
 			if (readingTask != null) {
-				Debug.LogWarning("Called StartReading twice.");
+				UnityEngine.Debug.LogWarning("Called StartReceiving twice.");
 				return;
 			}
 
@@ -102,9 +105,9 @@ namespace Network {
 			}, token);
 		}
 
-		public void StopReading() {
+		public void StopReceiving() {
 			if (readingTask == null) {
-				Debug.LogWarning("Called StopReading before StartReading.");
+				UnityEngine.Debug.LogWarning("Called StopReceiving before StartReceiving.");
 				return;
 			}
 
@@ -116,6 +119,7 @@ namespace Network {
 			groupClient = UdpGroupClient.Instance;
 			packageReceived = new PackageReceiveEvent();
 			receivedPackages = new ConcurrentQueue<byte[]>();
+			connectingLock = new object();
 		}
 
 		void Update() {
@@ -126,25 +130,38 @@ namespace Network {
 		}
 
 		void SearchAndConnect() {
-			TcpListener listener = new TcpListener(IPAddress.Any, listenPort);
-			listener.BeginAcceptTcpClient(OnTcpAccept, listener);
+			try {
+				TcpListener listener = new TcpListener(IPAddress.Any, listenPort);
+				listener.Start();
+				listener.BeginAcceptTcpClient(OnTcpAccept, listener);
 
-			while (!connected) {
-				groupClient.SendBroadcast(beaconMessage);
+				while (!connected) {
+					UnityEngine.Debug.Log("There");
+					groupClient.SendBroadcast(beaconMessage);
 
-				if (receiveBeacon.Task.Wait(beaconIntervalMs)) {
-					Assert.IsTrue(receiveBeacon.Task.Status == TaskStatus.RanToCompletion,
-						"Bad receiveBeacon status.");
+					Stopwatch beaconWaitTime = new Stopwatch();
+					beaconWaitTime.Start();
+					if (receiveBeacon.Task.Wait(beaconIntervalMs)) {
+						Assert.IsTrue(receiveBeacon.Task.Status == TaskStatus.RanToCompletion,
+							"Bad receiveBeacon status.");
 
-					receiveBeacon = new TaskCompletionSource<IPAddress>();
+						TcpClient connectingTcpClient = new TcpClient();
+						connectingTcpClient.BeginConnect(receiveBeacon.Task.Result,
+							listenPort, OnConnect, connectingTcpClient);
 
-					TcpClient connectingTcpClient = new TcpClient();
-					connectingTcpClient.BeginConnect(receiveBeacon.Task.Result,
-						listenPort, OnConnect, connectingTcpClient);
+						receiveBeacon = new TaskCompletionSource<IPAddress>();
+					}
+
+					beaconWaitTime.Stop();
+					Task.Delay(beaconIntervalMs -
+						(int)beaconWaitTime.ElapsedMilliseconds).Wait();
 				}
-			}
 
-			groupClient.StopListeningBroadcast();
+				groupClient.StopListeningBroadcast();
+
+			} catch (Exception exception) {
+				UnityEngine.Debug.LogException(exception);
+			}
 		}
 
 		void OnConnect(IAsyncResult ar) {
@@ -158,8 +175,13 @@ namespace Network {
 					}
 
 					try {
+						UnityEngine.Debug.Log(connectingTcpClient == null);
 						connectingTcpClient.EndConnect(ar);
 					} catch (ObjectDisposedException) {
+						return;
+					} catch (NullReferenceException) {
+						// There is a bug, NullReferenceException is
+						// thrown instead ObjectDisposedException
 						return;
 					}
 
@@ -169,7 +191,7 @@ namespace Network {
 				}
 
 			} catch (Exception exception) {
-				Debug.LogException(exception);
+				UnityEngine.Debug.LogException(exception);
 			}
 		}
 
@@ -196,7 +218,7 @@ namespace Network {
 				}
 				
 			} catch (Exception exception) {
-				Debug.LogException(exception);
+				UnityEngine.Debug.LogException(exception);
 			}
 		}
 
@@ -205,7 +227,7 @@ namespace Network {
 				return;
 			}
 
-			receiveBeacon.TrySetResult(message.source.Address);
+			bool test = receiveBeacon.TrySetResult(message.source.Address);
 		}
 	}
 }
