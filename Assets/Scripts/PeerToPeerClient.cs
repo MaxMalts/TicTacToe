@@ -25,6 +25,7 @@ namespace Network {
 		const int beaconIntervalMs = 1000;
 
 		UdpGroupClient groupClient;
+		TcpListener listener;
 		TcpClient tcpClient;
 		NetworkStreamWrapper stream;
 		volatile bool connected = false;
@@ -36,12 +37,18 @@ namespace Network {
 		Task readingTask;
 		CancellationTokenSource readingTaskCT;
 
+		bool disposed = false;
+
 
 		/// <summary>
 		/// Searches for other PeerToPeerClient in
 		/// local network and connects to it.
 		/// </summary>
 		public Task ConnectToOtherClient() {
+			if (disposed) {
+				throw new ObjectDisposedException("Network.PeerToPeerClient");
+			}
+
 			if (connectTask == null ||
 				connectTask.Status != TaskStatus.Running) {
 
@@ -57,6 +64,10 @@ namespace Network {
 		}
 
 		public void Send(byte[] data, int? offset = null, int? size = null) {
+			if (disposed) {
+				throw new ObjectDisposedException("Network.PeerToPeerClient");
+			}
+
 			if (!connected) {
 				UnityEngine.Debug.LogWarning("Called Send but not connected to other client.");
 				return;
@@ -84,6 +95,10 @@ namespace Network {
 		//}
 
 		public void StartReceiving() {
+			if (disposed) {
+				throw new ObjectDisposedException("Network.PeerToPeerClient");
+			}
+
 			if (!connected) {
 				UnityEngine.Debug.LogWarning("Called StartReceiving but not connected to other client.");
 				return;
@@ -94,10 +109,9 @@ namespace Network {
 				return;
 			}
 
-			readingTaskCT = new CancellationTokenSource();
 			CancellationToken token = readingTaskCT.Token;
 			readingTask = Task.Run(() => {
-				while (true) {
+				while (!disposed) {
 					token.ThrowIfCancellationRequested();
 					byte[] data = stream.Read();
 					receivedPackages.Enqueue(data);
@@ -106,6 +120,10 @@ namespace Network {
 		}
 
 		public void StopReceiving() {
+			if (disposed) {
+				return;
+			}
+
 			if (readingTask == null) {
 				UnityEngine.Debug.LogWarning("Called StopReceiving before StartReceiving.");
 				return;
@@ -114,29 +132,46 @@ namespace Network {
 			readingTaskCT.Cancel();
 		}
 
+		public void Close() {
+			disposed = true;
+			readingTaskCT.Cancel();
+			tcpClient?.Close();
+			listener.Stop();
+		}
 
 		void Awake() {
 			groupClient = UdpGroupClient.Instance;
+			listener = new TcpListener(IPAddress.Any, listenPort);
 			packageReceived = new PackageReceiveEvent();
 			receivedPackages = new ConcurrentQueue<byte[]>();
 			connectingLock = new object();
+			readingTaskCT = new CancellationTokenSource();
 		}
 
 		void Update() {
-			byte[] package;
-			while (receivedPackages.TryDequeue(out package)) {
-				packageReceived.Invoke(package);
+			if (!disposed) {
+				byte[] package;
+				while (receivedPackages.TryDequeue(out package)) {
+					packageReceived.Invoke(package);
+				}
 			}
 		}
 
 		void SearchAndConnect() {
 			try {
-				TcpListener listener = new TcpListener(IPAddress.Any, listenPort);
+				if (disposed) {
+					return;
+				}
+
 				listener.Start();
 				listener.BeginAcceptTcpClient(OnTcpAccept, listener);
 
-				while (!connected) {
-					groupClient.SendBroadcast(beaconMessage);
+				while (!connected && !disposed) {
+					try {
+						groupClient.SendBroadcast(beaconMessage);
+					} catch (ObjectDisposedException) {
+						return;
+					}
 
 					Stopwatch beaconWaitTime = new Stopwatch();
 					beaconWaitTime.Start();
@@ -168,6 +203,10 @@ namespace Network {
 
 		void OnConnect(IAsyncResult ar) {
 			try {
+				if (disposed) {
+					return;
+				}
+
 				TcpClient connectingTcpClient = ar.AsyncState as TcpClient;
 				Assert.IsNotNull(connectingTcpClient);
 
@@ -181,7 +220,7 @@ namespace Network {
 					} catch (ObjectDisposedException) {
 						return;
 					} catch (NullReferenceException) {
-						// There is a bug, NullReferenceException is
+						// There is a bug in TcpClient, NullReferenceException is
 						// thrown instead ObjectDisposedException
 						return;
 					}
@@ -198,6 +237,10 @@ namespace Network {
 
 		void OnTcpAccept(IAsyncResult ar) {
 			try {
+				if (disposed) {
+					return;
+				}
+
 				TcpListener listener = ar.AsyncState as TcpListener;
 				Assert.IsNotNull(listener);
 
@@ -213,6 +256,7 @@ namespace Network {
 						return;
 					}
 
+					listener.Stop();
 					tcpClient = curTcpClient;
 					stream = new NetworkStreamWrapper(tcpClient.GetStream());
 					connected = true;
@@ -224,11 +268,19 @@ namespace Network {
 		}
 
 		void OnGroupMessageReceived(Message message) {
+			if (disposed) {
+				return;
+			}
+
 			if (message.data != beaconMessage) {
 				return;
 			}
 
 			bool test = receiveBeacon.TrySetResult(message.source.Address);
+		}
+
+		void OnDestroy() {
+			Close();
 		}
 	}
 }

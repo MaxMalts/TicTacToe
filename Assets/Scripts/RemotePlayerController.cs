@@ -107,6 +107,7 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 			return;
 		}
 
+		Assert.IsTrue(inputEnabled, "Remote player placed cell when input was disabled.");
 		PlayerApi.Place(new Vector2Int(column, row));
 	}
 }

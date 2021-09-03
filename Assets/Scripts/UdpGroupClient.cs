@@ -39,25 +39,105 @@ namespace Network {
 		UdpClient groupClient;
 		ConcurrentQueue<Message> groupMessages;
 
+		bool disposed = false;
+
 
 		public void StartListeningBroadcast() {
+			if (disposed) {
+				throw new ObjectDisposedException("Network.UdpGroupClient");
+			}
+
 			Assert.IsNotNull(groupClient);
 
 			groupClient.JoinMulticastGroup(IPAddress.Parse(groupAddr));
 			groupClient.BeginReceive(OnGroupReceive, null);
 		}
 
+		public void StopListeningBroadcast() {
+			if (disposed) {
+				return;
+			}
+
+			Assert.IsNotNull(groupClient);
+			groupClient.DropMulticastGroup(IPAddress.Parse(groupAddr));
+		}
+
+		public void SendBroadcast(string message) {
+			if (disposed) {
+				throw new ObjectDisposedException("Network.UdpGroupClient");
+			}
+
+			byte[] data = Encoding.UTF8.GetBytes(datagramPrefix + message);
+
+			try {
+				groupClient.Send(data, data.Length, groupEP);
+			} catch (ObjectDisposedException) {
+				throw;
+			} catch (Exception exception) {
+				Debug.LogException(exception);
+			}
+		}
+
+		public void Close() {
+			disposed = true;
+			groupClient.Close();
+		}
+
+		public static IPAddress GetLocalIP() {
+			foreach (NetworkInterface item in NetworkInterface.GetAllNetworkInterfaces()) {
+				if (item.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 &&
+					item.OperationalStatus == OperationalStatus.Up) {
+
+					foreach (UnicastIPAddressInformation ip in
+						item.GetIPProperties().UnicastAddresses) {
+
+						if (ip.Address.AddressFamily == AddressFamily.InterNetwork) {
+							return ip.Address;
+						}
+					}
+				}
+			}
+
+			return null;
+		}
+
+		protected override void Awake() {
+			base.Awake();
+			Assert.IsNull(groupClient);
+
+			groupClient = new UdpClient(new IPEndPoint(GetLocalIP(), groupPort));
+			groupMessageReceived = new MessageEvent();
+			groupMessages = new ConcurrentQueue<Message>();
+
+			groupEP = new IPEndPoint(IPAddress.Parse(groupAddr), groupPort);
+			prefixByteSize = Encoding.UTF8.GetByteCount(datagramPrefix);
+		}
+
+		void Update() {
+			if (!disposed) {
+				Message message;
+				while (groupMessages.TryDequeue(out message)) {
+					groupMessageReceived.Invoke(message);
+				}
+			}
+		}
+
 		void OnGroupReceive(IAsyncResult ar) {
 			try {
+				if (disposed) {
+					return;
+				}
+
 				IPEndPoint endPoint = null;
 				byte[] data;
 				try {
 					data = groupClient.EndReceive(ar, ref endPoint);
+				} catch (ObjectDisposedException) {
+					return;
 				} catch (Exception exception) {
 					Debug.LogException(exception);
-					return;
-				} finally {
 					groupClient.BeginReceive(OnGroupReceive, null);
+					return;
 				}
 
 				if (((IPEndPoint)groupClient.Client.LocalEndPoint).Address ==
@@ -92,56 +172,8 @@ namespace Network {
 			}
 		}
 
-		public void StopListeningBroadcast() {
-			Assert.IsNotNull(groupClient);
-			groupClient.DropMulticastGroup(IPAddress.Parse(groupAddr));
-		}
-
-		public void SendBroadcast(string message) {
-			byte[] data = Encoding.UTF8.GetBytes(datagramPrefix + message);
-
-			try {
-				groupClient.Send(data, data.Length, groupEP);
-			} catch (Exception exception) {
-				Debug.LogException(exception);
-			}
-		}
-
-		protected override void Awake() {
-			base.Awake();
-			Assert.IsNull(groupClient);
-
-			groupClient = new UdpClient(new IPEndPoint(GetLocalIP(), groupPort));
-			groupMessageReceived = new MessageEvent();
-			groupMessages = new ConcurrentQueue<Message>();
-
-			groupEP = new IPEndPoint(IPAddress.Parse(groupAddr), groupPort);
-			prefixByteSize = Encoding.UTF8.GetByteCount(datagramPrefix);
-		}
-
-		void Update() {
-			Message message;
-			while (groupMessages.TryDequeue(out message)) {
-				groupMessageReceived.Invoke(message);
-			}
-		}
-
-		public IPAddress GetLocalIP() {
-			foreach (NetworkInterface item in NetworkInterface.GetAllNetworkInterfaces()) {
-				if (item.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 &&
-					item.OperationalStatus == OperationalStatus.Up) {
-
-					foreach (UnicastIPAddressInformation ip in
-						item.GetIPProperties().UnicastAddresses) {
-
-						if (ip.Address.AddressFamily == AddressFamily.InterNetwork) {
-							return ip.Address;
-						}
-					}
-				}
-			}
-
-			return null;
+		void OnDestroy() {
+			Close();
 		}
 	}
 }
