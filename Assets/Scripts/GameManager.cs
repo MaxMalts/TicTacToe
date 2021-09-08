@@ -8,6 +8,18 @@ using UnityEngine.Assertions;
 
 public class GameManager : MonoBehaviour {
 
+	static GameManager instance;
+	public static GameManager Instance {
+		get {
+			Assert.IsNotNull<GameManager>(instance, "No instance of MainMenuAPI.");
+			return instance;
+		}
+
+		private set {
+			instance = value;
+		}
+	}
+
 	public const int fieldSize = 3;
 
 	[SerializeField] CellsManager cellsManager;
@@ -38,8 +50,7 @@ public class GameManager : MonoBehaviour {
 	PlayerAPI remotePlayerAPI;
 	RemotePlayerController remotePlayerController;
 
-
-	public void Awake() {
+	void Awake() {
 		Assert.IsNotNull(localPlayer, "Local Player was not assigned in inspector.");
 		Assert.IsNotNull(remotePlayer, "Remote Player was not assigned in inspector.");
 
@@ -79,10 +90,10 @@ public class GameManager : MonoBehaviour {
 		}
 
 		localPlayerAPI.CellPlaced.AddListener(OnCellPlaced);
+		remotePlayerAPI.CellPlaced.AddListener(OnCellPlaced);
 	}
 
-
-	public void Start() {
+	void Start() {
 		if (localPlayerAPI.Sign == CellSign.Cross) {
 			CurrentPlayer = localPlayer;
 			localPlayerController.EnableInput();
@@ -94,7 +105,6 @@ public class GameManager : MonoBehaviour {
 			remotePlayerController.EnableInput();
 		}
 	}
-
 
 	void OnCellPlaced(PlayerAPI.PlaceContext context) {
 
@@ -113,24 +123,20 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
-
 	bool CheckWin(CellSign sign) {
 		return false;
 	}
-
 
 	bool CheckDraw() {
 		return false;
 	}
 
-
 	void HandleDraw() {
 		Debug.Log("Draw.");
+		throw new NotImplementedException();
 	}
 
-
 	void HandleCurrentWin() {
-
 		if (ReferenceEquals(CurrentPlayer, localPlayer)) {
 			Debug.Log("Local player won.");
 
@@ -142,19 +148,28 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
-
 	void SwitchTurn() {
-
 		if (ReferenceEquals(CurrentPlayer, localPlayer)) {
 			localPlayerController.DisableInput();
 			CurrentPlayer = remotePlayer;
+			remotePlayerController.EnableInput();
 
 		} else {
 			Assert.IsTrue(ReferenceEquals(CurrentPlayer, remotePlayer),
 				"CurrentPlayer not valid.");
 
+			remotePlayerController.DisableInput();
 			CurrentPlayer = localPlayer;
 			localPlayerController.EnableInput();
 		}
+	}
+
+	void OnEnable() {
+		Assert.IsNull<GameManager>(instance, "You've enabled multiple GameManagers.");
+		Instance = this;
+	}
+
+	void OnDisable() {
+		Instance = null;
 	}
 }

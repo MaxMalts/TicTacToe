@@ -27,6 +27,7 @@ public class PlayerAPI : MonoBehaviour {
 			CellSign sign,
 			Vector2Int fieldPosition,
 			PlayerAPI player) {
+
 			PlayerType = typeOfPlayer;
 			Sign = sign;
 			FieldPosition = fieldPosition;
@@ -70,6 +71,7 @@ public class PlayerAPI : MonoBehaviour {
 	public void Place(Vector2Int pos) {
 
 		cellsManager.SetCellSign(pos, Sign);
+		cellsManager.DisableCellInput(pos);
 
 		PlaceContext context = new PlaceContext(Type, Sign, pos, this);
 		CellPlaced.Invoke(context);

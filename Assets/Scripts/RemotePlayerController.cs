@@ -22,6 +22,8 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 	PeerToPeerClient ptpClient;
 	bool inputEnabled = true;
 
+	GameManager gameManager;
+
 
 	public void EnableInput() {
 		inputEnabled = true;
@@ -51,15 +53,35 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 	void Start() {
 		Assert.IsTrue(PlayerApi.Sign == CellSign.Cross ||
 			PlayerApi.Sign == CellSign.Nought);
+		Assert.IsNotNull(ptpClient);
 
-		if (ptpClient != null) {
-			ptpClient.PackageReceived.AddListener(OnPackageReceived);
-			ptpClient.StartReceiving();
+		gameManager = GameManager.Instance;
+		Assert.IsNotNull(gameManager);
 
-			string signValue =
-				PlayerApi.Sign == CellSign.Cross ? crossSignValue : noughtSignValue;
-			ptpClient.Send(Encoding.UTF8.GetBytes(remoteCellSignQuery + ':' + signValue));
-		}
+		PlayerAPI localPlayerApi =
+			gameManager.LocalPlayer.GetComponent<PlayerAPI>();
+		Assert.IsNotNull(localPlayerApi,
+			"No PlayerAPI component on local player GameObject.");
+
+		localPlayerApi.CellPlaced.AddListener(OnLocalCellPlaced);
+
+		ptpClient.PackageReceived.AddListener(OnPackageReceived);
+		ptpClient.StartReceiving();
+
+		string signValue =
+			PlayerApi.Sign == CellSign.Cross ? crossSignValue : noughtSignValue;
+		ptpClient.Send(Encoding.UTF8.GetBytes(remoteCellSignQuery + ':' + signValue));
+	}
+
+	void OnLocalCellPlaced(PlayerAPI.PlaceContext placeContext) {
+		Assert.IsTrue(placeContext.PlayerType == PlayerAPI.PlayerType.Local);
+		Assert.IsTrue(placeContext.Sign != PlayerApi.Sign);
+
+		string queryStr =
+			placeCellQuery + ':' + placeContext.FieldPosition.x.ToString() +
+			',' + placeContext.FieldPosition.y.ToString();
+
+		ptpClient.Send(Encoding.UTF8.GetBytes(queryStr));
 	}
 
 	void OnPackageReceived(byte[] data) {
@@ -95,11 +117,11 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 	void HandlePlaceCellQuery(string value) {
 		bool badValue = false;
 		int column;
-		if (!int.TryParse(value.Substring(0, value.IndexOf(',') + 1), out column)) {
+		if (!int.TryParse(value.Substring(0, value.IndexOf(',')), out column)) {
 			badValue = true;
 		}
 		int row;
-		if (!int.TryParse(value.Substring(0, value.IndexOf(',') + 1), out row)) {
+		if (!int.TryParse(value.Substring(value.IndexOf(',') + 1), out row)) {
 			badValue = true;
 		}
 		if (badValue) {

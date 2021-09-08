@@ -26,7 +26,7 @@ public class MainMenuAPI : MonoBehaviour {
 	}
 
 	void OnEnable() {
-		Assert.IsNull<MainMenuAPI>(instance, "You've enabled multiple MainMenyAPI's.");
+		Assert.IsNull<MainMenuAPI>(instance, "You've enabled multiple MainMenyAPIs.");
 		Instance = this;
 	}
 

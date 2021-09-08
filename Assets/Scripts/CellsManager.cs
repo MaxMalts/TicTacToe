@@ -35,13 +35,13 @@ public class CellsManager : MonoBehaviour {
 	public void EnableCellInput(Vector2Int pos) {
 		Assert.IsTrue(FieldPosCorrect(pos), "Position out of range.");
 
-		cells[pos.x][pos.y].EnableClickCollider();
+		cells[pos.x - 1][pos.y - 1].EnableClickCollider();
 	}
 
 	public void DisableCellInput(Vector2Int pos) {
 		Assert.IsTrue(FieldPosCorrect(pos), "Position out of range.");
 
-		cells[pos.x][pos.y].DisableClickCollider();
+		cells[pos.x - 1][pos.y - 1].DisableClickCollider();
 	}
 
 	public bool IsCell(GameObject gameObject) {
