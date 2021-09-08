@@ -34,7 +34,7 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 	void Awake() {
 		PlayerApi = GetComponent<PlayerAPI>();
 		Assert.IsNotNull(PlayerApi, "No PlayerAPI script on PlayerApi.");
-		PlayerApi.Type = PlayerAPI.PlayerType.Local;
+		PlayerApi.Type = PlayerAPI.PlayerType.Remote;
 
 		object ptpClientObj;
 		if (!SceneArgsManager.CurSceneArgs.TryGetValue("ptp-client", out ptpClientObj)) {
@@ -52,12 +52,14 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 		Assert.IsTrue(PlayerApi.Sign == CellSign.Cross ||
 			PlayerApi.Sign == CellSign.Nought);
 
-		ptpClient?.packageReceived.AddListener(OnPackageReceived);
-		ptpClient?.StartReceiving();
+		if (ptpClient != null) {
+			ptpClient.packageReceived.AddListener(OnPackageReceived);
+			ptpClient.StartReceiving();
 
-		string signValue =
-			PlayerApi.Sign == CellSign.Cross ? crossSignValue : noughtSignValue;
-		ptpClient?.Send(Encoding.UTF8.GetBytes(remoteCellSignQuery + ':' + signValue));
+			string signValue =
+				PlayerApi.Sign == CellSign.Cross ? crossSignValue : noughtSignValue;
+			ptpClient.Send(Encoding.UTF8.GetBytes(remoteCellSignQuery + ':' + signValue));
+		}
 	}
 
 	void OnPackageReceived(byte[] data) {
@@ -82,14 +84,12 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 		Assert.IsTrue(PlayerApi.Sign == CellSign.Cross ||
 			PlayerApi.Sign == CellSign.Nought);
 
-		string targetSignValue =
-			PlayerApi.Sign == CellSign.Cross ? crossSignValue : noughtSignValue;
-		if (targetSignValue == value) {
-			return;
+		string localSignValue =
+			PlayerApi.Sign == CellSign.Cross ? noughtSignValue : crossSignValue;
+		if (localSignValue != value) {
+			Debug.LogError("Remote player sign mismatch. value received: \"" +
+				value + "\".");
 		}
-
-		Debug.LogError("Remote player sign mismatch. value received: \"" +
-			value + "\".");
 	}
 
 	void HandlePlaceCellQuery(string value) {

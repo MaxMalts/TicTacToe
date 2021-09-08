@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
+using System.IO;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Diagnostics;
@@ -15,16 +16,39 @@ using UnityEngine.Assertions;
 
 namespace Network {
 
+	public class NotConnectedException : Exception {
+		public NotConnectedException() { }
+
+		public NotConnectedException(string message)
+			: base(message) { }
+
+		public NotConnectedException(string message, Exception inner)
+			: base(message, inner) { }
+	}
+
+
 	public class PeerToPeerClient : MonoBehaviour {
 
 		public class PackageReceiveEvent : UnityEvent<byte[]> { }
 		public PackageReceiveEvent packageReceived;
 
+		public bool Connected {
+			get {
+				return connected;
+			}
+		}
+
+		public static bool NetworkAvailable {
+			get {
+				return UdpBroadcastClient.GetWifiIP() != null;
+			}
+		}
+
 		const string beaconMessage = "PeerToPeerClient-beacon";
-		const int listenPort = 875;
+		const int listenPort = 48888;
 		const int beaconIntervalMs = 1000;
 
-		UdpGroupClient groupClient;
+		UdpBroadcastClient groupClient;
 		TcpListener listener;
 		TcpClient tcpClient;
 		NetworkStreamWrapper stream;
@@ -54,8 +78,12 @@ namespace Network {
 
 				receiveBeacon = new TaskCompletionSource<IPAddress>();
 
-				groupClient.groupMessageReceived.AddListener(OnGroupMessageReceived);
-				groupClient.StartListeningBroadcast();
+				groupClient.messageReceived.AddListener(OnBroadcastReceived);
+				try {
+					groupClient.StartListeningBroadcast();
+				} catch (NoNetworkException exception) {
+					throw new NoNetworkException("No network for sending and receiving beacons.", exception);
+				}
 
 				connectTask = Task.Run(SearchAndConnect);
 			}
@@ -67,13 +95,14 @@ namespace Network {
 			if (disposed) {
 				throw new ObjectDisposedException("Network.PeerToPeerClient");
 			}
-
 			if (!connected) {
-				UnityEngine.Debug.LogWarning("Called Send but not connected to other client.");
-				return;
+				throw new NotConnectedException("Called Send but not connected to other client.");
 			}
 			
 			stream.Write(data, offset, size);
+#if NETWORK_LOG
+			UnityEngine.Debug.Log("PeerToPeerClient sent package.");
+#endif
 		}
 
 		//public byte[] Read() {
@@ -98,13 +127,11 @@ namespace Network {
 			if (disposed) {
 				throw new ObjectDisposedException("Network.PeerToPeerClient");
 			}
-
 			if (!connected) {
-				UnityEngine.Debug.LogWarning("Called StartReceiving but not connected to other client.");
-				return;
+				throw new NotConnectedException("Called StartReceiving but not connected to other client.");
 			}
 
-			if (readingTask != null) {
+			if (readingTask != null && readingTask.Status != TaskStatus.Canceled) {
 				UnityEngine.Debug.LogWarning("Called StartReceiving twice.");
 				return;
 			}
@@ -115,6 +142,10 @@ namespace Network {
 					token.ThrowIfCancellationRequested();
 					byte[] data = stream.Read();
 					receivedPackages.Enqueue(data);
+
+#if NETWORK_LOG
+					UnityEngine.Debug.Log("PeerToPeerClient received package.");
+#endif
 				}
 			}, token);
 		}
@@ -124,7 +155,7 @@ namespace Network {
 				return;
 			}
 
-			if (readingTask == null) {
+			if (readingTask == null || readingTask.Status == TaskStatus.Canceled) {
 				UnityEngine.Debug.LogWarning("Called StopReceiving before StartReceiving.");
 				return;
 			}
@@ -134,13 +165,18 @@ namespace Network {
 
 		public void Close() {
 			disposed = true;
+			connected = false;
 			readingTaskCT.Cancel();
 			tcpClient?.Close();
 			listener.Stop();
+
+#if NETWORK_LOG
+			UnityEngine.Debug.Log("PeerToPeerClient closed connection.");
+#endif
 		}
 
 		void Awake() {
-			groupClient = UdpGroupClient.Instance;
+			groupClient = UdpBroadcastClient.Instance;
 			listener = new TcpListener(IPAddress.Any, listenPort);
 			packageReceived = new PackageReceiveEvent();
 			receivedPackages = new ConcurrentQueue<byte[]>();
@@ -168,7 +204,7 @@ namespace Network {
 
 				while (!connected && !disposed) {
 					try {
-						groupClient.SendBroadcast(beaconMessage);
+						groupClient.Send(beaconMessage);
 					} catch (ObjectDisposedException) {
 						return;
 					}
@@ -267,7 +303,7 @@ namespace Network {
 			}
 		}
 
-		void OnGroupMessageReceived(Message message) {
+		void OnBroadcastReceived(Message message) {
 			if (disposed) {
 				return;
 			}
@@ -276,7 +312,7 @@ namespace Network {
 				return;
 			}
 
-			bool test = receiveBeacon.TrySetResult(message.source.Address);
+			receiveBeacon.TrySetResult(message.source.Address);
 		}
 
 		void OnDestroy() {

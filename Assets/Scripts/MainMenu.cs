@@ -44,20 +44,36 @@ public class MainMenu : MonoBehaviour {
 		ptpClient = ptpObject.GetComponent<PeerToPeerClient>();
 		DontDestroyOnLoad(ptpClient);
 
-		connectingTask = ptpClient.ConnectToOtherClient();
-		connectingPopup.SetActive(true);
-		uiCanvasGroup.interactable = false;
-
-		connectingTask.ContinueWith((Task) => {
-			if (Task.Status != TaskStatus.RanToCompletion) {
-				Debug.LogError("connectingTask not completed successfully. Its status: " +
-					connectingTask.Status + '.');
-				return;
+		bool networkAvailable = true;
+		if (PeerToPeerClient.NetworkAvailable) {
+			try {
+				connectingTask = ptpClient.ConnectToOtherClient();
+			} catch (NoNetworkException) {
+				networkAvailable = false;
 			}
 
-			localCellSign = sign;
-			connected = true;
-		});
+		} else {
+			networkAvailable = false;
+		}
+
+		if (networkAvailable) {
+			connectingPopup.SetActive(true);
+			uiCanvasGroup.interactable = false;
+
+			connectingTask.ContinueWith((Task) => {
+				if (Task.Status != TaskStatus.RanToCompletion) {
+					Debug.LogError("connectingTask not completed successfully. Its status: " +
+						connectingTask.Status + '.');
+					return;
+				}
+
+				localCellSign = sign;
+				connected = true;
+			});
+
+		} else {
+			Debug.Log("No wifi.");
+		}
 	}
 
 	void Update() {

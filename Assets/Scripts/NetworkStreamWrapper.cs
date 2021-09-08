@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net.Sockets;
@@ -21,7 +22,7 @@ namespace Network {
 	public class NetworkStreamWrapper {
 
 		NetworkStream stream;
-		object packageReadLock;
+		object packageReadLock = new object();
 
 		readonly byte[] packagePrefix = Encoding.UTF8.GetBytes("NetworkStreamWrapper ");
 
@@ -62,7 +63,7 @@ namespace Network {
 			lock (packageReadLock) {
 				byte[] prefixBuf = new byte[packagePrefix.Length];
 				ReadFixedSize(prefixBuf, 0, prefixBuf.Length);
-				if (prefixBuf != packagePrefix) {
+				if (!prefixBuf.SequenceEqual(packagePrefix)) {
 					throw new IOException("Invalid package prefix. " +
 						"Probably you sent it not via NetworkStreamWrapper.");
 				}

@@ -10,24 +10,20 @@ using UnityEngine.Assertions;
 
 public class CellsManager : MonoBehaviour {
 
-	private const int fieldSize = GameManager.fieldSize;
+	const int fieldSize = GameManager.fieldSize;
 
-	private CellController[][] cells = new CellController[fieldSize][] {
+	CellController[][] cells = new CellController[fieldSize][] {
 		new CellController[fieldSize],
 		new CellController[fieldSize],
 		new CellController[fieldSize]
 	};
 
-	private PlayerInput playerInput;
+	PlayerInput playerInput;
 
 
 	public void Start() {
 		RegisterCells();
 	}
-
-
-
-	//================= public =================
 
 	public void SetCellSign(Vector2Int pos, CellSign sign) {
 		Assert.IsTrue(FieldPosCorrect(pos), "Position out of range.");
@@ -36,20 +32,17 @@ public class CellsManager : MonoBehaviour {
 		cells[pos.x - 1][pos.y - 1].SetSign(sign);
 	}
 
-
 	public void EnableCellInput(Vector2Int pos) {
 		Assert.IsTrue(FieldPosCorrect(pos), "Position out of range.");
 
 		cells[pos.x][pos.y].EnableClickCollider();
 	}
 
-
 	public void DisableCellInput(Vector2Int pos) {
 		Assert.IsTrue(FieldPosCorrect(pos), "Position out of range.");
 
 		cells[pos.x][pos.y].DisableClickCollider();
 	}
-
 
 	public bool IsCell(GameObject gameObject) {
 		return gameObject.GetComponent<CellController>() != null;
@@ -62,12 +55,7 @@ public class CellsManager : MonoBehaviour {
 		return cell.GetComponent<CellController>().FieldPos;
 	}
 
-
-
-	//================= private =================
-
-	private bool FieldPosCorrect(Vector2Int pos) {
-
+	bool FieldPosCorrect(Vector2Int pos) {
 		if (pos.x >= 1 && pos.x <= fieldSize &&
 			pos.y >= 1 && pos.y <= fieldSize) {
 			return true;
@@ -76,13 +64,9 @@ public class CellsManager : MonoBehaviour {
 		return false;
 	}
 
-
-	private void RegisterCells() {
-
+	void RegisterCells() {
 		IEnumerable<CellController> allCells = FindObjectsOfType<CellController>()
 			.Select(curTransform => curTransform.gameObject.GetComponent<CellController>());
-
-		Assert.IsNotNull(cells);  // Это тест, убрать
 
 		foreach (CellController curCell in allCells) {
 			Vector2Int fieldPos = curCell.FieldPos;

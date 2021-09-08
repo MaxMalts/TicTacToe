@@ -15,12 +15,12 @@ public class CellController : MonoBehaviour {
 		}
 	}
 
+	public CellSign Sign { get; private set; } = CellSign.Empty;
+
 	[SerializeField] BoxCollider2D clickCollider;
 
 	[SerializeField] GameObject crossPrefab;
 	[SerializeField] GameObject noughtPrefab;
-
-	public CellSign Sign { get; private set; } = CellSign.Empty;
 
 
 	public void Start() {
@@ -28,16 +28,13 @@ public class CellController : MonoBehaviour {
 		Assert.IsNotNull(clickCollider);
 	}
 
-
 	public void DisableClickCollider() {
 		clickCollider.enabled = false;
 	}
 
-
 	public void EnableClickCollider() {
 		clickCollider.enabled = true;
 	}
-
 
 	public void SetSign(CellSign newSign) {
 

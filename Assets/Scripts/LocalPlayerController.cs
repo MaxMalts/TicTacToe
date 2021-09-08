@@ -14,8 +14,8 @@ public class LocalPlayerController : MonoBehaviour, PlayerController {
 
 	public PlayerAPI PlayerApi { get; private set; }
 
-	[SerializeField] private new Camera camera;
-	private PlayerInput playerInput;
+	[SerializeField] new Camera camera;
+	PlayerInput playerInput;
 
 	public CellsManager cellsManager;
 
