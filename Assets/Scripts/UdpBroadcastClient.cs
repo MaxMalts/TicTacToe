@@ -38,7 +38,7 @@ namespace Network {
 	public class UdpBroadcastClient : Singleton<UdpBroadcastClient> {
 
 		public class MessageEvent : UnityEvent<Message> { }
-		public MessageEvent messageReceived;
+		public MessageEvent MessageReceived { get; } = new MessageEvent();
 
 		public static bool NetworkAvailable {
 			get {
@@ -168,7 +168,6 @@ namespace Network {
 		protected override void Awake() {
 			base.Awake();
 
-			messageReceived = new MessageEvent();
 			groupMessages = new ConcurrentQueue<Message>();
 
 			prefixByteSize = Encoding.UTF8.GetByteCount(datagramPrefix);
@@ -184,7 +183,7 @@ namespace Network {
 				if (listening) {
 					Message message;
 					while (groupMessages.TryDequeue(out message)) {
-						messageReceived.Invoke(message);
+						MessageReceived.Invoke(message);
 					}
 				}
 			}

@@ -30,7 +30,7 @@ namespace Network {
 	public class PeerToPeerClient : MonoBehaviour {
 
 		public class PackageReceiveEvent : UnityEvent<byte[]> { }
-		public PackageReceiveEvent packageReceived;
+		public PackageReceiveEvent PackageReceived { get; } = new PackageReceiveEvent();
 
 		public bool Connected {
 			get {
@@ -78,7 +78,7 @@ namespace Network {
 
 				receiveBeacon = new TaskCompletionSource<IPAddress>();
 
-				groupClient.messageReceived.AddListener(OnBroadcastReceived);
+				groupClient.MessageReceived.AddListener(OnBroadcastReceived);
 				try {
 					groupClient.StartListeningBroadcast();
 				} catch (NoNetworkException exception) {
@@ -178,7 +178,6 @@ namespace Network {
 		void Awake() {
 			groupClient = UdpBroadcastClient.Instance;
 			listener = new TcpListener(IPAddress.Any, listenPort);
-			packageReceived = new PackageReceiveEvent();
 			receivedPackages = new ConcurrentQueue<byte[]>();
 			connectingLock = new object();
 			readingTaskCT = new CancellationTokenSource();
@@ -188,7 +187,7 @@ namespace Network {
 			if (!disposed) {
 				byte[] package;
 				while (receivedPackages.TryDequeue(out package)) {
-					packageReceived.Invoke(package);
+					PackageReceived.Invoke(package);
 				}
 			}
 		}

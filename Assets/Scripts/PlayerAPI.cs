@@ -35,9 +35,9 @@ public class PlayerAPI : MonoBehaviour {
 	}
 
 	public class PlacedEvent : UnityEvent<PlaceContext> { }
-	public PlacedEvent PlacedListeners { get; } = new PlacedEvent();
+	public PlacedEvent CellPlaced { get; } = new PlacedEvent();
 
-	private PlayerType type;
+	PlayerType type;
 	public PlayerType Type {
 		get {
 			return type;
@@ -50,7 +50,7 @@ public class PlayerAPI : MonoBehaviour {
 		}
 	}
 
-	private CellSign sign;
+	CellSign sign;
 	public CellSign Sign {
 		get {
 			return sign;
@@ -64,7 +64,7 @@ public class PlayerAPI : MonoBehaviour {
 		}	
 	}
 
-	[SerializeField] private CellsManager cellsManager;
+	[SerializeField] CellsManager cellsManager;
 
 
 	public void Place(Vector2Int pos) {
@@ -72,6 +72,6 @@ public class PlayerAPI : MonoBehaviour {
 		cellsManager.SetCellSign(pos, Sign);
 
 		PlaceContext context = new PlaceContext(Type, Sign, pos, this);
-		PlacedListeners.Invoke(context);
+		CellPlaced.Invoke(context);
 	}
 }

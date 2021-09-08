@@ -10,33 +10,33 @@ public class GameManager : MonoBehaviour {
 
 	public const int fieldSize = 3;
 
-	[SerializeField] private CellsManager cellsManager;
+	[SerializeField] CellsManager cellsManager;
 	public CellsManager CellsManager {
 		get {
 			return cellsManager;
 		}
 	}
 
-	[SerializeField] private GameObject localPlayer;
+	[SerializeField] GameObject localPlayer;
 	public GameObject LocalPlayer {
 		get {
 			return localPlayer;
 		}
 	}
 
-	[SerializeField] private GameObject remotePlayer;
+	[SerializeField] GameObject remotePlayer;
 	public GameObject RemotePlayer {
 		get {
 			return remotePlayer;
 		}
 	}
 
-	private PlayerAPI localPlayerAPI;
-	private LocalPlayerController localPlayerController;
-	private PlayerAPI remotePlayerAPI;
-	private RemotePlayerController remotePlayerController;
-
 	public GameObject CurrentPlayer { get; private set; }
+
+	PlayerAPI localPlayerAPI;
+	LocalPlayerController localPlayerController;
+	PlayerAPI remotePlayerAPI;
+	RemotePlayerController remotePlayerController;
 
 
 	public void Awake() {
@@ -78,7 +78,7 @@ public class GameManager : MonoBehaviour {
 			remotePlayerAPI.Sign = CellSign.Cross;
 		}
 
-		localPlayerAPI.PlacedListeners.AddListener(OnCellPlaced);
+		localPlayerAPI.CellPlaced.AddListener(OnCellPlaced);
 	}
 
 
@@ -96,7 +96,7 @@ public class GameManager : MonoBehaviour {
 	}
 
 
-	private void OnCellPlaced(PlayerAPI.PlaceContext context) {
+	void OnCellPlaced(PlayerAPI.PlaceContext context) {
 
 		if (context.PlayerType == PlayerAPI.PlayerType.Local) {
 			localPlayerController.DisableInput();
@@ -114,22 +114,22 @@ public class GameManager : MonoBehaviour {
 	}
 
 
-	private bool CheckWin(CellSign sign) {
+	bool CheckWin(CellSign sign) {
 		return false;
 	}
 
 
-	private bool CheckDraw() {
+	bool CheckDraw() {
 		return false;
 	}
 
 
-	private void HandleDraw() {
+	void HandleDraw() {
 		Debug.Log("Draw.");
 	}
 
 
-	private void HandleCurrentWin() {
+	void HandleCurrentWin() {
 
 		if (ReferenceEquals(CurrentPlayer, localPlayer)) {
 			Debug.Log("Local player won.");
@@ -143,7 +143,7 @@ public class GameManager : MonoBehaviour {
 	}
 
 
-	private void SwitchTurn() {
+	void SwitchTurn() {
 
 		if (ReferenceEquals(CurrentPlayer, localPlayer)) {
 			localPlayerController.DisableInput();

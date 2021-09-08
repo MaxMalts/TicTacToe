@@ -15,8 +15,8 @@ public static class SceneArgsManager {
 		SceneManager.sceneUnloaded += OnSceneUnloaded;
 	}
 
-	private static Dictionary<string, object> curArgs = new Dictionary<string, object>(),
-	                                          nextArgs = new Dictionary<string, object>();
+	static Dictionary<string, object> curArgs = new Dictionary<string, object>(),
+		nextArgs = new Dictionary<string, object>();
 
 	public static Dictionary<string, object> CurSceneArgs {
 		get {
@@ -34,7 +34,7 @@ public static class SceneArgsManager {
 		}
 	}
 
-	private static void OnSceneUnloaded(Scene scene) {
+	static void OnSceneUnloaded(Scene scene) {
 		curArgs.Clear();
 
 		Dictionary<string, object> temp = curArgs;

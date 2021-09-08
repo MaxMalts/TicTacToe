@@ -53,7 +53,7 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 			PlayerApi.Sign == CellSign.Nought);
 
 		if (ptpClient != null) {
-			ptpClient.packageReceived.AddListener(OnPackageReceived);
+			ptpClient.PackageReceived.AddListener(OnPackageReceived);
 			ptpClient.StartReceiving();
 
 			string signValue =

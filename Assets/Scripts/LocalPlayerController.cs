@@ -19,8 +19,8 @@ public class LocalPlayerController : MonoBehaviour, PlayerController {
 
 	public CellsManager cellsManager;
 
-	[SerializeField] private InputActionAsset actionsAsset;
-	private InputAction pointerPosAction;
+	[SerializeField] InputActionAsset actionsAsset;
+	InputAction pointerPosAction;
 
 
 	public void Awake() {
@@ -34,11 +34,9 @@ public class LocalPlayerController : MonoBehaviour, PlayerController {
 		playerInput.enabled = false;
 	}
 
-
 	public void Start() {
 		pointerPosAction = actionsAsset.FindAction("Screen Interactions/Position", true);
 	}
-
 
 	//public void Update() {
 	//	// I wrote these lines and then realized that when you
@@ -55,18 +53,13 @@ public class LocalPlayerController : MonoBehaviour, PlayerController {
 	//	//}
 	//}
 
-
-	//================= public =================
-
 	public void EnableInput() {
 		playerInput.enabled = true;
 	}
 
-
 	public void DisableInput() {
 		playerInput.enabled = false;
 	}
-
 
 	public void OnPointerRelease(InputAction.CallbackContext context) {
 
