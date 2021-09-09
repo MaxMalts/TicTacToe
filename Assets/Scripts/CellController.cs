@@ -17,16 +17,17 @@ public class CellController : MonoBehaviour {
 
 	public CellSign Sign { get; private set; } = CellSign.Empty;
 
+	public Vector2 ScenePos {
+		get {
+			return gameObject.transform.position;
+		}
+	}
+
 	[SerializeField] BoxCollider2D clickCollider;
 
 	[SerializeField] GameObject crossPrefab;
 	[SerializeField] GameObject noughtPrefab;
 
-
-	public void Start() {
-		clickCollider = GetComponent<BoxCollider2D>();
-		Assert.IsNotNull(clickCollider);
-	}
 
 	public void DisableClickCollider() {
 		clickCollider.enabled = false;
@@ -71,5 +72,10 @@ public class CellController : MonoBehaviour {
 		}
 
 		Sign = newSign;
+	}
+
+	void Start() {
+		clickCollider = GetComponent<BoxCollider2D>();
+		Assert.IsNotNull(clickCollider);
 	}
 }

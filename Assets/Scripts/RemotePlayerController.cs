@@ -78,8 +78,8 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 		Assert.IsTrue(placeContext.Sign != PlayerApi.Sign);
 
 		string queryStr =
-			placeCellQuery + ':' + placeContext.FieldPosition.x.ToString() +
-			',' + placeContext.FieldPosition.y.ToString();
+			placeCellQuery + ':' + placeContext.FieldPos.x.ToString() +
+			',' + placeContext.FieldPos.y.ToString();
 
 		ptpClient.Send(Encoding.UTF8.GetBytes(queryStr));
 	}

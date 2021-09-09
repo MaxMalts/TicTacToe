@@ -18,7 +18,7 @@ public class PlayerAPI : MonoBehaviour {
 
 		public PlayerType PlayerType { get; }
 		public CellSign Sign { get; }
-		public Vector2Int FieldPosition { get; }
+		public Vector2Int FieldPos { get; }
 		public PlayerAPI Player { get; }
 
 
@@ -30,7 +30,7 @@ public class PlayerAPI : MonoBehaviour {
 
 			PlayerType = typeOfPlayer;
 			Sign = sign;
-			FieldPosition = fieldPosition;
+			FieldPos = fieldPosition;
 			Player = player;
 		}
 	}
