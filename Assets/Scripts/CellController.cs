@@ -19,7 +19,7 @@ public class CellController : MonoBehaviour {
 
 	public Vector2 ScenePos {
 		get {
-			return gameObject.transform.position;
+			return gameObject.transform.localPosition;
 		}
 	}
 

@@ -8,6 +8,9 @@ using UnityEngine.Assertions;
 [RequireComponent(typeof(LineRenderer))]
 public class WinningLine : MonoBehaviour {
 
+	const float stretchFactor = 1.2f;  // to place line ends
+	                                   // further from the cell centers
+
 	LineRenderer lineRenderer;
 
 	CellsManager cellsManager;
@@ -17,14 +20,18 @@ public class WinningLine : MonoBehaviour {
 		CellController cell1 = cellsManager.GetCellController(fieldPos1);
 		CellController cell2 = cellsManager.GetCellController(fieldPos2);
 
-		Vector2 scenePos1 = cell1.ScenePos;
-		Vector2 scenePos2 = cell2.ScenePos;
+		Vector2 cellPos1 = cell1.ScenePos;
+		Vector2 cellPos2 = cell2.ScenePos;
+
+		Vector2 point1 = Vector2.LerpUnclamped(cellPos1, cellPos2, 1 - stretchFactor);
+		Vector2 point2 = Vector2.LerpUnclamped(cellPos1, cellPos2, stretchFactor);
 
 		Assert.IsTrue(lineRenderer.positionCount == 2,
 			"Number of points on LineRenderer component not 2.");
 
-		lineRenderer.SetPosition(0, scenePos1);
-		lineRenderer.SetPosition(1, scenePos2);
+		lineRenderer.SetPosition(0, point1);
+		lineRenderer.SetPosition(1, point2);
+
 		lineRenderer.enabled = true;
 	}
 
