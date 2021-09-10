@@ -8,8 +8,8 @@ using UnityEngine.Assertions;
 [RequireComponent(typeof(LineRenderer))]
 public class WinningLine : MonoBehaviour {
 
-	const float stretchFactor = 1.2f;  // to place line ends
-	                                   // further from the cell centers
+	// to place line ends further from the cell centers
+	const float stretchFactor = 1.2f;
 
 	LineRenderer lineRenderer;
 

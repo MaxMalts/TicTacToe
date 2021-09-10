@@ -3,22 +3,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
+using TMPro;
 
 
 
-public class GameManager : MonoBehaviour {
+public class GameManager : Unique<GameManager> {
 
-	static GameManager instance;
-	public static GameManager Instance {
-		get {
-			Assert.IsNotNull<GameManager>(instance, "No instance of GameManager.");
-			return instance;
-		}
-
-		private set {
-			instance = value;
-		}
-	}
+	const string yourTurnStatus = "Your turn";
+	const string opponentTurnStatus = "Opponent's turn";
+	const string youWonStatus = "You won";
+	const string youLostStatus = "You lost";
+	const string drawStatus = "Draw";
 
 	public const int fieldSize = 3;
 
@@ -43,19 +38,15 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
-	[SerializeField] WinningLine winLine;
-	public WinningLine WinLine {
-		get {
-			return winLine;
-		}
-	}
-
 	public GameObject CurrentPlayer { get; private set; }
 
 	PlayerAPI localPlayerAPI;
 	LocalPlayerController localPlayerController;
 	PlayerAPI remotePlayerAPI;
 	RemotePlayerController remotePlayerController;
+
+	[SerializeField] WinningLine winLine;
+	[SerializeField] TextMeshProUGUI statusText;
 
 	delegate bool WinIterationProcessor(ref Vector2Int? winPos1, ref Vector2Int? winPos2);
 
@@ -64,7 +55,7 @@ public class GameManager : MonoBehaviour {
 		Assert.IsNotNull(localPlayer, "Local Player was not assigned in inspector.");
 		Assert.IsNotNull(remotePlayer, "Remote Player was not assigned in inspector.");
 		Assert.IsNotNull(winLine, "Winning Line was not assigned in inspector.");
-
+		Assert.IsNotNull(statusText, "Status Text was not assigned in inspector.");
 
 		localPlayerAPI = localPlayer.GetComponent<PlayerAPI>();
 		Assert.IsNotNull(localPlayerAPI, "No PlayerAPI on LocalPlayer object.");
@@ -109,12 +100,14 @@ public class GameManager : MonoBehaviour {
 		if (localPlayerAPI.Sign == CellSign.Cross) {
 			CurrentPlayer = localPlayer;
 			localPlayerController.EnableInput();
+			statusText.text = yourTurnStatus;
 
 		} else {
 			Assert.IsTrue(remotePlayerAPI.Sign == CellSign.Cross, "No one has cross sign.");
 
 			CurrentPlayer = remotePlayer;
 			remotePlayerController.EnableInput();
+			statusText.text = opponentTurnStatus;
 		}
 	}
 
@@ -251,17 +244,20 @@ public class GameManager : MonoBehaviour {
 	}
 
 	void HandleDraw() {
+		statusText.text = drawStatus;
 		Debug.Log("Draw.");
 	}
 
 	void HandleCurrentWin(Vector2Int fieldPos1, Vector2Int fieldPos2) {
 		if (ReferenceEquals(CurrentPlayer, localPlayer)) {
+			statusText.text = youWonStatus;
 			Debug.Log("Local player won.");
 
 		} else {
 			Assert.IsTrue(ReferenceEquals(CurrentPlayer, remotePlayer),
 				"CurrentPlayer not valid.");
 
+			statusText.text = youLostStatus;
 			Debug.Log("Local player lost.");
 		}
 
@@ -273,6 +269,7 @@ public class GameManager : MonoBehaviour {
 		if (ReferenceEquals(CurrentPlayer, localPlayer)) {
 			localPlayerController.DisableInput();
 			CurrentPlayer = remotePlayer;
+			statusText.text = opponentTurnStatus;
 			remotePlayerController.EnableInput();
 
 		} else {
@@ -281,6 +278,7 @@ public class GameManager : MonoBehaviour {
 
 			remotePlayerController.DisableInput();
 			CurrentPlayer = localPlayer;
+			statusText.text = yourTurnStatus;
 			localPlayerController.EnableInput();
 		}
 	}
@@ -288,14 +286,5 @@ public class GameManager : MonoBehaviour {
 	void HandleGameFinished() {
 		Debug.Log("Game finished.");
 		return;
-	}
-
-	void OnEnable() {
-		Assert.IsNull<GameManager>(instance, "You've enabled multiple GameManagers.");
-		Instance = this;
-	}
-
-	void OnDisable() {
-		Instance = null;
 	}
 }

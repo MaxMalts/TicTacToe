@@ -40,7 +40,7 @@ public class LocalPlayerController : MonoBehaviour, PlayerController {
 
 	//public void Update() {
 	//	// I wrote these lines and then realized that when you
-	//	// have a Simulator tab open then the muse is disabled by default
+	//	// have a Simulator tab open then the mouse is disabled by default
 
 	//	//if (Mouse.current != null) {
 	//	//	InputSystem.EnableDevice(Mouse.current);
@@ -80,12 +80,12 @@ public class LocalPlayerController : MonoBehaviour, PlayerController {
 		RaycastHit2D hitInfo = Physics2D.Raycast(worldPos, Vector2.zero, 0);
 		if (hitInfo.collider == null) {
 #if INTERACTION_LOG
-			Debug.Log("Pointer release position was not on colider.");
+			Debug.Log("Pointer release position was not on cell.");
 #endif
 			return;
 		}
 #if INTERACTION_LOG
-		Debug.Log("Pointer release position was on colider.");
+		Debug.Log("Pointer release position was on cell.");
 #endif
 
 		GameObject hitObject = hitInfo.transform.gameObject;

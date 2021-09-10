@@ -9,19 +9,7 @@ using Network;
 
 
 
-public class MainMenu : MonoBehaviour {
-
-	static MainMenu instance;
-	public static MainMenu Instance {
-		get {
-			Assert.IsNotNull<MainMenu>(instance, "No instance of MainMenu.");
-			return instance;
-		}
-
-		private set {
-			instance = value;
-		}
-	}
+public class MainMenu : Unique<MainMenu> {
 
 	[SerializeField] [Tooltip("Main Canvas Group of main menu.")]
 	CanvasGroup uiCanvasGroup;
@@ -82,14 +70,5 @@ public class MainMenu : MonoBehaviour {
 			SceneArgsManager.NextSceneArgs.Add("ptp-client", ptpClient);
 			SceneManager.LoadScene((int)SceneIndeces.TicTacToe);
 		}
-	}
-
-	void OnEnable() {
-		Assert.IsNull<MainMenu>(instance, "You've enabled multiple MainMenyAPIs.");
-		Instance = this;
-	}
-
-	void OnDisable() {
-		Instance = null;
 	}
 }
