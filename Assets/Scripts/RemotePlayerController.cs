@@ -13,6 +13,8 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 
 	public PlayerAPI PlayerApi { get; private set; }
 
+	const string startGameQuery = "start-game";
+
 	const string remoteCellSignQuery = "cell-sign";
 	const string crossSignValue = "cross";
 	const string noughtSignValue = "nought";
@@ -21,6 +23,8 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 
 	PeerToPeerClient ptpClient;
 	bool inputEnabled = true;
+	bool localStartPending = false;
+	bool remoteStartPending = false;
 
 	GameManager gameManager;
 
@@ -31,6 +35,37 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 
 	public void DisableInput() {
 		inputEnabled = false;
+	}
+
+	public void StartGame(CellSign sign) {
+		Assert.IsTrue(sign == CellSign.Cross || sign == CellSign.Nought);
+		Assert.IsNotNull(ptpClient);
+
+		PlayerApi.Sign = sign;
+		inputEnabled = false;
+
+		gameManager = GameManager.Instance;
+		Assert.IsNotNull(gameManager);
+
+		PlayerAPI localPlayerApi =
+			gameManager.LocalPlayer.GetComponent<PlayerAPI>();
+		Assert.IsNotNull(localPlayerApi,
+			"No PlayerAPI component on local player GameObject.");
+
+		localPlayerApi.CellPlaced.AddListener(OnLocalCellPlaced);
+
+		ptpClient.PackageReceived.AddListener(OnPackageReceived);
+		ptpClient.StartReceiving();
+
+		if (remoteStartPending) {
+			Assert.IsFalse(localStartPending, "Already pending local game start.");
+
+			remoteStartPending = false;
+			SendSign();
+
+		} else {
+			localStartPending = true;
+		}
 	}
 
 	void Awake() {
@@ -50,29 +85,6 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 		}
 	}
 
-	void Start() {
-		Assert.IsTrue(PlayerApi.Sign == CellSign.Cross ||
-			PlayerApi.Sign == CellSign.Nought);
-		Assert.IsNotNull(ptpClient);
-
-		gameManager = GameManager.Instance;
-		Assert.IsNotNull(gameManager);
-
-		PlayerAPI localPlayerApi =
-			gameManager.LocalPlayer.GetComponent<PlayerAPI>();
-		Assert.IsNotNull(localPlayerApi,
-			"No PlayerAPI component on local player GameObject.");
-
-		localPlayerApi.CellPlaced.AddListener(OnLocalCellPlaced);
-
-		ptpClient.PackageReceived.AddListener(OnPackageReceived);
-		ptpClient.StartReceiving();
-
-		string signValue =
-			PlayerApi.Sign == CellSign.Cross ? crossSignValue : noughtSignValue;
-		ptpClient.Send(Encoding.UTF8.GetBytes(remoteCellSignQuery + ':' + signValue));
-	}
-
 	void OnLocalCellPlaced(PlayerAPI.PlaceContext placeContext) {
 		Assert.IsTrue(placeContext.PlayerType == PlayerAPI.PlayerType.Local);
 		Assert.IsTrue(placeContext.Sign != PlayerApi.Sign);
@@ -86,7 +98,13 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 
 	void OnPackageReceived(byte[] data) {
 		string queryStr = Encoding.UTF8.GetString(data);
-		if (queryStr.StartsWith(remoteCellSignQuery) &&
+
+		if (queryStr.StartsWith(startGameQuery) &&
+			queryStr.Length == startGameQuery.Length) {
+
+			HandleStartGameQuery();
+
+		} else if (queryStr.StartsWith(remoteCellSignQuery) &&
 			queryStr.Length > remoteCellSignQuery.Length + 1) {
 
 			HandleCellSignQuery(queryStr.Substring(remoteCellSignQuery.Length + 1));
@@ -99,7 +117,18 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 		} else {
 			Debug.LogError("Bad query received: \"" + queryStr + "\".");
 		}
+	}
 
+	void HandleStartGameQuery() {
+		if (localStartPending) {
+			Assert.IsFalse(remoteStartPending, "Already pending local game start.");
+
+			localStartPending = false;
+			SendSign();
+
+		} else {
+			localStartPending = true;
+		}
 	}
 
 	void HandleCellSignQuery(string value) {
@@ -131,5 +160,11 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 
 		Assert.IsTrue(inputEnabled, "Remote player placed cell when input was disabled.");
 		PlayerApi.Place(new Vector2Int(column, row));
+	}
+
+	void SendSign() {
+		string signValue =
+				PlayerApi.Sign == CellSign.Cross ? crossSignValue : noughtSignValue;
+		ptpClient.Send(Encoding.UTF8.GetBytes(remoteCellSignQuery + ':' + signValue));
 	}
 }

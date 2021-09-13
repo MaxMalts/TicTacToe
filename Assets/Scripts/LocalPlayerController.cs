@@ -8,34 +8,27 @@ using UnityEngine.Assertions;
 
 
 
-[RequireComponent(typeof(PlayerInput))]
 [RequireComponent(typeof(PlayerAPI))]
 public class LocalPlayerController : MonoBehaviour, PlayerController {
 
 	public PlayerAPI PlayerApi { get; private set; }
 
 	[SerializeField] new Camera camera;
-	PlayerInput playerInput;
 
 	public CellsManager cellsManager;
-
+	
+	PlayerInput playerInput;
 	[SerializeField] InputActionAsset actionsAsset;
-	InputAction pointerPosAction;
+	InputAction pointerPosAction;  // to get the position of tap
+
+	bool inputEnabled = false;
 
 
-	public void Awake() {
-		playerInput = GetComponent<PlayerInput>();
-		Assert.IsNotNull(playerInput, "No Player Input Component on Player.");
+	public void StartGame(CellSign sign) {
+		Assert.IsTrue(sign == CellSign.Cross || sign == CellSign.Nought);
 
-		PlayerApi = GetComponent<PlayerAPI>();
-		Assert.IsNotNull(PlayerApi, "No PlayerAPI script on PlayerApi.");
-		PlayerApi.Type = PlayerAPI.PlayerType.Local;
-
-		playerInput.enabled = false;
-	}
-
-	public void Start() {
-		pointerPosAction = actionsAsset.FindAction("Screen Interactions/Position", true);
+		PlayerApi.Sign = sign;
+		inputEnabled = false;
 	}
 
 	//public void Update() {
@@ -54,25 +47,28 @@ public class LocalPlayerController : MonoBehaviour, PlayerController {
 	//}
 
 	public void EnableInput() {
-		playerInput.enabled = true;
+		inputEnabled = true;
 	}
 
 	public void DisableInput() {
-		playerInput.enabled = false;
+		inputEnabled = false;
 	}
 
-	public void OnPointerRelease(InputAction.CallbackContext context) {
+	public void OnTap(InputAction.CallbackContext context) {
+		// The action that invoked this event is the tap action,
+		// not the position action.
 
-		if (context.phase != InputActionPhase.Performed) {
-			return;
+		if (context.phase == InputActionPhase.Performed && inputEnabled) {
+			OnPointerRelease();
 		}
-		if (pointerPosAction.phase != InputActionPhase.Started) {
-			return;
-		}
+	}
 
+	void OnPointerRelease() {
 #if INTERACTION_LOG
-		Debug.Log("Pointer Released: " + context.ToString());
+		Debug.Log("Pointer Released.");
 #endif
+
+		Assert.IsTrue(pointerPosAction.phase == InputActionPhase.Started);
 
 		Vector2 pointerPos = pointerPosAction.ReadValue<Vector2>();
 		Vector2 worldPos = camera.ScreenToWorldPoint(pointerPos);
@@ -94,5 +90,18 @@ public class LocalPlayerController : MonoBehaviour, PlayerController {
 		if (cellsManager.IsCell(hitObject)) {
 			PlayerApi.Place(cellsManager.CellPos(hitObject));
 		}
+	}
+
+	void Awake() {
+		playerInput = GetComponent<PlayerInput>();
+		Assert.IsNotNull(playerInput, "No Player Input Component on Player.");
+
+		PlayerApi = GetComponent<PlayerAPI>();
+		Assert.IsNotNull(PlayerApi, "No PlayerAPI script on PlayerApi.");
+		PlayerApi.Type = PlayerAPI.PlayerType.Local;
+	}
+
+	void Start() {
+		pointerPosAction = actionsAsset.FindAction("Screen Interactions/Position", true);
 	}
 }

@@ -48,7 +48,7 @@ public class WinningLine : MonoBehaviour {
 		Assert.IsNotNull(lineRenderer, "No LineRenderer component on WinningLine.");
 		if (lineRenderer.enabled) {
 			Debug.LogWarning("LineRenderer component of WinningLine was enabled by " +
-				"default. To work correctly, please disable it when before the " +
+				"default. To work correctly, please disable it before the " +
 				"game starts.");
 		}
 	}

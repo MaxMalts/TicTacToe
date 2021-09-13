@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Assertions;
 using TMPro;
 
@@ -9,13 +10,9 @@ using TMPro;
 
 public class GameManager : Unique<GameManager> {
 
-	const string yourTurnStatus = "Your turn";
-	const string opponentTurnStatus = "Opponent's turn";
-	const string youWonStatus = "You won";
-	const string youLostStatus = "You lost";
-	const string drawStatus = "Draw";
-
 	public const int fieldSize = 3;
+
+	public UnityEvent GameFinished { get; private set; }
 
 	[SerializeField] CellsManager cellsManager;
 	public CellsManager CellsManager {
@@ -40,6 +37,12 @@ public class GameManager : Unique<GameManager> {
 
 	public GameObject CurrentPlayer { get; private set; }
 
+	const string yourTurnStatus = "Your turn";
+	const string opponentTurnStatus = "Opponent's turn";
+	const string youWonStatus = "You won";
+	const string youLostStatus = "You lost";
+	const string drawStatus = "Draw";
+
 	PlayerAPI localPlayerAPI;
 	LocalPlayerController localPlayerController;
 	PlayerAPI remotePlayerAPI;
@@ -57,6 +60,8 @@ public class GameManager : Unique<GameManager> {
 		Assert.IsNotNull(winLine, "Winning Line was not assigned in inspector.");
 		Assert.IsNotNull(statusText, "Status Text was not assigned in inspector.");
 
+		GameFinished = new UnityEvent();
+
 		localPlayerAPI = localPlayer.GetComponent<PlayerAPI>();
 		Assert.IsNotNull(localPlayerAPI, "No PlayerAPI on LocalPlayer object.");
 
@@ -69,42 +74,26 @@ public class GameManager : Unique<GameManager> {
 		remotePlayerController = remotePlayer.GetComponent<RemotePlayerController>();
 		Assert.IsNotNull(remotePlayerController, "No RemotePlayerController on Remote Player object.");
 
-		object localSignObj;
-		if (!SceneArgsManager.CurSceneArgs.TryGetValue("cell-sign", out localSignObj)) {
-			Debug.LogWarning("No cell-sign passed to current scene. Using cross sign by default.");
-			localSignObj = CellSign.Cross;
-		}
-		CellSign localSign = CellSign.Empty;
-		try {
-			localSign = (CellSign)localSignObj;
-		} catch (InvalidCastException innerException) {
-			throw new ArgumentException("Bad value passed to scene.", "cell-sign", innerException);
-		}
-		if (!Enum.IsDefined(typeof(CellSign), localSign) || localSign == CellSign.Empty) {
-			throw new ArgumentException("Bad value passed to scene.", "cell-sign");
-		}
-
-		if (localSign == CellSign.Cross) {
-			localPlayerAPI.Sign = CellSign.Cross;
-			remotePlayerAPI.Sign = CellSign.Nought;
-		} else {
-			localPlayerAPI.Sign = CellSign.Nought;
-			remotePlayerAPI.Sign = CellSign.Cross;
-		}
-
 		localPlayerAPI.CellPlaced.AddListener(OnCellPlaced);
 		remotePlayerAPI.CellPlaced.AddListener(OnCellPlaced);
 	}
 
-	void Start() {
-		if (localPlayerAPI.Sign == CellSign.Cross) {
+	public void StartGame(CellSign localSign) {
+		Assert.IsTrue(localSign == CellSign.Cross ||
+			localSign == CellSign.Nought);
+
+		CellSign remoteSign =
+			localSign == CellSign.Cross ? CellSign.Cross : CellSign.Nought;
+
+		localPlayerController.StartGame(localSign);
+		remotePlayerController.StartGame(remoteSign);
+
+		if (localSign == CellSign.Cross) {
 			CurrentPlayer = localPlayer;
 			localPlayerController.EnableInput();
 			statusText.text = yourTurnStatus;
 
 		} else {
-			Assert.IsTrue(remotePlayerAPI.Sign == CellSign.Cross, "No one has cross sign.");
-
 			CurrentPlayer = remotePlayer;
 			remotePlayerController.EnableInput();
 			statusText.text = opponentTurnStatus;
@@ -285,6 +274,6 @@ public class GameManager : Unique<GameManager> {
 
 	void HandleGameFinished() {
 		Debug.Log("Game finished.");
-		return;
+		GameFinished.Invoke();
 	}
 }

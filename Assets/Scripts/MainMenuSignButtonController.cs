@@ -10,15 +10,8 @@ public class MainMenuSignButtonController : MonoBehaviour {
 
 	public CellSign buttonSign;
 
-	Button button;
-
 
 	public void OnButtonClicked() {
 		MainMenuAPI.Instance.StartGame(buttonSign);
-	}
-
-	void Awake() {
-		button = GetComponent<Button>();
-		button.onClick.AddListener(OnButtonClicked);
 	}
 }

@@ -26,15 +26,16 @@ public class Unique<T> : MonoBehaviour where T : Unique<T> {
 
 
 	protected void OnEnable() {
-		if (Instance != null) {
-			Debug.LogError("Multiple instances of Unique class were enabled. " + 
+		if (Instance == null || Instance == this) {
+			Instance = this as T;
+			Assert.IsNotNull(Instance);
+
+		} else {
+			Debug.LogError("Multiple instances of Unique class were enabled. " +
 				"Current instance will be disabled.");
 
 			Instance.enabled = false;
 		}
-
-		Instance = this as T;
-		Assert.IsNotNull(Instance);
 	}
 
 	protected void OnDisable() {
