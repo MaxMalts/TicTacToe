@@ -790,7 +790,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &738679094
 RectTransform:
   m_ObjectHideFlags: 0
@@ -810,7 +810,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -216, y: 641.9752}
+  m_SizeDelta: {x: -240, y: 641.9752}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &738679095
 MonoBehaviour:
@@ -825,7 +825,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_EffectColor: {r: 0.348, g: 0.3315708, b: 0.25539914, a: 1}
-  m_EffectDistance: {x: 17, y: 17}
+  m_EffectDistance: {x: 20, y: 20}
   m_UseGraphicAlpha: 1
 --- !u!114 &738679096
 MonoBehaviour:

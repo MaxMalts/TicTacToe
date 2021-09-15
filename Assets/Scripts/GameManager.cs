@@ -82,8 +82,11 @@ public class GameManager : Unique<GameManager> {
 		Assert.IsTrue(localSign == CellSign.Cross ||
 			localSign == CellSign.Nought);
 
+		cellsManager.ResetAllCells();
+		winLine.Hide();
+
 		CellSign remoteSign =
-			localSign == CellSign.Cross ? CellSign.Cross : CellSign.Nought;
+			localSign == CellSign.Cross ? CellSign.Nought : CellSign.Cross;
 
 		localPlayerController.StartGame(localSign);
 		remotePlayerController.StartGame(remoteSign);

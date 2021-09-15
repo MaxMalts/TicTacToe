@@ -45,8 +45,6 @@ public class CellController : MonoBehaviour {
 
 		switch (newSign) {
 			case CellSign.Empty: {
-				Assert.IsTrue(transform.childCount == 0, "Cell Sign is CellSign.Empty but it has children.");
-
 				GameObject oldChild = transform.GetChild(0).gameObject;
 				Destroy(oldChild);
 				break;

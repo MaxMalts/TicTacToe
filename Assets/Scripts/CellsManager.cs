@@ -19,10 +19,15 @@ public class CellsManager : MonoBehaviour {
 	};
 
 	PlayerInput playerInput;
+	bool cellsRegistered = false;
 
 	public CellController GetCellController(Vector2Int pos) {
 		Assert.IsTrue(FieldPosInRange(pos), "Position out of range.");
 
+		if (!cellsRegistered) {
+			RegisterCells();
+			cellsRegistered = true;
+		}
 		return cells[pos.x - 1][pos.y - 1];
 	}
 
@@ -30,24 +35,40 @@ public class CellsManager : MonoBehaviour {
 		Assert.IsTrue(FieldPosInRange(pos), "Position out of range.");
 		Assert.IsTrue(Enum.IsDefined(typeof(CellSign), sign), "Bad sign value.");
 
+		if (!cellsRegistered) {
+			RegisterCells();
+			cellsRegistered = true;
+		}
 		cells[pos.x - 1][pos.y - 1].SetSign(sign);
 	}
 
 	public CellSign GetCellSign(Vector2Int pos) {
 		Assert.IsTrue(FieldPosInRange(pos), "Position out of range.");
 
+		if (!cellsRegistered) {
+			RegisterCells();
+			cellsRegistered = true;
+		}
 		return cells[pos.x - 1][pos.y - 1].Sign;
 	}
 
 	public void EnableCellInput(Vector2Int pos) {
 		Assert.IsTrue(FieldPosInRange(pos), "Position out of range.");
 
+		if (!cellsRegistered) {
+			RegisterCells();
+			cellsRegistered = true;
+		}
 		cells[pos.x - 1][pos.y - 1].EnableClickCollider();
 	}
 
 	public void DisableCellInput(Vector2Int pos) {
 		Assert.IsTrue(FieldPosInRange(pos), "Position out of range.");
 
+		if (!cellsRegistered) {
+			RegisterCells();
+			cellsRegistered = true;
+		}
 		cells[pos.x - 1][pos.y - 1].DisableClickCollider();
 	}
 
@@ -71,6 +92,11 @@ public class CellsManager : MonoBehaviour {
 	}
 
 	public int CalcCellsBySign(CellSign sign) {
+		if (!cellsRegistered) {
+			RegisterCells();
+			cellsRegistered = true;
+		}
+
 		int res = 0;
 		foreach(CellController[] curColumn in cells) {
 			foreach (CellController curCell in curColumn) {
@@ -83,8 +109,25 @@ public class CellsManager : MonoBehaviour {
 		return res;
 	}
 
+	public void ResetAllCells() {
+		if (!cellsRegistered) {
+			RegisterCells();
+			cellsRegistered = true;
+		}
+
+		foreach (CellController[] curColumn in cells) {
+			foreach (CellController curCell in curColumn) {
+				curCell.SetSign(CellSign.Empty);
+				curCell.EnableClickCollider();
+			}
+		}
+	}
+
 	void Start() {
-		RegisterCells();
+		if (!cellsRegistered) {
+			RegisterCells();
+			cellsRegistered = true;
+		}
 	}
 
 	void RegisterCells() {

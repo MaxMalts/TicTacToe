@@ -25,6 +25,7 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 	bool inputEnabled = true;
 	bool localStartPending = false;
 	bool remoteStartPending = false;
+	bool inited = false;
 
 	GameManager gameManager;
 
@@ -41,21 +42,20 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 		Assert.IsTrue(sign == CellSign.Cross || sign == CellSign.Nought);
 		Assert.IsNotNull(ptpClient);
 
+		if (!inited) {
+			Init();
+			inited = true;
+		}
+
 		PlayerApi.Sign = sign;
 		inputEnabled = false;
 
-		gameManager = GameManager.Instance;
 		Assert.IsNotNull(gameManager);
 
 		PlayerAPI localPlayerApi =
 			gameManager.LocalPlayer.GetComponent<PlayerAPI>();
 		Assert.IsNotNull(localPlayerApi,
 			"No PlayerAPI component on local player GameObject.");
-
-		localPlayerApi.CellPlaced.AddListener(OnLocalCellPlaced);
-
-		ptpClient.PackageReceived.AddListener(OnPackageReceived);
-		ptpClient.StartReceiving();
 
 		if (remoteStartPending) {
 			Assert.IsFalse(localStartPending, "Already pending local game start.");
@@ -83,6 +83,28 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 			throw new ArgumentException("Bad value passed to scene.",
 				"ptp-client", innerException);
 		}
+	}
+
+	void Start() {
+		if (!inited) {
+			Init();
+			inited = true;
+		}
+	}
+
+	void Init() {
+		gameManager = GameManager.Instance;
+		Assert.IsNotNull(gameManager);
+
+		PlayerAPI localPlayerApi =
+			gameManager.LocalPlayer.GetComponent<PlayerAPI>();
+		Assert.IsNotNull(localPlayerApi,
+			"No PlayerAPI component on local player GameObject.");
+
+		localPlayerApi.CellPlaced.AddListener(OnLocalCellPlaced);
+
+		ptpClient.PackageReceived.AddListener(OnPackageReceived);
+		ptpClient.StartReceiving();
 	}
 
 	void OnLocalCellPlaced(PlayerAPI.PlaceContext placeContext) {

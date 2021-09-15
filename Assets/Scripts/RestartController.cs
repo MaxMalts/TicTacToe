@@ -13,6 +13,7 @@ public class RestartController : MonoBehaviour {
 
 	PlayerInput playerInput;
 	bool inputEnabled = false;
+	int inputChangedFrame = -1;
 
 	[SerializeField] GameObject restartText;
 
@@ -21,7 +22,9 @@ public class RestartController : MonoBehaviour {
 		// The action that invoked this event is the tap action,
 		// not the position action.
 
-		if (context.phase == InputActionPhase.Performed && inputEnabled) {
+		if (context.phase == InputActionPhase.Performed && inputEnabled &&
+			inputChangedFrame < Time.frameCount) {
+
 			OnPointerRelease();
 		}
 	}
@@ -51,15 +54,29 @@ public class RestartController : MonoBehaviour {
 		gameManager.GameFinished.AddListener(OnGameFinished);
 	}
 
+	void EnableInput() {
+		if (!inputEnabled) {
+			inputEnabled = true;
+			inputChangedFrame = Time.frameCount;
+		}
+	}
+
+	void DisableInput() {
+		if (inputEnabled) {
+			inputEnabled = false;
+			inputChangedFrame = Time.frameCount;
+		}
+	}
+
 	void OnGameFinished() {
 		if (restartText != null) {
 			restartText.SetActive(true);
 		}
-		inputEnabled = true;
+		EnableInput();
 	}
 
 	void OnPointerRelease() {
-		inputEnabled = false;
+		DisableInput();
 		if (restartText != null) {
 			restartText.SetActive(false);
 		}
