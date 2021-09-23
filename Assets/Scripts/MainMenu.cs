@@ -18,9 +18,6 @@ public class MainMenu : Unique<MainMenu> {
 	[SerializeField] [Tooltip("Main Canvas Group of main menu.")]
 	CanvasGroup uiCanvasGroup;
 
-	[SerializeField] GameObject loadingPopupPrefab;
-	LoadingPopupAPI loadingPopupApi;
-
 	PeerToPeerClient ptpClient;
 	Task connectingTask;
 	bool connected;
@@ -50,11 +47,7 @@ public class MainMenu : Unique<MainMenu> {
 		}
 
 		if (networkAvailable) {
-			GameObject loadingPopupObject = Instantiate(loadingPopupPrefab, canvas.transform);
-			loadingPopupApi = loadingPopupObject.GetComponent<LoadingPopupAPI>();
-			Assert.IsNotNull(loadingPopupApi,
-				"No LoadingPopupAPI script on Loading Popup GameObject.");
-			loadingPopupApi.Message = connectingPopupMessage;
+			LoadingPopupController.DisplayMessage(connectingPopupMessage);
 
 			uiCanvasGroup.interactable = false;
 
@@ -77,8 +70,6 @@ public class MainMenu : Unique<MainMenu> {
 	void Awake() {
 		Assert.IsNotNull(canvas, "Canvas was not assigned in inspector.");
 		Assert.IsNotNull(uiCanvasGroup, "UI Canvas Group was not assigned in inspector.");
-		Assert.IsNotNull(loadingPopupPrefab,
-			"Loading Popup prefab was not assigned in inspector.");
 	}
 
 	void Update() {

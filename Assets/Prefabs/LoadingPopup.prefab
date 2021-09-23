@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 1451329859167800590}
   - component: {fileID: 2990555290802383201}
   - component: {fileID: 1484690309128343395}
-  - component: {fileID: 2441542655586515944}
+  - component: {fileID: 1880099845347494047}
   m_Layer: 5
   m_Name: LoadingPopup
   m_TagString: Untagged
@@ -134,7 +134,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 0
   m_VerticalFit: 2
---- !u!114 &2441542655586515944
+--- !u!114 &1880099845347494047
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -143,10 +143,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1451329859167800588}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cf39f5685c2ba6c4ba8361e092acba4e, type: 3}
+  m_Script: {fileID: 11500000, guid: f902ce7beab01fc44b7ff5514a38f3ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  textMesh: {fileID: 1451329859365050848}
+  messageTextMesh: {fileID: 1451329859365050848}
 --- !u!1 &1451329859365050862
 GameObject:
   m_ObjectHideFlags: 0
