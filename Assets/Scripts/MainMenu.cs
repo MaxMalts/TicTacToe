@@ -11,10 +11,15 @@ using Network;
 
 public class MainMenu : Unique<MainMenu> {
 
+	const string connectingPopupMessage = "Connecting to other player...";
+
+	[SerializeField] GameObject canvas;
+
 	[SerializeField] [Tooltip("Main Canvas Group of main menu.")]
 	CanvasGroup uiCanvasGroup;
 
-	[SerializeField] GameObject connectingPopup;
+	[SerializeField] GameObject loadingPopupPrefab;
+	LoadingPopupAPI loadingPopupApi;
 
 	PeerToPeerClient ptpClient;
 	Task connectingTask;
@@ -45,7 +50,12 @@ public class MainMenu : Unique<MainMenu> {
 		}
 
 		if (networkAvailable) {
-			connectingPopup.SetActive(true);
+			GameObject loadingPopupObject = Instantiate(loadingPopupPrefab, canvas.transform);
+			loadingPopupApi = loadingPopupObject.GetComponent<LoadingPopupAPI>();
+			Assert.IsNotNull(loadingPopupApi,
+				"No LoadingPopupAPI script on Loading Popup GameObject.");
+			loadingPopupApi.Message = connectingPopupMessage;
+
 			uiCanvasGroup.interactable = false;
 
 			connectingTask.ContinueWith((Task) => {
@@ -65,10 +75,10 @@ public class MainMenu : Unique<MainMenu> {
 	}
 
 	void Awake() {
-		if (connectingPopup.activeSelf) {
-			Debug.LogWarning("Connecting Popup GameObject was active by default. " +
-				"To work correctly, please disable it before the game starts.");
-		}
+		Assert.IsNotNull(canvas, "Canvas was not assigned in inspector.");
+		Assert.IsNotNull(uiCanvasGroup, "UI Canvas Group was not assigned in inspector.");
+		Assert.IsNotNull(loadingPopupPrefab,
+			"Loading Popup prefab was not assigned in inspector.");
 	}
 
 	void Update() {
