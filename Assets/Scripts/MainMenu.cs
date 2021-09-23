@@ -64,6 +64,13 @@ public class MainMenu : Unique<MainMenu> {
 		}
 	}
 
+	void Awake() {
+		if (connectingPopup.activeSelf) {
+			Debug.LogWarning("Connecting Popup GameObject was active by default. " +
+				"To work correctly, please disable it before the game starts.");
+		}
+	}
+
 	void Update() {
 		if (connected) {
 			SceneArgsManager.NextSceneArgs.Add("cell-sign", localCellSign);

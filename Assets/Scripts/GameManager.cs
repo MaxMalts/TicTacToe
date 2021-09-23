@@ -53,6 +53,53 @@ public class GameManager : Unique<GameManager> {
 
 	delegate bool WinIterationProcessor(ref Vector2Int? winPos1, ref Vector2Int? winPos2);
 
+
+	public void StartGame(CellSign localSign) {
+		Assert.IsTrue(localSign == CellSign.Cross ||
+			localSign == CellSign.Nought);
+
+		cellsManager.ResetAllCells();
+		winLine.Hide();
+
+		CellSign remoteSign =
+			localSign == CellSign.Cross ? CellSign.Nought : CellSign.Cross;
+
+		if (localSign == CellSign.Cross) {
+			CurrentPlayer = localPlayer;
+			localPlayerController.EnableInput();
+			statusText.text = yourTurnStatus;
+
+		} else {
+			CurrentPlayer = remotePlayer;
+			remotePlayerController.EnableInput();
+			statusText.text = opponentTurnStatus;
+		}
+
+		localPlayerController.StartGame(localSign);
+		remotePlayerController.StartGame(remoteSign);
+	}
+
+	public void SuspendGame() {
+		localPlayerController.DisableInput();
+		remotePlayerController.DisableInput();
+	}
+
+	public void UnsuspendGame() {
+		if (ReferenceEquals(CurrentPlayer, localPlayer)) {
+			Assert.IsFalse(remotePlayerController.InputEnabled,
+				"Not current player has input enabled.");
+
+			localPlayerController.EnableInput();
+
+		} else {
+			Assert.IsTrue(ReferenceEquals(CurrentPlayer, remotePlayer));
+			Assert.IsFalse(localPlayerController.InputEnabled,
+				"Not current player has input enabled.");
+
+			remotePlayerController.EnableInput();
+		}
+	}
+
 	void Awake() {
 		Assert.IsNotNull(cellsManager, "Cells Manager was not assigned in inspector.");
 		Assert.IsNotNull(localPlayer, "Local Player was not assigned in inspector.");
@@ -67,7 +114,7 @@ public class GameManager : Unique<GameManager> {
 
 		localPlayerController = localPlayer.GetComponent<LocalPlayerController>();
 		Assert.IsNotNull(localPlayerController, "No LocalPlayerController on Local Player object.");
-		
+
 		remotePlayerAPI = remotePlayer.GetComponent<PlayerAPI>();
 		Assert.IsNotNull(remotePlayerAPI, "No PlayerAPI on RemotePlayer object.");
 
@@ -76,31 +123,6 @@ public class GameManager : Unique<GameManager> {
 
 		localPlayerAPI.CellPlaced.AddListener(OnCellPlaced);
 		remotePlayerAPI.CellPlaced.AddListener(OnCellPlaced);
-	}
-
-	public void StartGame(CellSign localSign) {
-		Assert.IsTrue(localSign == CellSign.Cross ||
-			localSign == CellSign.Nought);
-
-		cellsManager.ResetAllCells();
-		winLine.Hide();
-
-		CellSign remoteSign =
-			localSign == CellSign.Cross ? CellSign.Nought : CellSign.Cross;
-
-		localPlayerController.StartGame(localSign);
-		remotePlayerController.StartGame(remoteSign);
-
-		if (localSign == CellSign.Cross) {
-			CurrentPlayer = localPlayer;
-			localPlayerController.EnableInput();
-			statusText.text = yourTurnStatus;
-
-		} else {
-			CurrentPlayer = remotePlayer;
-			remotePlayerController.EnableInput();
-			statusText.text = opponentTurnStatus;
-		}
 	}
 
 	void OnCellPlaced(PlayerAPI.PlaceContext context) {

@@ -13,6 +13,8 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 
 	public PlayerAPI PlayerApi { get; private set; }
 
+	public bool InputEnabled { get; private set; } = false;
+
 	const string startGameQuery = "start-game";
 
 	const string remoteCellSignQuery = "cell-sign";
@@ -22,20 +24,19 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 	const string placeCellQuery = "place-cell";
 
 	PeerToPeerClient ptpClient;
-	bool inputEnabled = true;
-	bool localStartPending = false;
-	bool remoteStartPending = false;
+	bool localStartHappened = false;
+	bool remoteStartHappened = false;
 	bool inited = false;
 
 	GameManager gameManager;
 
 
 	public void EnableInput() {
-		inputEnabled = true;
+		InputEnabled = true;
 	}
 
 	public void DisableInput() {
-		inputEnabled = false;
+		InputEnabled = false;
 	}
 
 	public void StartGame(CellSign sign) {
@@ -48,7 +49,7 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 		}
 
 		PlayerApi.Sign = sign;
-		inputEnabled = false;
+		InputEnabled = false;
 
 		Assert.IsNotNull(gameManager);
 
@@ -57,14 +58,18 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 		Assert.IsNotNull(localPlayerApi,
 			"No PlayerAPI component on local player GameObject.");
 
-		if (remoteStartPending) {
-			Assert.IsFalse(localStartPending, "Already pending local game start.");
+		ptpClient.Send(Encoding.UTF8.GetBytes(startGameQuery));
 
-			remoteStartPending = false;
+		if (remoteStartHappened) {
+			Assert.IsFalse(localStartHappened, "Local game start already happened.");
+
+			remoteStartHappened = false;
 			SendSign();
+			gameManager.UnsuspendGame();
 
 		} else {
-			localStartPending = true;
+			localStartHappened = true;
+			gameManager.SuspendGame();
 		}
 	}
 
@@ -142,14 +147,15 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 	}
 
 	void HandleStartGameQuery() {
-		if (localStartPending) {
-			Assert.IsFalse(remoteStartPending, "Already pending local game start.");
+		if (localStartHappened) {
+			Assert.IsFalse(remoteStartHappened, "Remote game start already happened.");
 
-			localStartPending = false;
+			localStartHappened = false;
 			SendSign();
+			gameManager.UnsuspendGame();
 
 		} else {
-			localStartPending = true;
+			remoteStartHappened = true;
 		}
 	}
 
@@ -180,7 +186,7 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 			return;
 		}
 
-		Assert.IsTrue(inputEnabled, "Remote player placed cell when input was disabled.");
+		Assert.IsTrue(InputEnabled, "Remote player placed cell when input was disabled.");
 		PlayerApi.Place(new Vector2Int(column, row));
 	}
 

@@ -35,7 +35,7 @@ public class RestartController : MonoBehaviour {
 
 		if (restartText != null) {
 			if (restartText.activeSelf) {
-				Debug.LogWarning("Restart label GameObject was active by default. " +
+				Debug.LogWarning("Restart Text GameObject was active by default. " +
 					"To work correctly, please disable it before the game starts.");
 			}
 

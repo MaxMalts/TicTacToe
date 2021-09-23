@@ -13,22 +13,23 @@ public class LocalPlayerController : MonoBehaviour, PlayerController {
 
 	public PlayerAPI PlayerApi { get; private set; }
 
-	[SerializeField] new Camera camera;
+	public bool InputEnabled { get; private set; } = false;
 
-	public CellsManager cellsManager;
+	[SerializeField] CellsManager cellsManager;
+
+	[SerializeField] new Camera camera;
 	
 	PlayerInput playerInput;
 	[SerializeField] InputActionAsset actionsAsset;
 	InputAction pointerPosAction;  // to get the position of tap
 
-	bool inputEnabled = false;
 
 
 	public void StartGame(CellSign sign) {
 		Assert.IsTrue(sign == CellSign.Cross || sign == CellSign.Nought);
 
 		PlayerApi.Sign = sign;
-		inputEnabled = false;
+		InputEnabled = false;
 	}
 
 	//public void Update() {
@@ -47,18 +48,18 @@ public class LocalPlayerController : MonoBehaviour, PlayerController {
 	//}
 
 	public void EnableInput() {
-		inputEnabled = true;
+		InputEnabled = true;
 	}
 
 	public void DisableInput() {
-		inputEnabled = false;
+		InputEnabled = false;
 	}
 
 	public void OnTap(InputAction.CallbackContext context) {
 		// The action that invoked this event is the tap action,
 		// not the position action.
 
-		if (context.phase == InputActionPhase.Performed && inputEnabled) {
+		if (context.phase == InputActionPhase.Performed && InputEnabled) {
 			OnPointerRelease();
 		}
 	}

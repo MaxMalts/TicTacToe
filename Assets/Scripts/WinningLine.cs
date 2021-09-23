@@ -55,6 +55,6 @@ public class WinningLine : MonoBehaviour {
 
 	void Start() {
 		cellsManager = GameManager.Instance.CellsManager;
-		Assert.IsNotNull(cellsManager, "No CellsManager found.");
+		Assert.IsNotNull(cellsManager, "No cellsManager found.");
 	}
 }
