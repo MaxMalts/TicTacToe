@@ -15,6 +15,8 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 
 	public bool InputEnabled { get; private set; } = false;
 
+	const string waitingForPlayerMessage = "Waiting for other player...";
+
 	const string startGameQuery = "start-game";
 
 	const string remoteCellSignQuery = "cell-sign";
@@ -65,11 +67,11 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 
 			remoteStartHappened = false;
 			SendSign();
-			gameManager.UnsuspendGame();
 
 		} else {
 			localStartHappened = true;
 			gameManager.SuspendGame();
+			LoadingPopupController.DisplayMessage(waitingForPlayerMessage);
 		}
 	}
 
@@ -152,6 +154,7 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 
 			localStartHappened = false;
 			SendSign();
+			LoadingPopupController.RemovePopup();
 			gameManager.UnsuspendGame();
 
 		} else {

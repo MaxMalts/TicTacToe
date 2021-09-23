@@ -25,14 +25,15 @@ public class LoadingPopupController : Singleton<LoadingPopupController> {
 		}
 
 		if (Instance.popupParent == null) {
-			Canvas canvas = FindObjectOfType<Canvas>();
+			Canvas canvas = FindOverlayCanvas();
 			if (canvas != null) {
 				Instance.popupParent = canvas.gameObject;
 			}
 		}
 
 		if (Instance.popupParent == null) {
-			Debug.LogWarning("There is no UI GameObject to which popup can be attached.");
+			Debug.LogWarning("There is no UI GameObject to which popup can be " +
+				"attached (no UI object is provided and no overlay canvas was detected.");
 			return;
 		}
 
@@ -65,5 +66,17 @@ public class LoadingPopupController : Singleton<LoadingPopupController> {
 
 		Assert.IsNotNull(loadingPopupPrefab,
 			"Loading Popup prefab was not assigned in inspector.");
+	}
+
+	static Canvas FindOverlayCanvas() {
+		Canvas[] canvases = FindObjectsOfType<Canvas>();
+
+		foreach (Canvas canvas in canvases) {
+			if (canvas.renderMode == RenderMode.ScreenSpaceOverlay) {
+				return canvas;
+			}
+		}
+
+		return null;
 	}
 }
