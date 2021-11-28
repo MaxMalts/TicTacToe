@@ -87,8 +87,18 @@ namespace Network {
 			if (!connected) {
 				throw new NotConnectedException("Called Send but not connected to other client.");
 			}
-			
-			stream.Write(data, offset, size);
+
+			try {
+				stream.Write(data, offset, size);
+
+			} catch (IOException exception) when (
+				exception.InnerException.GetType() == typeof(SocketException)
+			) {
+				connected = false;
+				throw new NotConnectedException("Socket error, PeerToPeerClient was disconnected.",
+						exception);
+			}
+
 #if NETWORK_LOG
 			UnityEngine.Debug.Log("PeerToPeerClient sent package.");
 #endif
@@ -112,6 +122,12 @@ namespace Network {
 		//	return await stream.ReadAsync();
 		//}
 
+
+		/// <summary>
+		/// Starts reading packages and invoking PackageReceived event.
+		/// When client disconnects, it automatically stops receiving, so after
+		/// reconnect you should call this method to start receiving again.
+		/// </summary>
 		public void StartReceiving() {
 			if (disposed) {
 				throw new ObjectDisposedException("Network.PeerToPeerClient");
@@ -129,7 +145,19 @@ namespace Network {
 			readingTask = Task.Run(() => {
 				while (!disposed) {
 					token.ThrowIfCancellationRequested();
-					byte[] data = stream.Read();
+
+					byte[] data;
+					try {
+						data = stream.Read();
+
+					} catch (IOException exception) when (
+						exception.InnerException.GetType() == typeof(SocketException)
+					) {
+						connected = false;
+						readingTaskCT.Cancel();
+						break;
+					}
+
 					receivedPackages.Enqueue(data);
 
 #if NETWORK_LOG
