@@ -11,7 +11,18 @@ using System.Threading.Tasks;
 
 
 namespace Network {
-	
+
+	public class NotConnectedException : Exception {
+		public NotConnectedException() { }
+
+		public NotConnectedException(string message)
+			: base(message) { }
+
+		public NotConnectedException(string message, Exception inner)
+			: base(message, inner) { }
+	}
+
+
 	/// <summary>
 	/// Wrapper over the NetworkStream to remove framing.
 	/// Each send is received by single receive.<br/>
@@ -51,8 +62,19 @@ namespace Network {
 					Debug.Assert(false, "headerBuf size mismatch.", exception.Message);
 				}
 
-				stream.Write(headerBuf, 0, headerBuf.Length);
-				stream.Write(data, offset.Value, size.Value);
+				try {
+					stream.Write(headerBuf, 0, headerBuf.Length);
+					stream.Write(data, offset.Value, size.Value);
+
+				} catch (IOException exception) when (
+					exception.InnerException.GetType() == typeof(SocketException)
+				) {
+					SocketException socketException = (SocketException)exception.InnerException;
+					if (socketException.ErrorCode == /* to do */) {
+						throw new NotConnectedException("Socket under NetworkStream not connected.",
+							exception);
+					}
+				}
 
 			} catch (InvalidOperationException exception) {
 				Debug.Assert(false, "Problem with offset or size values", exception.Message);
@@ -92,9 +114,20 @@ namespace Network {
 			Debug.Assert(size >= 0 && size < data.Length);
 
 			int bytesRead = 0;
-			do {
-				bytesRead += stream.Read(data, bytesRead, size - bytesRead);
-			} while (bytesRead < size);
+			try {
+				do {
+					bytesRead += stream.Read(data, bytesRead, size - bytesRead);
+				} while (bytesRead < size);
+
+			} catch (IOException exception) when (
+				exception.InnerException.GetType() == typeof(SocketException)
+			) {
+				SocketException socketException = (SocketException)exception.InnerException;
+				if (socketException.ErrorCode == /* to do */) {
+					throw new NotConnectedException("Socket under NetworkStream not connected.",
+						exception);
+				}
+			}
 			Debug.Assert(bytesRead == size);
 		}
 	}
