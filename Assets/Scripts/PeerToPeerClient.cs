@@ -41,7 +41,8 @@ namespace Network {
 		const int listenPort = 48888;
 		const int beaconIntervalMs = 1000;
 		readonly byte[] pingMessage = Encoding.UTF8.GetBytes("PeerToPeerClient-ping");
-		const int pingIntervalMs = 300;
+		const int pingIntervalMs = 1000;
+		const int disconnectTimeoutMs = 7000;
 
 		UdpBroadcastClient groupClient;
 		TcpListener listener;
@@ -53,6 +54,7 @@ namespace Network {
 		Task connectTask;
 		bool disconnectedEventPending = false;
 		Stopwatch pingTimer = new Stopwatch();
+		//Stopwatch disconnectTimer = new Stopwatch();
 
 		ConcurrentQueue<byte[]> receivedPackages;
 		Task readingTask;
@@ -152,6 +154,55 @@ namespace Network {
 
 			CancellationToken token = readingTaskCT.Token;
 			readingTask = Task.Run(() => {
+				// TcpClient.ReceiveTimeout does the thing
+				//
+				//				disconnectTimer.Restart();
+				//				bool disconnected = false;
+
+				//				while (!disposed) {
+				//					if (disconnected ||
+				//						disconnectTimer.ElapsedMilliseconds > disconnectTimeoutMs) {
+
+				//						connected = false;
+				//						disconnectedEventPending = true;
+				//						disconnectTimer.Reset();
+				//						readingTaskCT.Cancel();
+				//					}
+
+				//					token.ThrowIfCancellationRequested();
+
+				//					byte[] data;
+				//					try {
+				//						data = stream.Read();
+
+				//					} catch (IOException exception) when (
+				//						exception.InnerException.GetType() == typeof(SocketException)
+				//					) {
+				//						disconnected = true;
+				//						UnityEngine.Debug.LogError(((SocketException)exception.InnerException).ErrorCode);
+				//						continue;
+
+				//					} catch (Exception) {
+				//						disconnectTimer.Reset();
+				//						throw;
+				//					}
+
+				//					disconnectTimer.Restart();
+
+				//					if (StartsWith(data, pingMessage)) {
+				//						continue;
+				//					}
+
+				//					receivedPackages.Enqueue(data);
+
+				//#if NETWORK_LOG
+				//					UnityEngine.Debug.Log("PeerToPeerClient received package.");
+				//#endif
+				//				}
+
+				//				disconnectTimer.Reset();
+
+
 				while (!disposed) {
 					token.ThrowIfCancellationRequested();
 
@@ -165,15 +216,19 @@ namespace Network {
 						connected = false;
 						disconnectedEventPending = true;
 						readingTaskCT.Cancel();
-						break;
-					}
+						continue;
 
-					receivedPackages.Enqueue(data);
+					}
 
 #if NETWORK_LOG
 					UnityEngine.Debug.Log("PeerToPeerClient received package.");
 #endif
+
+					if (!StartsWith(data, pingMessage)) {
+						receivedPackages.Enqueue(data);
+					}
 				}
+
 			}, token);
 		}
 
@@ -219,12 +274,12 @@ namespace Network {
 				}
 
 				if (disconnectedEventPending) {
-					if (connected) {
-						disconnectedEventPending = false;
-					} else {
+					if (!connected) {
 						pingTimer.Reset();
 						Disconnected.Invoke();
 					}
+
+					disconnectedEventPending = false;
 				}
 
 				if (connected) {
@@ -314,6 +369,7 @@ namespace Network {
 					}
 
 					tcpClient = connectingTcpClient;
+					tcpClient.ReceiveTimeout = disconnectTimeoutMs;
 					stream = new NetworkStreamWrapper(tcpClient.GetStream());
 					connected = true;
 					pingTimer.Restart();
@@ -347,6 +403,7 @@ namespace Network {
 
 					listener.Stop();
 					tcpClient = curTcpClient;
+					tcpClient.ReceiveTimeout = disconnectTimeoutMs;
 					stream = new NetworkStreamWrapper(tcpClient.GetStream());
 					connected = true;
 				}
@@ -370,6 +427,20 @@ namespace Network {
 
 		void OnDestroy() {
 			Close();
+		}
+
+		static bool StartsWith(byte[] array, byte[] start) {
+			if (array.Length < start.Length) {
+				return false;
+			}
+
+			for (int i = 0; i < start.Length; ++i) {
+				if (array[i] != start[i]) {
+					return false;
+				}
+			}
+
+			return true;
 		}
 	}
 }

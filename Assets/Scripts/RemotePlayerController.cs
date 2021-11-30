@@ -60,7 +60,12 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 		Assert.IsNotNull(localPlayerApi,
 			"No PlayerAPI component on local player GameObject.");
 
-		ptpClient.Send(Encoding.UTF8.GetBytes(startGameQuery));
+		try {
+			ptpClient.StartReceiving();
+			ptpClient.Send(Encoding.UTF8.GetBytes(startGameQuery));
+		} catch (NotConnectedException) {
+			return;
+		}
 
 		if (remoteStartHappened) {
 			Assert.IsFalse(localStartHappened, "Local game start already happened.");
@@ -111,7 +116,7 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 		localPlayerApi.CellPlaced.AddListener(OnLocalCellPlaced);
 
 		ptpClient.PackageReceived.AddListener(OnPackageReceived);
-		ptpClient.StartReceiving();
+		ptpClient.Disconnected.AddListener(OnDisconnected);
 	}
 
 	void OnLocalCellPlaced(PlayerAPI.PlaceContext placeContext) {
@@ -122,7 +127,11 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 			placeCellQuery + ':' + placeContext.FieldPos.x.ToString() +
 			',' + placeContext.FieldPos.y.ToString();
 
-		ptpClient.Send(Encoding.UTF8.GetBytes(queryStr));
+		try {
+			ptpClient.Send(Encoding.UTF8.GetBytes(queryStr));
+		} catch (NotConnectedException) {
+			return;
+		}
 	}
 
 	void OnPackageReceived(byte[] data) {
@@ -146,6 +155,10 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 		} else {
 			Debug.LogError("Bad query received: \"" + queryStr + "\".");
 		}
+	}
+
+	void OnDisconnected() {
+		Debug.Log("Player disconnnected.");
 	}
 
 	void HandleStartGameQuery() {
@@ -196,6 +209,11 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 	void SendSign() {
 		string signValue =
 				PlayerApi.Sign == CellSign.Cross ? crossSignValue : noughtSignValue;
-		ptpClient.Send(Encoding.UTF8.GetBytes(remoteCellSignQuery + ':' + signValue));
+
+		try {
+			ptpClient.Send(Encoding.UTF8.GetBytes(remoteCellSignQuery + ':' + signValue));
+		} catch (NotConnectedException) {
+			return;
+		}
 	}
 }
