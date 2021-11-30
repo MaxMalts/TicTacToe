@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.IO;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Text;
 using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.Events;
@@ -20,6 +21,9 @@ namespace Network {
 
 		public class PackageReceiveEvent : UnityEvent<byte[]> { }
 		public PackageReceiveEvent PackageReceived { get; } = new PackageReceiveEvent();
+
+		public class DisconnectedEvent : UnityEvent { }
+		public DisconnectedEvent Disconnected { get; } = new DisconnectedEvent();
 
 		public bool Connected {
 			get {
@@ -36,6 +40,8 @@ namespace Network {
 		const string beaconMessage = "PeerToPeerClient-beacon";
 		const int listenPort = 48888;
 		const int beaconIntervalMs = 1000;
+		readonly byte[] pingMessage = Encoding.UTF8.GetBytes("PeerToPeerClient-ping");
+		const int pingIntervalMs = 300;
 
 		UdpBroadcastClient groupClient;
 		TcpListener listener;
@@ -45,6 +51,8 @@ namespace Network {
 		TaskCompletionSource<IPAddress> receiveBeacon;
 		object connectingLock;
 		Task connectTask;
+		bool disconnectedEventPending = false;
+		Stopwatch pingTimer = new Stopwatch();
 
 		ConcurrentQueue<byte[]> receivedPackages;
 		Task readingTask;
@@ -95,6 +103,7 @@ namespace Network {
 				exception.InnerException.GetType() == typeof(SocketException)
 			) {
 				connected = false;
+				disconnectedEventPending = true;
 				throw new NotConnectedException("Socket error, PeerToPeerClient was disconnected.",
 						exception);
 			}
@@ -154,6 +163,7 @@ namespace Network {
 						exception.InnerException.GetType() == typeof(SocketException)
 					) {
 						connected = false;
+						disconnectedEventPending = true;
 						readingTaskCT.Cancel();
 						break;
 					}
@@ -186,6 +196,7 @@ namespace Network {
 			readingTaskCT.Cancel();
 			tcpClient?.Close();
 			listener.Stop();
+			pingTimer.Reset();
 
 #if NETWORK_LOG
 			UnityEngine.Debug.Log("PeerToPeerClient closed connection.");
@@ -205,6 +216,31 @@ namespace Network {
 				byte[] package;
 				while (receivedPackages.TryDequeue(out package)) {
 					PackageReceived.Invoke(package);
+				}
+
+				if (disconnectedEventPending) {
+					if (connected) {
+						disconnectedEventPending = false;
+					} else {
+						pingTimer.Reset();
+						Disconnected.Invoke();
+					}
+				}
+
+				if (connected) {
+					if (!pingTimer.IsRunning) {
+						pingTimer.Restart();
+					}
+
+					if (pingTimer.ElapsedMilliseconds >= pingIntervalMs) {
+						try {
+							Send(pingMessage);  // will handle disconnection by itself
+						} catch (SocketException) {
+							pingTimer.Reset();
+						}
+
+						pingTimer.Restart();
+					}
 				}
 			}
 		}
@@ -280,6 +316,7 @@ namespace Network {
 					tcpClient = connectingTcpClient;
 					stream = new NetworkStreamWrapper(tcpClient.GetStream());
 					connected = true;
+					pingTimer.Restart();
 				}
 
 			} catch (Exception exception) {

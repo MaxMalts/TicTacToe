@@ -35,10 +35,18 @@ namespace Network {
 	}
 
 
+	/// <summary>
+	/// Used to send and receive UDP broadcast datagrams (datagrams sent to
+	/// 255.255.255.255). Automatically handles network changes and tries to
+	/// bind to any wifi network avaiable.
+	/// </summary>
 	public class UdpBroadcastClient : Singleton<UdpBroadcastClient> {
 
 		public class MessageEvent : UnityEvent<Message> { }
 		public MessageEvent MessageReceived { get; } = new MessageEvent();
+
+		public class NoNetworkEvent : UnityEvent { }
+		public NoNetworkEvent NoNetwork { get; } = new NoNetworkEvent();
 
 		public static bool NetworkAvailable {
 			get {
@@ -65,11 +73,17 @@ namespace Network {
 		UdpClient receiveClient;
 		ConcurrentQueue<Message> groupMessages;
 
-		bool noNetwork = true;
-		bool disposed = false;
+		volatile bool noNetwork = true;
+		volatile bool noNetworkEventPending = false;
 		bool listening = false;
+		bool disposed = false;
 
 
+		/// <summary>
+		/// Starts receiving broadcast messages and invoking MessageReceived event.
+		/// When there the network goes down, you need to call this method again to
+		/// start receicing messages.
+		/// </summary>
 		public void StartListeningBroadcast() {
 			if (disposed) {
 				throw new ObjectDisposedException("Network.UdpBroadcastClient");
@@ -119,6 +133,12 @@ namespace Network {
 				sendClient.Send(data, data.Length, receivingEP);
 			} catch (ObjectDisposedException) {
 				throw;
+			} catch (SocketException) {
+				noNetwork = true;
+				if (!TryBindToNetwork()) {
+					noNetworkEventPending = true;
+					throw new NoNetworkException("No network found for udp group broadcasts.");
+				}
 			} catch (Exception exception) {
 				Debug.LogException(exception);
 				return;
@@ -185,6 +205,10 @@ namespace Network {
 					while (groupMessages.TryDequeue(out message)) {
 						MessageReceived.Invoke(message);
 					}
+
+					if (noNetworkEventPending) {
+						NoNetwork.Invoke();
+					}
 				}
 			}
 		}
@@ -203,6 +227,10 @@ namespace Network {
 				try {
 					data = receiveClient.EndReceive(ar, ref endPoint);
 				} catch (ObjectDisposedException) {
+					return;
+				} catch (SocketException) {
+					noNetwork = true;
+					noNetworkEventPending = true;
 					return;
 				} catch (Exception exception) {
 					Debug.LogException(exception);
@@ -256,6 +284,9 @@ namespace Network {
 			if (localIp == null) {
 				return false;
 			}
+
+			sendClient?.Close();
+			receiveClient?.Close();
 
 			sendClient = new UdpClient(new IPEndPoint(localIp, sendingPort));
 			receiveClient = new UdpClient(new IPEndPoint(localIp, receivingPort));
