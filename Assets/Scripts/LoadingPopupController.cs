@@ -6,6 +6,9 @@ using UnityEngine.Assertions;
 
 
 
+/// <summary>
+/// Controller for popup with loading icon.
+/// </summary>
 public class LoadingPopupController : Singleton<LoadingPopupController> {
 
 	[SerializeField] GameObject loadingPopupPrefab;
