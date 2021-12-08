@@ -76,7 +76,7 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 		} else {
 			localStartHappened = true;
 			gameManager.SuspendGame();
-			LoadingPopupController.DisplayMessage(waitingForPlayerMessage);
+			PopupsManager.ShowLoadingPopup(waitingForPlayerMessage);
 		}
 	}
 
@@ -167,7 +167,7 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 
 			localStartHappened = false;
 			SendSign();
-			LoadingPopupController.RemovePopup();
+			PopupsManager.RemovePopup();
 			gameManager.UnsuspendGame();
 
 		} else {

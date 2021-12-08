@@ -6,7 +6,10 @@ using UnityEngine.Assertions;
 
 
 
-public class LoadingPopupTextVar : MonoBehaviour {
+/// <summary>
+/// Used to not search for TextMeshPro through popup children.
+/// </summary>
+public class PopupTextVar : MonoBehaviour {
 
 	[SerializeField] TextMeshProUGUI messageTextMesh;
 	public TextMeshProUGUI MessageTextMesh {

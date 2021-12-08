@@ -47,7 +47,7 @@ public class MainMenu : Unique<MainMenu> {
 		}
 
 		if (networkAvailable) {
-			LoadingPopupController.DisplayMessage(connectingPopupMessage);
+			PopupsManager.ShowLoadingPopup(connectingPopupMessage);
 
 			uiCanvasGroup.interactable = false;
 
