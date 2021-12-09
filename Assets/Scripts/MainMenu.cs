@@ -63,7 +63,7 @@ public class MainMenu : Unique<MainMenu> {
 			});
 
 		} else {
-			Debug.Log("No wifi.");
+			PopupsManager.ShowConfirmPopup("Check your wifi connection.");
 		}
 	}
 

@@ -245,17 +245,22 @@ namespace Network {
 			readingTaskCT.Cancel();
 		}
 
-		public void Close() {
-			disposed = true;
+		public void Disconnect() {
 			connected = false;
 			readingTaskCT.Cancel();
-			tcpClient?.Close();
+			tcpClient?.Client.Disconnect(true);
 			listener.Stop();
 			pingTimer.Reset();
 
 #if NETWORK_LOG
-			UnityEngine.Debug.Log("PeerToPeerClient closed connection.");
+			UnityEngine.Debug.Log("PeerToPeerClient disconnected.");
 #endif
+		}
+
+		public void Close() {
+			disposed = true;
+			Disconnect();
+			tcpClient?.Close();
 		}
 
 		void Awake() {

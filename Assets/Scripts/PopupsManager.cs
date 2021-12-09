@@ -8,14 +8,18 @@ using UnityEngine.Assertions;
 
 public class PopupsManager : Singleton<PopupsManager> {
 
-	[SerializeField] GameObject simplePopupPrefab;
-	[SerializeField] GameObject loadingPopupPrefab;
+	public PopupController ActivePopup { get; private set; }
 
-	GameObject curPopup;
-	TextMeshProUGUI curPopupTextMesh;
+	[SerializeField] GameObject simplePopupPrefab;
+	[SerializeField] GameObject confirmPopupPrefab;
+	[SerializeField] GameObject loadingPopupPrefab;
 
 
 	public static void ShowSimplePopup(string message, GameObject parent = null) {
+		ShowPopup(Instance.simplePopupPrefab, message, parent);
+	}
+
+	public static void ShowConfirmPopup(string message, string buttonLabel = "Ok", GameObject parent = null) {
 		ShowPopup(Instance.simplePopupPrefab, message, parent);
 	}
 
@@ -23,11 +27,9 @@ public class PopupsManager : Singleton<PopupsManager> {
 		ShowPopup(Instance.loadingPopupPrefab, message, parent);
 	}
 
-	public static void RemovePopup() {
-		if (Instance.curPopup != null) {
-			Destroy(Instance.curPopup);
-			Instance.curPopup = null;
-			Instance.curPopupTextMesh = null;
+	public static void CloseActivePopup() {
+		if (Instance.ActivePopup != null) {
+			Instance.ActivePopup.Close();
 		}
 	}
 
@@ -35,16 +37,18 @@ public class PopupsManager : Singleton<PopupsManager> {
 		base.Awake();
 
 		Assert.IsNotNull(simplePopupPrefab, "Popup prefab was not assigned in inspector.");
+		Assert.IsNotNull(confirmPopupPrefab, "Popup prefab was not assigned in inspector.");
 		Assert.IsNotNull(loadingPopupPrefab, "Loading Popup prefab was not assigned in inspector.");
 	}
 
 	static void ShowPopup(GameObject prefab, string message, GameObject parent) {
 		Assert.IsNotNull(prefab);
 
-		RemovePopup();
+		Instance.ActivePopup.Close();
+		Assert.IsNull(Instance.ActivePopup, "Closed popup but ActivePopup was not set to null.");
 
 		if (parent != null && parent.GetComponent<RectTransform>() == null) {
-			Debug.LogWarning("Parent of loading popup must be a UI object. " +
+			Debug.LogWarning("Parent of popup must be a UI object. " +
 				"Overlay canvas will be searched for.");
 
 			parent = null;
@@ -65,13 +69,17 @@ public class PopupsManager : Singleton<PopupsManager> {
 			return;
 		}
 
-		Instance.curPopup =
-			Instantiate(prefab, parent.transform);
-		Instance.curPopupTextMesh =
-			Instance.curPopup.GetComponent<PopupTextVar>()?.MessageTextMesh;
-		Assert.IsNotNull(Instance.curPopupTextMesh, "No text mesh on popup instance.");
+		GameObject curPopupObj = Instantiate(prefab, parent.transform);
+		Instance.ActivePopup = curPopupObj.GetComponent<PopupController>();
+		Assert.IsNotNull(Instance.ActivePopup, "No PopupController on popup instance.");
 
-		Instance.curPopupTextMesh.text = message;
+		Instance.ActivePopup.MessageTextMesh.text = message;
+		Instance.ActivePopup.PopupClosing.AddListener(Instance.OnPopupClosing);
+	}
+
+	void OnPopupClosing() {
+		Assert.IsNotNull(Instance.ActivePopup, "Popup closed but ActivePopup was null in PopupsManager.");
+		Instance.ActivePopup = null;
 	}
 
 	static Canvas FindOverlayCanvas() {
