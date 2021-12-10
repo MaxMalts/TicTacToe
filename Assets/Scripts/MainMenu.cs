@@ -63,8 +63,8 @@ public class MainMenu : Unique<MainMenu> {
 	}
 
 	async void ShowNoWifiPopup() {
-		ConfirmPopupController popup = PopupsManager.ShowConfirmPopup("Check your WiFi connection.");
-		await popup.WaitForConfirmOrCloseAsync();
+		ButtonPopupController popup = PopupsManager.ShowConfirmPopup("Check your WiFi connection.");
+		await popup.WaitForClickOrCloseAsync();
 		popup.Close();
 	}
 
@@ -82,7 +82,7 @@ public class MainMenu : Unique<MainMenu> {
 		}
 
 		if (networkAvailable) {
-			PopupsManager.ShowLoadingPopup(connectingPopupMessage);
+			PopupsManager.ShowLoadingCancelPopup(connectingPopupMessage);
 
 			uiCanvasGroup.interactable = false;
 

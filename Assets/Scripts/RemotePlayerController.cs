@@ -169,8 +169,8 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 
 		GameManager.Instance.SuspendGame();
 
-		ConfirmPopupController confirmPopup = PopupsManager.ShowConfirmPopup("Player disconnected");
-		await confirmPopup.WaitForConfirmOrCloseAsync();
+		ButtonPopupController confirmPopup = PopupsManager.ShowConfirmPopup("Player disconnected");
+		await confirmPopup.WaitForClickOrCloseAsync();
 		GameManager.Instance.ReturnToMainMenu();
 	}
 

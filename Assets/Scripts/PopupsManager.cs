@@ -38,6 +38,7 @@ public class PopupsManager : Singleton<PopupsManager> {
 	[SerializeField] GameObject simplePopupPrefab;
 	[SerializeField] GameObject confirmPopupPrefab;
 	[SerializeField] GameObject loadingPopupPrefab;
+	[SerializeField] GameObject loadingCancelPopupPrefab;
 
 	readonly Color bgdColor = new Color(0.0f, 0.0f, 0.0f, 0.2f);
 	Image bgdImage;
@@ -66,20 +67,12 @@ public class PopupsManager : Singleton<PopupsManager> {
 	/// If null, then overlay canvas will be automatically searched for
 	/// </param>
 	/// <returns>Created popup</returns>
-	public static ConfirmPopupController ShowConfirmPopup(
+	public static ButtonPopupController ShowConfirmPopup(
 		string message,
 		string buttonLabel = "OK",
 		GameObject parent = null) {
 
-		PopupController popupController = ShowPopup(Instance.confirmPopupPrefab, message, parent);
-		if (popupController == null) {
-			return null;
-		}
-
-		ConfirmPopupController confirmPopupController = popupController as ConfirmPopupController;
-		Assert.IsNotNull(confirmPopupController);
-
-		return confirmPopupController;
+		return ShowButtonPopup(Instance.confirmPopupPrefab, message, buttonLabel, parent);
 	}
 
 	/// <summary>
@@ -95,6 +88,24 @@ public class PopupsManager : Singleton<PopupsManager> {
 		return ShowPopup(Instance.loadingPopupPrefab, message, parent);
 	}
 
+	/// <summary>
+	/// Shows popup with a text, loading icon and cancel button in it.
+	/// </summary>
+	/// <param name="message">Message to be displayed</param>
+	/// <param name="buttonLabel">Text inside the confirmation button</param>
+	/// <param name="parent">
+	/// Ui obeject to whick popup will be attached.
+	/// If null, then overlay canvas will be automatically searched for
+	/// </param>
+	/// <returns>Created popup</returns>
+	public static PopupController ShowLoadingCancelPopup(
+		string message,
+		string buttonLabel = "Cancel",
+		GameObject parent = null) {
+
+		return ShowButtonPopup(Instance.loadingCancelPopupPrefab, message, buttonLabel, parent);
+	}
+
 	public static void CloseActivePopup() {
 		if (Instance.ActivePopup != null) {
 			Instance.ActivePopup.Close();
@@ -107,6 +118,7 @@ public class PopupsManager : Singleton<PopupsManager> {
 		Assert.IsNotNull(simplePopupPrefab, "Simple popup prefab was not assigned in inspector.");
 		Assert.IsNotNull(confirmPopupPrefab, "Confirm popup prefab was not assigned in inspector.");
 		Assert.IsNotNull(loadingPopupPrefab, "Loading popup prefab was not assigned in inspector.");
+		Assert.IsNotNull(loadingCancelPopupPrefab, "Loading cancel popup prefab was not assigned in inspector.");
 	}
 
 	static PopupController ShowPopup(GameObject prefab, string message, GameObject parent) {
@@ -130,6 +142,24 @@ public class PopupsManager : Singleton<PopupsManager> {
 		Instance.ActivePopup.PopupClosing.AddListener(Instance.OnPopupClosing);
 
 		return Instance.ActivePopup;
+	}
+
+	static ButtonPopupController ShowButtonPopup(
+		GameObject prefab,
+		string message,
+		string buttonLabel,
+		GameObject parent) {
+
+		PopupController popupController = ShowPopup(prefab, message, parent);
+		if (popupController == null) {
+			return null;
+		}
+
+		ButtonPopupController buttonPopupController = popupController as ButtonPopupController;
+		Assert.IsNotNull(buttonPopupController);
+
+		buttonPopupController.ButtonTextMesh.text = buttonLabel;
+		return buttonPopupController;
 	}
 
 	static GameObject SearchForParentForPopup(GameObject preferred = null) {
