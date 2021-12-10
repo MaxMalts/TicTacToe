@@ -320,11 +320,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47f95c2e466e9d946b6ff38a2d263a01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  simplePopupPrefab: {fileID: 1451329859167800588, guid: 178db2f4053a65843a58201cdfd3d29e,
+  dimmerBackground: 1
+  backgroundRaycastTarget: 1
+  simplePopupPrefab: {fileID: 1451329859167800588, guid: 5522f3fc17ef3ed44a492f66fe86be4b,
     type: 3}
   confirmPopupPrefab: {fileID: 1451329859167800588, guid: c43dacebd7f311242873c4d075fcac80,
     type: 3}
-  loadingPopupPrefab: {fileID: 1451329859167800588, guid: 239541f2b6d14754e823d22015104705,
+  loadingPopupPrefab: {fileID: 1451329859167800588, guid: b7e16588379e5cb41ba86c209356f13c,
     type: 3}
 --- !u!1 &505323087
 GameObject:

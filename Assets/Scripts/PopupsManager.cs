@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
+using UnityEngine.UI;
 using UnityEngine.Assertions;
+using TMPro;
 
 
 
@@ -10,9 +11,36 @@ public class PopupsManager : Singleton<PopupsManager> {
 
 	public PopupController ActivePopup { get; private set; }
 
+	[SerializeField] bool dimmerBackground = true;
+	public bool DimmerBgd {
+		get {
+			return dimmerBackground;
+		}
+
+		set {
+			bgdImage.enabled = value;
+			dimmerBackground = value;
+		}
+	}
+
+	[SerializeField] bool backgroundRaycastTarget = true;
+	public bool BgdRaycastTarget {
+		get {
+			return backgroundRaycastTarget;
+		}
+
+		set {
+			bgdImage.raycastTarget = value;
+			backgroundRaycastTarget = value;
+		}
+	}
+
 	[SerializeField] GameObject simplePopupPrefab;
 	[SerializeField] GameObject confirmPopupPrefab;
 	[SerializeField] GameObject loadingPopupPrefab;
+
+	readonly Color bgdColor = new Color(0.0f, 0.0f, 0.0f, 0.2f);
+	Image bgdImage;
 
 
 	/// <summary>
@@ -87,29 +115,14 @@ public class PopupsManager : Singleton<PopupsManager> {
 		Instance.ActivePopup?.Close();
 		Assert.IsNull(Instance.ActivePopup, "Closed popup but ActivePopup was not set to null.");
 
-		if (parent != null && parent.GetComponent<RectTransform>() == null) {
-			Debug.LogWarning("Parent of popup must be a UI object. " +
-				"Overlay canvas will be searched for.");
-
-			parent = null;
-		}
-
-		if (parent == null) {
-			Canvas canvas = FindOverlayCanvas();
-			if (canvas != null) {
-				parent = canvas.gameObject;
-			}
-		}
-
-		if (parent == null) {
-			Debug.LogWarning("There is no UI GameObject to which popup can be " +
-				"attached (no UI parent is provided and no overlay canvas was detected. " +
-				"Popup will not be shown");
-
+		GameObject actualParent = SearchForParentForPopup(parent);
+		if (actualParent == null) {
 			return null;
 		}
 
-		GameObject curPopupObj = Instantiate(prefab, parent.transform);
+		InitializeBgdImage(actualParent);
+
+		GameObject curPopupObj = Instantiate(prefab, Instance.bgdImage.gameObject.transform);
 		Instance.ActivePopup = curPopupObj.GetComponent<PopupController>();
 		Assert.IsNotNull(Instance.ActivePopup, "No PopupController on popup instance.");
 
@@ -119,8 +132,66 @@ public class PopupsManager : Singleton<PopupsManager> {
 		return Instance.ActivePopup;
 	}
 
+	static GameObject SearchForParentForPopup(GameObject preferred = null) {
+		if (preferred != null && preferred.GetComponent<RectTransform>() == null) {
+			Debug.LogWarning("Parent of popup must be a UI object. " +
+				"Overlay canvas will be searched for.");
+
+			preferred = null;
+		}
+
+		if (preferred == null) {
+			Canvas canvas = FindOverlayCanvas();
+			if (canvas != null) {
+				preferred = canvas.gameObject;
+			}
+		}
+
+		if (preferred == null) {
+			Debug.LogWarning("There is no UI GameObject to which popup can be " +
+				"attached (no UI parent is provided and no overlay canvas was detected. " +
+				"Popup will not be shown");
+
+			return null;
+		}
+
+		return preferred;
+	}
+
+	static void InitializeBgdImage(GameObject parent) {
+		Assert.IsNotNull(parent);
+
+		if (Instance.bgdImage != null && Instance.bgdImage.gameObject.transform.parent != parent.transform) {
+			Destroy(Instance.bgdImage.gameObject);
+			Instance.bgdImage = null;
+		}
+
+		if (Instance.bgdImage == null) {
+			GameObject bgdImageObj = new GameObject("PopupBackground", typeof(Image));
+			Instance.bgdImage = bgdImageObj.GetComponent<Image>();
+			Assert.IsNotNull(Instance.bgdImage);
+
+			bgdImageObj.transform.SetParent(parent.transform);
+			RectTransform rectTrans = bgdImageObj.GetComponent<RectTransform>();
+			Assert.IsNotNull(rectTrans, "No RectTransform on created bgdImageObj");
+
+			rectTrans.anchorMin = new Vector2(0.0f, 0.0f);
+			rectTrans.anchorMax = new Vector2(1.0f, 1.0f);
+			rectTrans.pivot = new Vector2(0.5f, 0.5f);
+			rectTrans.anchoredPosition = new Vector2(0.0f, 0.0f);
+			rectTrans.sizeDelta = new Vector2(0.0f, 0.0f);
+
+			Instance.bgdImage.enabled = Instance.DimmerBgd;
+			Instance.bgdImage.color = Instance.bgdColor;
+			Instance.bgdImage.raycastTarget = Instance.BgdRaycastTarget;
+		}
+
+		Instance.bgdImage.gameObject.SetActive(true);
+	}
+
 	void OnPopupClosing() {
 		Assert.IsNotNull(Instance.ActivePopup, "Popup closed but ActivePopup was null in PopupsManager.");
+		Instance.bgdImage.gameObject.SetActive(false);
 		Instance.ActivePopup = null;
 	}
 

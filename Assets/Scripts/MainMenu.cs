@@ -63,8 +63,14 @@ public class MainMenu : Unique<MainMenu> {
 			});
 
 		} else {
-			PopupsManager.ShowConfirmPopup("Check your wifi connection.");
+			ShowNoWifiPopup();
 		}
+	}
+
+	async void ShowNoWifiPopup() {
+		ConfirmPopupController popup = PopupsManager.ShowConfirmPopup("Check your WiFi connection.");
+		await popup.WaitForConfirmOrCloseAsync();
+		popup.Close();
 	}
 
 	void Awake() {

@@ -37,6 +37,8 @@ namespace Network {
 			}
 		}
 
+		public bool IsReceiving { get; private set; } = false;
+
 		const string beaconMessage = "PeerToPeerClient-beacon";
 		const int listenPort = 48888;
 		const int beaconIntervalMs = 1000;
@@ -149,7 +151,8 @@ namespace Network {
 				throw new NotConnectedException("Called StartReceiving but not connected to other client.");
 			}
 
-			if (readingTask != null && readingTask.Status != TaskStatus.Canceled) {
+			if (IsReceiving) {
+				Assert.IsTrue(readingTask != null && readingTask.Status != TaskStatus.Canceled);
 				return;
 			}
 
@@ -234,6 +237,8 @@ namespace Network {
 				}
 
 			}, token);
+
+			IsReceiving = true;
 		}
 
 		public void StopReceiving() {
@@ -241,12 +246,14 @@ namespace Network {
 				return;
 			}
 
-			if (readingTask == null || readingTask.Status == TaskStatus.Canceled) {
+			if (!IsReceiving) {
+				Assert.IsTrue(readingTask == null || readingTask.Status == TaskStatus.Canceled);
 				UnityEngine.Debug.LogWarning("Called StopReceiving before StartReceiving.");
 				return;
 			}
 
 			readingTaskCT.Cancel();
+			IsReceiving = false;
 		}
 
 		public void Disconnect() {
@@ -275,7 +282,7 @@ namespace Network {
 		void Update() {
 			if (!disposed) {
 				byte[] package;
-				while (receivedPackages.TryDequeue(out package)) {
+				while (IsReceiving && receivedPackages.TryDequeue(out package)) {
 					PackageReceived.Invoke(package);
 				}
 

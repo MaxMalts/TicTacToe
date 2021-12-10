@@ -53,6 +53,8 @@ public class ConfirmPopupController : PopupController {
 	}
 
 	public void OnConfirmButtonClicked() {
-		waitForCloseTask?.SetResult(true);
+		if (waitForCloseTask != null && waitForCloseTask.Task.Status != TaskStatus.RanToCompletion) {
+			waitForCloseTask.SetResult(true);
+		}
 	}
 }

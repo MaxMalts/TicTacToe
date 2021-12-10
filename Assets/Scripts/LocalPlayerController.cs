@@ -81,14 +81,14 @@ public class LocalPlayerController : MonoBehaviour, PlayerController {
 #endif
 			return;
 		}
-#if INTERACTION_LOG
-		Debug.Log("Pointer release position was on cell.");
-#endif
 
 		GameObject hitObject = hitInfo.transform.gameObject;
 		Assert.IsNotNull(hitObject, "Hit something but hitObject is null.");
 
 		if (cellsManager.IsCell(hitObject)) {
+#if INTERACTION_LOG
+			Debug.Log("Pointer release position was on cell.");
+# endif
 			PlayerApi.Place(cellsManager.CellPos(hitObject));
 		}
 	}
