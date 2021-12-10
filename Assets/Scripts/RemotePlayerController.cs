@@ -158,6 +158,7 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 	}
 
 	void OnDisconnected() {
+		PopupsManager.ShowConfirmPopup("Player disconnected");
 		Debug.Log("Player disconnnected.");
 	}
 

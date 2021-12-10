@@ -19,7 +19,7 @@ public class ConfirmPopupController : PopupController {
 
 
 	// Wait for closing of the popup. Pressing the confirmation button also closes the popup.
-	public Task WaitForConfirmAsync() {
+	public Task WaitForConfirmAndCloseAsync() {
 		//await Task.Run(() => {
 		//	lock (closingLock) {
 		//		while (!IsClosed) {
@@ -42,6 +42,12 @@ public class ConfirmPopupController : PopupController {
 		//	Monitor.PulseAll(closingLock);
 		//}
 
-		waitForCloseTask.SetResult(null);
+		if (!IsClosed) {
+			waitForCloseTask?.SetResult(null);
+		}
+	}
+
+	public void OnConfirmButtonClicked() {
+		Close();
 	}
 }

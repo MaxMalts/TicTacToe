@@ -23,15 +23,17 @@ public class PopupController : MonoBehaviour {
 
 	public bool IsClosed { get; private set; } = false;
 
-	bool isClosing = false;
 
 
+	/// <summary>
+	/// If you override this method, place base.Close() in the beginning and
+	/// check for IsClosed as in this method to avoid multiple closing.
+	/// </summary>
 	public virtual void Close() {
-		if (!IsClosed && !isClosing) {
-			isClosing = true;
+		if (!IsClosed) {
+			IsClosed = true;
 			PopupClosing.Invoke();
 			Destroy(gameObject);
-			IsClosed = true;
 		}
 	}
 

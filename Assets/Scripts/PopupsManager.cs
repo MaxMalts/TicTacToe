@@ -15,16 +15,56 @@ public class PopupsManager : Singleton<PopupsManager> {
 	[SerializeField] GameObject loadingPopupPrefab;
 
 
-	public static void ShowSimplePopup(string message, GameObject parent = null) {
-		ShowPopup(Instance.simplePopupPrefab, message, parent);
+	/// <summary>
+	/// Shows popup with just a text in it.
+	/// </summary>
+	/// <param name="message">Message to be displayed</param>
+	/// <param name="parent">
+	/// Ui obeject to whick popup will be attached.
+	/// If null, then overlay canvas will be automatically searched for
+	/// </param>
+	/// <returns>Created popup</returns>
+	public static PopupController ShowSimplePopup(string message, GameObject parent = null) {
+		return ShowPopup(Instance.simplePopupPrefab, message, parent);
 	}
 
-	public static void ShowConfirmPopup(string message, string buttonLabel = "Ok", GameObject parent = null) {
-		ShowPopup(Instance.simplePopupPrefab, message, parent);
+	/// <summary>
+	/// Shows popup with a text and confirmation button in it.
+	/// </summary>
+	/// <param name="message">Message to be displayed</param>
+	/// <param name="buttonLabel">Text inside the confirmation button</param>
+	/// <param name="parent">
+	/// Ui obeject to whick popup will be attached.
+	/// If null, then overlay canvas will be automatically searched for
+	/// </param>
+	/// <returns>Created popup</returns>
+	public static ConfirmPopupController ShowConfirmPopup(
+		string message,
+		string buttonLabel = "OK",
+		GameObject parent = null) {
+
+		PopupController popupController = ShowPopup(Instance.confirmPopupPrefab, message, parent);
+		if (popupController == null) {
+			return null;
+		}
+
+		ConfirmPopupController confirmPopupController = popupController as ConfirmPopupController;
+		Assert.IsNotNull(confirmPopupController);
+
+		return confirmPopupController;
 	}
 
-	public static void ShowLoadingPopup(string message, GameObject parent = null) {
-		ShowPopup(Instance.loadingPopupPrefab, message, parent);
+	/// <summary>
+	/// Shows popup with a text and loading icon in it.
+	/// </summary>
+	/// <param name="message">Message to be displayed</param>
+	/// <param name="parent">
+	/// Ui obeject to whick popup will be attached.
+	/// If null, then overlay canvas will be automatically searched for
+	/// </param>
+	/// <returns>Created popup</returns>
+	public static PopupController ShowLoadingPopup(string message, GameObject parent = null) {
+		return ShowPopup(Instance.loadingPopupPrefab, message, parent);
 	}
 
 	public static void CloseActivePopup() {
@@ -41,7 +81,7 @@ public class PopupsManager : Singleton<PopupsManager> {
 		Assert.IsNotNull(loadingPopupPrefab, "Loading popup prefab was not assigned in inspector.");
 	}
 
-	static void ShowPopup(GameObject prefab, string message, GameObject parent) {
+	static PopupController ShowPopup(GameObject prefab, string message, GameObject parent) {
 		Assert.IsNotNull(prefab);
 
 		Instance.ActivePopup?.Close();
@@ -66,7 +106,7 @@ public class PopupsManager : Singleton<PopupsManager> {
 				"attached (no UI parent is provided and no overlay canvas was detected. " +
 				"Popup will not be shown");
 
-			return;
+			return null;
 		}
 
 		GameObject curPopupObj = Instantiate(prefab, parent.transform);
@@ -75,6 +115,8 @@ public class PopupsManager : Singleton<PopupsManager> {
 
 		Instance.ActivePopup.MessageTextMesh.text = message;
 		Instance.ActivePopup.PopupClosing.AddListener(Instance.OnPopupClosing);
+
+		return Instance.ActivePopup;
 	}
 
 	void OnPopupClosing() {

@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 1451329859167800590}
   - component: {fileID: 2990555290802383201}
   - component: {fileID: 1484690309128343395}
-  - component: {fileID: 1880099845347494047}
+  - component: {fileID: 1707534920249202415}
   m_Layer: 5
   m_Name: ConfirmPopup
   m_TagString: Untagged
@@ -134,7 +134,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 0
   m_VerticalFit: 2
---- !u!114 &1880099845347494047
+--- !u!114 &1707534920249202415
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -143,7 +143,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1451329859167800588}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f902ce7beab01fc44b7ff5514a38f3ff, type: 3}
+  m_Script: {fileID: 11500000, guid: 784d932efc3d804489dcfaa2b4440eaf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   messageTextMesh: {fileID: 1451329859365050848}
@@ -426,6 +426,7 @@ GameObject:
   - component: {fileID: 845534517510422846}
   - component: {fileID: 6737412940951360250}
   - component: {fileID: 816880419538970094}
+  - component: {fileID: 3225319093837002546}
   - component: {fileID: 6041584029802172397}
   - component: {fileID: 7153719282237209754}
   m_Layer: 5
@@ -453,7 +454,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 420, y: 0}
-  m_SizeDelta: {x: 160.95, y: 0}
+  m_SizeDelta: {x: 180.95, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4009154404883882324
 CanvasRenderer:
@@ -510,7 +511,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 0
+  m_Transition: 3
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -534,7 +535,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 845534517510422846}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1707534920249202415}
+        m_MethodName: OnConfirmButtonClicked
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &816880419538970094
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -550,6 +562,25 @@ MonoBehaviour:
   m_EffectColor: {r: 0.38679248, g: 0.3730723, b: 0.3010413, a: 1}
   m_EffectDistance: {x: 5, y: 5}
   m_UseGraphicAlpha: 1
+--- !u!95 &3225319093837002546
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6196036159555096768}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 9ca7425a321722349a69710e552a601f, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!114 &6041584029802172397
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -563,8 +594,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Padding:
-    m_Left: 20
-    m_Right: 20
+    m_Left: 30
+    m_Right: 30
     m_Top: 20
     m_Bottom: 20
   m_ChildAlignment: 4
