@@ -13,13 +13,18 @@ using UnityEngine.Assertions;
 public class ConfirmPopupController : PopupController {
 
 	//object closingLock = new object();
-
-	// object will be always set to null. There is no non-generic TaskCompletionSource
-	TaskCompletionSource<object> waitForCloseTask;
+	TaskCompletionSource<bool> waitForCloseTask;
 
 
-	// Wait for closing of the popup. Pressing the confirmation button also closes the popup.
-	public Task WaitForConfirmAndCloseAsync() {
+	/// <summary>
+	/// Wait for confirmation button click or closing of the popup.
+	/// </summary>
+	/// <returns>
+	/// Task which returns: <br/>
+	/// <see langword="true"/> if confirmation button clicked <br/>
+	/// <see langword="false"/> if closed
+	/// </returns>
+	public Task<bool> WaitForConfirmOrCloseAsync() {
 		//await Task.Run(() => {
 		//	lock (closingLock) {
 		//		while (!IsClosed) {
@@ -29,7 +34,7 @@ public class ConfirmPopupController : PopupController {
 		//});
 
 		if (waitForCloseTask == null) {
-			waitForCloseTask = new TaskCompletionSource<object>();
+			waitForCloseTask = new TaskCompletionSource<bool>();
 		}
 
 		return waitForCloseTask.Task;  // will be converted to non-generic Task
@@ -43,11 +48,11 @@ public class ConfirmPopupController : PopupController {
 		//}
 
 		if (!IsClosed) {
-			waitForCloseTask?.SetResult(null);
+			waitForCloseTask?.SetResult(false);
 		}
 	}
 
 	public void OnConfirmButtonClicked() {
-		Close();
+		waitForCloseTask?.SetResult(true);
 	}
 }
