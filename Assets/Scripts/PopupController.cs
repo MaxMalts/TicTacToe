@@ -23,10 +23,19 @@ public class PopupController : MonoBehaviour {
 
 	public bool IsClosed { get; private set; } = false;
 
+	bool isClosing = false;
+
 
 	public virtual void Close() {
-		PopupClosing.Invoke();
-		Destroy(gameObject);
-		IsClosed = true;
+		if (!IsClosed && !isClosing) {
+			isClosing = true;
+			PopupClosing.Invoke();
+			Destroy(gameObject);
+			IsClosed = true;
+		}
+	}
+
+	protected virtual void OnDestroy() {
+		Close();
 	}
 }

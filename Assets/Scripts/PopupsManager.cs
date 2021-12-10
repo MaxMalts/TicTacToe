@@ -36,15 +36,15 @@ public class PopupsManager : Singleton<PopupsManager> {
 	protected override void Awake() {
 		base.Awake();
 
-		Assert.IsNotNull(simplePopupPrefab, "Popup prefab was not assigned in inspector.");
-		Assert.IsNotNull(confirmPopupPrefab, "Popup prefab was not assigned in inspector.");
-		Assert.IsNotNull(loadingPopupPrefab, "Loading Popup prefab was not assigned in inspector.");
+		Assert.IsNotNull(simplePopupPrefab, "Simple popup prefab was not assigned in inspector.");
+		Assert.IsNotNull(confirmPopupPrefab, "Confirm popup prefab was not assigned in inspector.");
+		Assert.IsNotNull(loadingPopupPrefab, "Loading popup prefab was not assigned in inspector.");
 	}
 
 	static void ShowPopup(GameObject prefab, string message, GameObject parent) {
 		Assert.IsNotNull(prefab);
 
-		Instance.ActivePopup.Close();
+		Instance.ActivePopup?.Close();
 		Assert.IsNull(Instance.ActivePopup, "Closed popup but ActivePopup was not set to null.");
 
 		if (parent != null && parent.GetComponent<RectTransform>() == null) {

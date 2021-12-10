@@ -167,7 +167,7 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 
 			localStartHappened = false;
 			SendSign();
-			PopupsManager.RemovePopup();
+			PopupsManager.CloseActivePopup();
 			gameManager.UnsuspendGame();
 
 		} else {
