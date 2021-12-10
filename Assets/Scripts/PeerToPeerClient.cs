@@ -72,6 +72,8 @@ namespace Network {
 				throw new ObjectDisposedException("Network.PeerToPeerClient");
 			}
 
+			Init();
+
 			if (connectTask == null ||
 				connectTask.Status != TaskStatus.Running) {
 
@@ -148,7 +150,6 @@ namespace Network {
 			}
 
 			if (readingTask != null && readingTask.Status != TaskStatus.Canceled) {
-				UnityEngine.Debug.LogWarning("Called StartReceiving twice.");
 				return;
 			}
 
@@ -203,7 +204,11 @@ namespace Network {
 				//				disconnectTimer.Reset();
 
 
-				while (!disposed) {
+				while (true) {
+					if (disposed) {
+						readingTaskCT.Cancel();
+					}
+
 					token.ThrowIfCancellationRequested();
 
 					byte[] data;
@@ -217,7 +222,6 @@ namespace Network {
 						disconnectedEventPending = true;
 						readingTaskCT.Cancel();
 						continue;
-
 					}
 
 #if NETWORK_LOG
@@ -245,8 +249,7 @@ namespace Network {
 			readingTaskCT.Cancel();
 		}
 
-		public void Close() {
-			disposed = true;
+		public void Disconnect() {
 			connected = false;
 			readingTaskCT.Cancel();
 			listener.Stop();
@@ -254,16 +257,19 @@ namespace Network {
 			tcpClient?.Close();
 
 #if NETWORK_LOG
-			UnityEngine.Debug.Log("PeerToPeerClient closed.");
+			UnityEngine.Debug.Log("PeerToPeerClient disconnected.");
 #endif
+		}
+
+		void Dispose() {
+			disposed = true;
+			Disconnect();
 		}
 
 		void Awake() {
 			groupClient = UdpBroadcastClient.Instance;
-			listener = new TcpListener(IPAddress.Any, listenPort);
-			receivedPackages = new ConcurrentQueue<byte[]>();
 			connectingLock = new object();
-			readingTaskCT = new CancellationTokenSource();
+			Init();
 		}
 
 		void Update() {
@@ -298,6 +304,12 @@ namespace Network {
 					}
 				}
 			}
+		}
+
+		void Init() {
+			listener = new TcpListener(IPAddress.Any, listenPort);
+			receivedPackages = new ConcurrentQueue<byte[]>();
+			readingTaskCT = new CancellationTokenSource();
 		}
 
 		void SearchAndConnect() {
@@ -426,7 +438,7 @@ namespace Network {
 		}
 
 		void OnDestroy() {
-			Close();
+			Dispose();
 		}
 
 		static bool StartsWith(byte[] array, byte[] start) {

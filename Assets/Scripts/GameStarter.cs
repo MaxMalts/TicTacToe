@@ -20,8 +20,7 @@ public class GameStarter : Unique<GameStarter> {
 
 	public void StartNewGame() {
 		Assert.IsNotNull(gameManager);
-		Assert.IsTrue(localSign == CellSign.Cross ||
-			localSign == CellSign.Nought);
+		Assert.IsTrue(localSign == CellSign.Cross || localSign == CellSign.Nought);
 
 		if (restartLabel != null) {
 			restartLabel.SetActive(false);

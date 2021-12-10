@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 using UnityEngine.Assertions;
 using TMPro;
 
@@ -12,7 +13,8 @@ public class GameManager : Unique<GameManager> {
 
 	public const int fieldSize = 3;
 
-	public UnityEvent GameFinished { get; private set; }
+	public UnityEvent GameFinished { get; } = new UnityEvent();
+	public UnityEvent ReturningToMainMenu { get; } = new UnityEvent();
 
 	[SerializeField] CellsManager cellsManager;
 	public CellsManager CellsManager {
@@ -64,6 +66,10 @@ public class GameManager : Unique<GameManager> {
 		CellSign remoteSign =
 			localSign == CellSign.Cross ? CellSign.Nought : CellSign.Cross;
 
+
+		localPlayerController.StartGame(localSign);
+		remotePlayerController.StartGame(remoteSign);
+
 		if (localSign == CellSign.Cross) {
 			CurrentPlayer = localPlayer;
 			localPlayerController.EnableInput();
@@ -74,9 +80,6 @@ public class GameManager : Unique<GameManager> {
 			remotePlayerController.EnableInput();
 			statusText.text = opponentTurnStatus;
 		}
-
-		localPlayerController.StartGame(localSign);
-		remotePlayerController.StartGame(remoteSign);
 	}
 
 	public void SuspendGame() {
@@ -100,14 +103,17 @@ public class GameManager : Unique<GameManager> {
 		}
 	}
 
+	public void ReturnToMainMenu() {
+		ReturningToMainMenu.Invoke();
+		SceneManager.LoadScene((int)SceneIndeces.MainMenu);
+	}
+
 	void Awake() {
 		Assert.IsNotNull(cellsManager, "Cells Manager was not assigned in inspector.");
 		Assert.IsNotNull(localPlayer, "Local Player was not assigned in inspector.");
 		Assert.IsNotNull(remotePlayer, "Remote Player was not assigned in inspector.");
 		Assert.IsNotNull(winLine, "Winning Line was not assigned in inspector.");
 		Assert.IsNotNull(statusText, "Status Text was not assigned in inspector.");
-
-		GameFinished = new UnityEvent();
 
 		localPlayerAPI = localPlayer.GetComponent<PlayerAPI>();
 		Assert.IsNotNull(localPlayerAPI, "No PlayerAPI on LocalPlayer object.");

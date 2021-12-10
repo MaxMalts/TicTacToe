@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -95,6 +96,8 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 			throw new ArgumentException("Bad value passed to scene.",
 				"ptp-client", innerException);
 		}
+
+		GameManager.Instance.ReturningToMainMenu.AddListener(OnReturningToMainMenu);
 	}
 
 	void Start() {
@@ -117,6 +120,10 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 
 		ptpClient.PackageReceived.AddListener(OnPackageReceived);
 		ptpClient.Disconnected.AddListener(OnDisconnected);
+	}
+
+	void OnReturningToMainMenu() {
+		Destroy(ptpClient.gameObject);
 	}
 
 	void OnLocalCellPlaced(PlayerAPI.PlaceContext placeContext) {
@@ -157,9 +164,14 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 		}
 	}
 
-	void OnDisconnected() {
-		PopupsManager.ShowConfirmPopup("Player disconnected");
+	async void OnDisconnected() {
 		Debug.Log("Player disconnnected.");
+
+		GameManager.Instance.SuspendGame();
+
+		ConfirmPopupController confirmPopup = PopupsManager.ShowConfirmPopup("Player disconnected");
+		await confirmPopup.WaitForConfirmOrCloseAsync();
+		GameManager.Instance.ReturnToMainMenu();
 	}
 
 	void HandleStartGameQuery() {
