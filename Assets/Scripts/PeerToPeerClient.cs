@@ -66,13 +66,15 @@ namespace Network {
 
 
 		/// <summary>
-		/// Searches for other PeerToPeerClient in
-		/// local network and connects to it.
+		/// Searches for other PeerToPeerClient in local network and connects to it.
+		/// If already connected, disconnects first.
 		/// </summary>
 		public Task ConnectToOtherClient() {
 			if (disposed) {
 				throw new ObjectDisposedException("Network.PeerToPeerClient");
 			}
+
+			Disconnect();
 
 			Init();
 
@@ -156,6 +158,7 @@ namespace Network {
 				return;
 			}
 
+			readingTaskCT = new CancellationTokenSource();
 			CancellationToken token = readingTaskCT.Token;
 			readingTask = Task.Run(() => {
 				// TcpClient.ReceiveTimeout does the thing
@@ -212,6 +215,9 @@ namespace Network {
 						readingTaskCT.Cancel();
 					}
 
+					if (token.IsCancellationRequested) {
+						IsReceiving = false;
+					}
 					token.ThrowIfCancellationRequested();
 
 					byte[] data;
@@ -247,8 +253,6 @@ namespace Network {
 			}
 
 			if (!IsReceiving) {
-				Assert.IsTrue(readingTask == null || readingTask.Status == TaskStatus.Canceled);
-				UnityEngine.Debug.LogWarning("Called StopReceiving before StartReceiving.");
 				return;
 			}
 
@@ -258,7 +262,9 @@ namespace Network {
 
 		public void Disconnect() {
 			connected = false;
-			readingTaskCT.Cancel();
+			if (IsReceiving) {
+				StopReceiving();
+			}
 			listener.Stop();
 			pingTimer.Reset();
 			tcpClient?.Close();
@@ -303,7 +309,7 @@ namespace Network {
 					if (pingTimer.ElapsedMilliseconds >= pingIntervalMs) {
 						try {
 							Send(pingMessage);  // will handle disconnection by itself
-						} catch (SocketException) {
+						} catch (NotConnectedException) {
 							pingTimer.Reset();
 						}
 
@@ -316,7 +322,6 @@ namespace Network {
 		void Init() {
 			listener = new TcpListener(IPAddress.Any, listenPort);
 			receivedPackages = new ConcurrentQueue<byte[]>();
-			readingTaskCT = new CancellationTokenSource();
 		}
 
 		void SearchAndConnect() {

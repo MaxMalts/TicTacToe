@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -18,9 +19,14 @@ public class MainMenu : Unique<MainMenu> {
 	[SerializeField] [Tooltip("Main Canvas Group of main menu.")]
 	CanvasGroup uiCanvasGroup;
 
+	const string myCellSignQuery = "my-cell-sign";
+	const string crossSignValue = "cross";
+	const string noughtSignValue = "nought";
+
 	PeerToPeerClient ptpClient;
 	Task connectingTask;
 	bool connected;
+	bool needToDoConnecting = false;
 	CellSign localCellSign;
 
 
@@ -29,11 +35,40 @@ public class MainMenu : Unique<MainMenu> {
 			return;
 		}
 
+		localCellSign = sign;
+
 		GameObject ptpObject =
 			new GameObject("PeerToPeerClient", typeof(PeerToPeerClient));
 		ptpClient = ptpObject.GetComponent<PeerToPeerClient>();
 		DontDestroyOnLoad(ptpClient);
 
+		needToDoConnecting = true;
+	}
+
+	void Awake() {
+		Assert.IsNotNull(canvas, "Canvas was not assigned in inspector.");
+		Assert.IsNotNull(uiCanvasGroup, "UI Canvas Group was not assigned in inspector.");
+	}
+
+	void Update() {
+		if (needToDoConnecting) {
+			needToDoConnecting = false;
+			DoConnecting();
+		}
+		if (connected) {
+			SceneArgsManager.NextSceneArgs.Add("cell-sign", localCellSign);
+			SceneArgsManager.NextSceneArgs.Add("ptp-client", ptpClient);
+			SceneManager.LoadScene((int)SceneIndeces.TicTacToe);
+		}
+	}
+
+	async void ShowNoWifiPopup() {
+		ConfirmPopupController popup = PopupsManager.ShowConfirmPopup("Check your WiFi connection.");
+		await popup.WaitForConfirmOrCloseAsync();
+		popup.Close();
+	}
+
+	void DoConnecting() {
 		bool networkAvailable = true;
 		if (PeerToPeerClient.NetworkAvailable) {
 			try {
@@ -58,8 +93,17 @@ public class MainMenu : Unique<MainMenu> {
 					return;
 				}
 
-				localCellSign = sign;
-				connected = true;
+				string signValue =
+					localCellSign == CellSign.Cross ? crossSignValue : noughtSignValue;
+
+				try {
+					ptpClient.Send(Encoding.UTF8.GetBytes(myCellSignQuery + ':' + signValue));
+				} catch (NotConnectedException) {
+					needToDoConnecting = true;
+				}
+
+				ptpClient.PackageReceived.AddListener(OnPackageReceived);
+				ptpClient.StartReceiving();
 			});
 
 		} else {
@@ -67,22 +111,30 @@ public class MainMenu : Unique<MainMenu> {
 		}
 	}
 
-	async void ShowNoWifiPopup() {
-		ConfirmPopupController popup = PopupsManager.ShowConfirmPopup("Check your WiFi connection.");
-		await popup.WaitForConfirmOrCloseAsync();
-		popup.Close();
-	}
+	void OnPackageReceived(byte[] data) {
+		ptpClient.StopReceiving();
 
-	void Awake() {
-		Assert.IsNotNull(canvas, "Canvas was not assigned in inspector.");
-		Assert.IsNotNull(uiCanvasGroup, "UI Canvas Group was not assigned in inspector.");
-	}
+		string queryStr = Encoding.UTF8.GetString(data);
 
-	void Update() {
-		if (connected) {
-			SceneArgsManager.NextSceneArgs.Add("cell-sign", localCellSign);
-			SceneArgsManager.NextSceneArgs.Add("ptp-client", ptpClient);
-			SceneManager.LoadScene((int)SceneIndeces.TicTacToe);
+		if (queryStr.StartsWith(myCellSignQuery) &&
+			queryStr.Length > myCellSignQuery.Length + 1) {
+
+			Assert.IsTrue(localCellSign == CellSign.Cross ||
+				localCellSign == CellSign.Nought);
+
+			string expectedSignValue =
+				localCellSign == CellSign.Cross ? noughtSignValue : crossSignValue;
+
+			if (expectedSignValue == queryStr.Substring(myCellSignQuery.Length + 1)) {
+				connected = true;
+			} else {
+				Debug.Log("Other player had same sign. Reconnecting.");
+				ptpClient.Disconnect();
+				needToDoConnecting = true;
+			}
+
+		} else {
+			Debug.LogError("Bad query received: \"" + queryStr + "\".");
 		}
 	}
 }
