@@ -44,7 +44,7 @@ namespace Network {
 		const int pingIntervalMs = 1000;
 		const int disconnectTimeoutMs = 7000;
 
-		UdpBroadcastClient groupClient;
+		UdpBroadcastClient broadcastClient;
 		TcpListener listener;
 		TcpClient tcpClient;
 		NetworkStreamWrapper stream;
@@ -61,7 +61,7 @@ namespace Network {
 		}
 		//Stopwatch disconnectTimer = new Stopwatch();
 
-		Task<bool> connectTask;
+		Task connectTask;
 		CancellationTokenSource connectTaskCT;
 
 		ConcurrentQueue<byte[]> receivedPackages;
@@ -75,10 +75,8 @@ namespace Network {
 		/// Searches for other PeerToPeerClient in local network and connects to it.
 		/// If already connected, disconnects first.
 		/// </summary>
-		/// <returns>
-		/// <see langword="true"/> if connected successfully, otherwise <see langword="false"/>
-		/// </returns>
-		public Task<bool> ConnectToOtherClient() {
+		/// <returns>Task which returns when connected.</returns>
+		public Task ConnectToOtherClient() {
 			if (disposed) {
 				throw new ObjectDisposedException("Network.PeerToPeerClient");
 			}
@@ -94,9 +92,9 @@ namespace Network {
 
 				receiveBeacon = new TaskCompletionSource<IPAddress>();
 
-				groupClient.MessageReceived.AddListener(OnBroadcastReceived);
+				broadcastClient.MessageReceived.AddListener(OnBroadcastReceived);
 				try {
-					groupClient.StartListeningBroadcast();
+					broadcastClient.StartListeningBroadcast();
 				} catch (NoNetworkException exception) {
 					throw new NoNetworkException("No network for sending and receiving beacons.", exception);
 				}
@@ -104,7 +102,7 @@ namespace Network {
 				connectTaskCT = new CancellationTokenSource();
 				CancellationToken token = connectTaskCT.Token;
 				connectTask = Task.Run(() => {
-					return SearchAndConnect(token);
+					SearchAndConnect(token);
 				}, token);
 			}
 
@@ -273,16 +271,15 @@ namespace Network {
 				disconnectedEventPending = true;
 			}
 
+			connectTaskCT.Cancel();
 			StopReceiving();
 			listener.Stop();
 			pingTimer.Reset();
 			tcpClient?.Close();
-
-			readingTask = null;  // Remove this
 		}
 
 		public void Reset() {
-			groupClient = UdpBroadcastClient.Instance;
+			broadcastClient = UdpBroadcastClient.Instance;
 			listener?.Stop();
 			listener = new TcpListener(IPAddress.Any, listenPort);
 			tcpClient?.Close();
@@ -319,8 +316,8 @@ namespace Network {
 
 				if (disconnectedEventPending) {
 					pingTimer.Reset();
-					Disconnected.Invoke();
 					Disconnect();
+					Disconnected.Invoke();
 
 					disconnectedEventPending = false;
 				}
@@ -346,10 +343,10 @@ namespace Network {
 			}
 		}
 
-		bool SearchAndConnect(CancellationToken token) {
+		void SearchAndConnect(CancellationToken token) {
 			try {
 				if (disposed) {
-					return false;
+					throw new ObjectDisposedException("PeerToPeerClient");
 				}
 				token.ThrowIfCancellationRequested();
 
@@ -358,14 +355,15 @@ namespace Network {
 
 				while (!Connected) {
 					if (disposed) {
-						return false;
+						throw new ObjectDisposedException("PeerToPeerClient");
 					}
 					token.ThrowIfCancellationRequested();
 
 					try {
-						groupClient.Send(beaconMessage);
-					} catch (ObjectDisposedException) {
-						return false;
+						broadcastClient.Send(beaconMessage);
+					} catch (ObjectDisposedException exception) {
+						throw new ObjectDisposedException("broadcastClient needed to search " +
+							"for other PeerToPeerClient disposed", exception);
 					}
 					token.ThrowIfCancellationRequested();
 
@@ -393,14 +391,14 @@ namespace Network {
 				}
 
 				token.ThrowIfCancellationRequested();
-				groupClient.StopListeningBroadcast();
+				broadcastClient.StopListeningBroadcast();
 
+			} catch (OperationCanceledException) {
+				throw;
 			} catch (Exception exception) {
 				UnityEngine.Debug.LogException(exception);
-				return false;
+				throw;
 			}
-
-			return true;
 		}
 
 		void OnConnect(IAsyncResult ar) {

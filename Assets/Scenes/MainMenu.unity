@@ -321,7 +321,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dimmerBackground: 1
-  backgroundRaycastTarget: 1
+  backgroundRaycastTarget: 0
   simplePopupPrefab: {fileID: 1451329859167800588, guid: 5522f3fc17ef3ed44a492f66fe86be4b,
     type: 3}
   confirmPopupPrefab: {fileID: 1451329859167800588, guid: c43dacebd7f311242873c4d075fcac80,
@@ -435,7 +435,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canvas: {fileID: 730563296}
-  uiCanvasGroup: {fileID: 1195761946}
 --- !u!4 &653146086
 Transform:
   m_ObjectHideFlags: 0

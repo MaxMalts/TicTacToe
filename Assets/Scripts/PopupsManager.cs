@@ -222,6 +222,7 @@ public class PopupsManager : Singleton<PopupsManager> {
 	void OnPopupClosing() {
 		Assert.IsNotNull(Instance.ActivePopup, "Popup closed but ActivePopup was null in PopupsManager.");
 		Instance.bgdImage.gameObject.SetActive(false);
+		Instance.bgdImage.enabled = false;
 		Instance.ActivePopup = null;
 	}
 

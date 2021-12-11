@@ -22,35 +22,29 @@ public class MainMenu : Unique<MainMenu> {
 	const string noughtSignValue = "nought";
 
 	PeerToPeerClient ptpClient;
-	Task<bool> connectingTask;
+	Task connectingTask;
 	bool connected;
 	volatile bool needToSendSign = false;
 	volatile bool needToCancelConnecting = false;
+	volatile bool connectionCanceled = true;
 	CellSign localCellSign;
 
 
 	public void ConnectAndStartGame(CellSign sign) {
-		if (connectingTask?.Status == TaskStatus.Running) {
-			return;
-		}
+		ShowConnectingPopup();
 
 		localCellSign = sign;
 
-		GameObject ptpObject =
-			new GameObject("PeerToPeerClient", typeof(PeerToPeerClient));
-		ptpClient = ptpObject.GetComponent<PeerToPeerClient>();
-		DontDestroyOnLoad(ptpClient);
+		if (connectionCanceled) {
+			GameObject ptpObject =
+				new GameObject("PeerToPeerClient", typeof(PeerToPeerClient));
+			ptpClient = ptpObject.GetComponent<PeerToPeerClient>();
+			DontDestroyOnLoad(ptpClient);
 
-		ptpClient.PackageReceived.AddListener(OnPackageReceived);
-		ptpClient.Disconnected.AddListener(OnDisconnected);
-		DoConnecting();
-	}
-
-	public void CancelConnecting() {
-		needToSendSign = false;
-		connected = false;
-		localCellSign = CellSign.Empty;
-		Destroy(ptpClient.gameObject);
+			ptpClient.PackageReceived.AddListener(OnPackageReceived);
+			ptpClient.Disconnected.AddListener(OnDisconnected);
+			DoConnecting();
+		}
 	}
 
 	void Awake() {
@@ -58,6 +52,11 @@ public class MainMenu : Unique<MainMenu> {
 	}
 
 	void Update() {
+		if (needToCancelConnecting) {
+			needToCancelConnecting = false;
+			CancelConnecting();
+		}
+
 		if (needToSendSign) {
 			needToSendSign = false;
 			string signValue =
@@ -72,16 +71,22 @@ public class MainMenu : Unique<MainMenu> {
 			ptpClient.StartReceiving();
 		}
 
-		if (needToCancelConnecting) {
-			needToCancelConnecting = false;
-			CancelConnecting();
-		}
-
 		if (connected) {
 			SceneArgsManager.NextSceneArgs.Add("cell-sign", localCellSign);
 			SceneArgsManager.NextSceneArgs.Add("ptp-client", ptpClient);
 			SceneManager.LoadScene((int)SceneIndeces.TicTacToe);
 		}
+	}
+
+	void CancelConnecting() {
+		Assert.IsNotNull(ptpClient);
+		Destroy(ptpClient.gameObject);
+		ptpClient = null;
+
+		needToSendSign = false;
+		connected = false;
+		connectionCanceled = true;
+		localCellSign = CellSign.Empty;
 	}
 
 	void DoConnecting() {
@@ -98,16 +103,26 @@ public class MainMenu : Unique<MainMenu> {
 		}
 
 		if (networkAvailable) {
-			ShowConnectingPopup();
-
 			connectingTask.ContinueWith((task) => {
-				if (task.Status != TaskStatus.RanToCompletion) {
-					Debug.LogError("connectingTask not completed successfully. Its status: " +
-						connectingTask.Status + '.');
+				if (task.Status != TaskStatus.RanToCompletion &&
+					task.Status != TaskStatus.Canceled &&
+					task.Status != TaskStatus.Faulted) {
+
+					Debug.LogError("connectingTask has bad status: " + connectingTask.Status + '.');
+					return;
+				}
+				if (task.Status == TaskStatus.Canceled) {
+					return;
+				}
+				if (task.Status == TaskStatus.Faulted &&
+					(task.Exception.InnerExceptions.Count != 1 ||
+					!(task.Exception.InnerExceptions[0] is ObjectDisposedException))) {
+
+					Debug.LogException(task.Exception, this);
 					return;
 				}
 
-				if (task.Result) {
+				if (task.Status == TaskStatus.RanToCompletion) {
 					Debug.Log("Connected");
 					needToSendSign = true;
 				}
