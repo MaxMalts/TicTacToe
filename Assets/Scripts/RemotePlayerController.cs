@@ -63,9 +63,10 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 
 		try {
 			ptpClient.StartReceiving();
+			Debug.Log("Started");
 			ptpClient.Send(Encoding.UTF8.GetBytes(startGameQuery));
 		} catch (NotConnectedException) {
-			return;
+			OnDisconnected();
 		}
 
 		if (remoteStartHappened) {

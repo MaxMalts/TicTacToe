@@ -149,20 +149,6 @@ namespace Network {
 #endif
 		}
 
-		public void Close() {
-			disposed = true;
-			if (noNetwork) {
-				return;
-			}
-
-			sendClient.Close();
-			receiveClient.Close();
-
-#if NETWORK_LOG
-			UnityEngine.Debug.Log("UdpBroadcastClient closed.");
-#endif
-		}
-
 		public static IPAddress GetWifiIP() {
 #if (UNITY_ANDROID) && !UNITY_EDITOR
 			IPAddress wifiAddress = GetIpFromWifiManager();
@@ -406,6 +392,20 @@ namespace Network {
 			}
 
 			return null;
+		}
+
+		void Close() {
+			disposed = true;
+			if (noNetwork) {
+				return;
+			}
+
+			sendClient.Close();
+			receiveClient.Close();
+
+#if NETWORK_LOG
+			UnityEngine.Debug.Log("UdpBroadcastClient closed.");
+#endif
 		}
 
 		void OnDestroy() {

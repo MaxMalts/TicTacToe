@@ -98,7 +98,7 @@ public class PopupsManager : Singleton<PopupsManager> {
 	/// If null, then overlay canvas will be automatically searched for
 	/// </param>
 	/// <returns>Created popup</returns>
-	public static PopupController ShowLoadingCancelPopup(
+	public static ButtonPopupController ShowLoadingCancelPopup(
 		string message,
 		string buttonLabel = "Cancel",
 		GameObject parent = null) {

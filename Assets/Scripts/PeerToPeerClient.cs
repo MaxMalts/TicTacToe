@@ -27,7 +27,7 @@ namespace Network {
 
 		public bool Connected {
 			get {
-				return connected;
+				return Convert.ToBoolean(connected);
 			}
 		}
 
@@ -36,8 +36,6 @@ namespace Network {
 				return UdpBroadcastClient.GetWifiIP() != null;
 			}
 		}
-
-		public bool IsReceiving { get; private set; } = false;
 
 		const string beaconMessage = "PeerToPeerClient-beacon";
 		const int listenPort = 48888;
@@ -50,13 +48,21 @@ namespace Network {
 		TcpListener listener;
 		TcpClient tcpClient;
 		NetworkStreamWrapper stream;
-		volatile bool connected = false;
+		volatile int connected = 0;  // bool
 		TaskCompletionSource<IPAddress> receiveBeacon;
 		object connectingLock;
-		Task connectTask;
 		bool disconnectedEventPending = false;
 		Stopwatch pingTimer = new Stopwatch();
+
+		bool IsReceiving {
+			get {
+				return readingTask != null && !readingTaskCT.IsCancellationRequested;
+			}
+		}
 		//Stopwatch disconnectTimer = new Stopwatch();
+
+		Task<bool> connectTask;
+		CancellationTokenSource connectTaskCT;
 
 		ConcurrentQueue<byte[]> receivedPackages;
 		Task readingTask;
@@ -69,14 +75,19 @@ namespace Network {
 		/// Searches for other PeerToPeerClient in local network and connects to it.
 		/// If already connected, disconnects first.
 		/// </summary>
-		public Task ConnectToOtherClient() {
+		/// <returns>
+		/// <see langword="true"/> if connected successfully, otherwise <see langword="false"/>
+		/// </returns>
+		public Task<bool> ConnectToOtherClient() {
 			if (disposed) {
 				throw new ObjectDisposedException("Network.PeerToPeerClient");
 			}
 
-			Disconnect();
+			if (Connected) {
+				Disconnect();
+			}
 
-			Init();
+			Reset();
 
 			if (connectTask == null ||
 				connectTask.Status != TaskStatus.Running) {
@@ -90,7 +101,11 @@ namespace Network {
 					throw new NoNetworkException("No network for sending and receiving beacons.", exception);
 				}
 
-				connectTask = Task.Run(SearchAndConnect);
+				connectTaskCT = new CancellationTokenSource();
+				CancellationToken token = connectTaskCT.Token;
+				connectTask = Task.Run(() => {
+					return SearchAndConnect(token);
+				}, token);
 			}
 
 			return connectTask;
@@ -100,7 +115,7 @@ namespace Network {
 			if (disposed) {
 				throw new ObjectDisposedException("Network.PeerToPeerClient");
 			}
-			if (!connected) {
+			if (!Connected) {
 				throw new NotConnectedException("Called Send but not connected to other client.");
 			}
 
@@ -110,14 +125,17 @@ namespace Network {
 			} catch (IOException exception) when (
 				exception.InnerException.GetType() == typeof(SocketException)
 			) {
-				connected = false;
-				disconnectedEventPending = true;
+				if (Interlocked.Exchange(ref connected, 0) == 1) {
+					disconnectedEventPending = true;
+				}
 				throw new NotConnectedException("Socket error, PeerToPeerClient was disconnected.",
 						exception);
 			}
 
 #if NETWORK_LOG
-			UnityEngine.Debug.Log("PeerToPeerClient sent package.");
+			if (!StartsWith(data, pingMessage)) {
+				UnityEngine.Debug.Log("PeerToPeerClient sent package.");
+			}
 #endif
 		}
 
@@ -149,12 +167,10 @@ namespace Network {
 			if (disposed) {
 				throw new ObjectDisposedException("Network.PeerToPeerClient");
 			}
-			if (!connected) {
+			if (!Connected) {
 				throw new NotConnectedException("Called StartReceiving but not connected to other client.");
 			}
-
 			if (IsReceiving) {
-				Assert.IsTrue(readingTask != null && readingTask.Status != TaskStatus.Canceled);
 				return;
 			}
 
@@ -215,9 +231,6 @@ namespace Network {
 						readingTaskCT.Cancel();
 					}
 
-					if (token.IsCancellationRequested) {
-						IsReceiving = false;
-					}
 					token.ThrowIfCancellationRequested();
 
 					byte[] data;
@@ -227,62 +240,74 @@ namespace Network {
 					} catch (IOException exception) when (
 						exception.InnerException.GetType() == typeof(SocketException)
 					) {
-						connected = false;
-						disconnectedEventPending = true;
+						if (Interlocked.Exchange(ref connected, 0) == 1) {
+							disconnectedEventPending = true;
+						}
 						readingTaskCT.Cancel();
 						continue;
 					}
 
-#if NETWORK_LOG
-					UnityEngine.Debug.Log("PeerToPeerClient received package.");
-#endif
-
 					if (!StartsWith(data, pingMessage)) {
 						receivedPackages.Enqueue(data);
+#if NETWORK_LOG
+						UnityEngine.Debug.Log("PeerToPeerClient received package.");
+#endif
 					}
 				}
-
 			}, token);
-
-			IsReceiving = true;
 		}
 
 		public void StopReceiving() {
 			if (disposed) {
 				return;
 			}
-
 			if (!IsReceiving) {
 				return;
 			}
 
 			readingTaskCT.Cancel();
-			IsReceiving = false;
 		}
 
 		public void Disconnect() {
-			connected = false;
-			if (IsReceiving) {
-				StopReceiving();
+			if (Interlocked.Exchange(ref connected, 0) == 1) {
+				disconnectedEventPending = true;
 			}
+
+			StopReceiving();
 			listener.Stop();
 			pingTimer.Reset();
 			tcpClient?.Close();
 
-#if NETWORK_LOG
-			UnityEngine.Debug.Log("PeerToPeerClient disconnected.");
-#endif
+			readingTask = null;  // Remove this
+		}
+
+		public void Reset() {
+			groupClient = UdpBroadcastClient.Instance;
+			listener?.Stop();
+			listener = new TcpListener(IPAddress.Any, listenPort);
+			tcpClient?.Close();
+			tcpClient = null;
+			stream = null;
+			connected = 0;
+			receiveBeacon = null;
+			connectingLock = new object();
+			disconnectedEventPending = false;
+			pingTimer = new Stopwatch();
+
+			connectTask = null;
+			connectTaskCT?.Cancel();
+			connectTaskCT = null;
+
+			receivedPackages = new ConcurrentQueue<byte[]>(); ;
+			readingTask = null;
+			readingTaskCT?.Cancel();
+			readingTaskCT = null;
+			UnityEngine.Debug.Log("Reset");
 		}
 
 		void Dispose() {
 			disposed = true;
 			Disconnect();
-		}
-
-		void Awake() {
-			groupClient = UdpBroadcastClient.Instance;
-			connectingLock = new object();
-			Init();
 		}
 
 		void Update() {
@@ -293,15 +318,14 @@ namespace Network {
 				}
 
 				if (disconnectedEventPending) {
-					if (!connected) {
-						pingTimer.Reset();
-						Disconnected.Invoke();
-					}
+					pingTimer.Reset();
+					Disconnected.Invoke();
+					Disconnect();
 
 					disconnectedEventPending = false;
 				}
 
-				if (connected) {
+				if (Connected) {
 					if (!pingTimer.IsRunning) {
 						pingTimer.Restart();
 					}
@@ -310,6 +334,9 @@ namespace Network {
 						try {
 							Send(pingMessage);  // will handle disconnection by itself
 						} catch (NotConnectedException) {
+							if (Interlocked.Exchange(ref connected, 0) == 1) {
+								disconnectedEventPending = true;
+							}
 							pingTimer.Reset();
 						}
 
@@ -319,26 +346,28 @@ namespace Network {
 			}
 		}
 
-		void Init() {
-			listener = new TcpListener(IPAddress.Any, listenPort);
-			receivedPackages = new ConcurrentQueue<byte[]>();
-		}
-
-		void SearchAndConnect() {
+		bool SearchAndConnect(CancellationToken token) {
 			try {
 				if (disposed) {
-					return;
+					return false;
 				}
+				token.ThrowIfCancellationRequested();
 
 				listener.Start();
 				listener.BeginAcceptTcpClient(OnTcpAccept, listener);
 
-				while (!connected && !disposed) {
+				while (!Connected) {
+					if (disposed) {
+						return false;
+					}
+					token.ThrowIfCancellationRequested();
+
 					try {
 						groupClient.Send(beaconMessage);
 					} catch (ObjectDisposedException) {
-						return;
+						return false;
 					}
+					token.ThrowIfCancellationRequested();
 
 					Stopwatch beaconWaitTime = new Stopwatch();
 					beaconWaitTime.Start();
@@ -352,20 +381,26 @@ namespace Network {
 
 						receiveBeacon = new TaskCompletionSource<IPAddress>();
 					}
-
 					beaconWaitTime.Stop();
+					token.ThrowIfCancellationRequested();
+
 					int timeLeft =
 						beaconIntervalMs - (int)beaconWaitTime.ElapsedMilliseconds;
-					if (timeLeft < 0)
+					if (timeLeft < 0) {
 						timeLeft = 0;
+					}
 					Task.Delay(timeLeft).Wait();
 				}
 
+				token.ThrowIfCancellationRequested();
 				groupClient.StopListeningBroadcast();
 
 			} catch (Exception exception) {
 				UnityEngine.Debug.LogException(exception);
+				return false;
 			}
+
+			return true;
 		}
 
 		void OnConnect(IAsyncResult ar) {
@@ -378,7 +413,7 @@ namespace Network {
 				Assert.IsNotNull(connectingTcpClient);
 
 				lock (connectingLock) {
-					if (connected) {
+					if (Connected) {
 						connectingTcpClient.Close();
 					}
 
@@ -390,12 +425,14 @@ namespace Network {
 						// There is a bug in TcpClient, NullReferenceException is
 						// thrown instead ObjectDisposedException
 						return;
+					} catch (SocketException) {
+						return;
 					}
 
 					tcpClient = connectingTcpClient;
 					tcpClient.ReceiveTimeout = disconnectTimeoutMs;
 					stream = new NetworkStreamWrapper(tcpClient.GetStream());
-					connected = true;
+					connected = 1;
 					pingTimer.Restart();
 				}
 
@@ -414,8 +451,8 @@ namespace Network {
 				Assert.IsNotNull(listener);
 
 				lock (connectingLock) {
-					if (connected) {
-						listener.Stop();
+					if (Connected) {
+						return;
 					}
 
 					TcpClient curTcpClient;
@@ -429,7 +466,7 @@ namespace Network {
 					tcpClient = curTcpClient;
 					tcpClient.ReceiveTimeout = disconnectTimeoutMs;
 					stream = new NetworkStreamWrapper(tcpClient.GetStream());
-					connected = true;
+					connected = 1;
 				}
 				
 			} catch (Exception exception) {

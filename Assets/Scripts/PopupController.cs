@@ -37,6 +37,10 @@ public class PopupController : MonoBehaviour {
 		}
 	}
 
+	protected virtual void Awake() {
+		Assert.IsNotNull(messageTextMesh, "Message Text Mesh was not assigned in inspector.");
+	}
+
 	protected virtual void OnDestroy() {
 		Close();
 	}

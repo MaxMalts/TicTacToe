@@ -44,24 +44,28 @@ public class ButtonPopupController : PopupController {
 			waitForClickTask = new TaskCompletionSource<bool>();
 		}
 
-		return waitForClickTask.Task;  // will be converted to non-generic Task
+		return waitForClickTask.Task;
 	}
 
 	public override void Close() {
-		base.Close();
-
-		//lock (closingLock) {
-		//	Monitor.PulseAll(closingLock);
-		//}
-
 		if (!IsClosed) {
-			waitForClickTask?.SetResult(false);
+			base.Close();
+
+			//lock (closingLock) {
+			//	Monitor.PulseAll(closingLock);
+			//}
+
+			waitForClickTask?.TrySetResult(false);
 		}
 	}
 
 	public void OnButtonClicked() {
-		if (waitForClickTask != null && waitForClickTask.Task.Status != TaskStatus.RanToCompletion) {
-			waitForClickTask.SetResult(true);
-		}
+		waitForClickTask?.TrySetResult(true);
+	}
+
+	protected override void Awake() {
+		base.Awake();
+
+		Assert.IsNotNull(buttonTextMesh, "Button Text Mesh was not assigned in inspector.");
 	}
 }

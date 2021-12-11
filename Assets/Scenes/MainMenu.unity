@@ -328,6 +328,8 @@ MonoBehaviour:
     type: 3}
   loadingPopupPrefab: {fileID: 1451329859167800588, guid: b7e16588379e5cb41ba86c209356f13c,
     type: 3}
+  loadingCancelPopupPrefab: {fileID: 1451329859167800588, guid: 92b1fb83a4355014fa4f9067ba29cbfd,
+    type: 3}
 --- !u!1 &505323087
 GameObject:
   m_ObjectHideFlags: 0

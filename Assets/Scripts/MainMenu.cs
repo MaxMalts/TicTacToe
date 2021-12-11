@@ -13,20 +13,19 @@ using Network;
 public class MainMenu : Unique<MainMenu> {
 
 	const string connectingPopupMessage = "Connecting to other player...";
+	const string noWifiMessage = "Check your WiFi connection.";
 
 	[SerializeField] GameObject canvas;
-
-	[SerializeField] [Tooltip("Main Canvas Group of main menu.")]
-	CanvasGroup uiCanvasGroup;
 
 	const string myCellSignQuery = "my-cell-sign";
 	const string crossSignValue = "cross";
 	const string noughtSignValue = "nought";
 
 	PeerToPeerClient ptpClient;
-	Task connectingTask;
+	Task<bool> connectingTask;
 	bool connected;
-	bool needToDoConnecting = false;
+	volatile bool needToSendSign = false;
+	volatile bool needToCancelConnecting = false;
 	CellSign localCellSign;
 
 
@@ -42,30 +41,47 @@ public class MainMenu : Unique<MainMenu> {
 		ptpClient = ptpObject.GetComponent<PeerToPeerClient>();
 		DontDestroyOnLoad(ptpClient);
 
-		needToDoConnecting = true;
+		ptpClient.PackageReceived.AddListener(OnPackageReceived);
+		ptpClient.Disconnected.AddListener(OnDisconnected);
+		DoConnecting();
+	}
+
+	public void CancelConnecting() {
+		needToSendSign = false;
+		connected = false;
+		localCellSign = CellSign.Empty;
+		Destroy(ptpClient.gameObject);
 	}
 
 	void Awake() {
 		Assert.IsNotNull(canvas, "Canvas was not assigned in inspector.");
-		Assert.IsNotNull(uiCanvasGroup, "UI Canvas Group was not assigned in inspector.");
 	}
 
 	void Update() {
-		if (needToDoConnecting) {
-			needToDoConnecting = false;
-			DoConnecting();
+		if (needToSendSign) {
+			needToSendSign = false;
+			string signValue =
+				localCellSign == CellSign.Cross ? crossSignValue : noughtSignValue;
+			try {
+				ptpClient.Send(Encoding.UTF8.GetBytes(myCellSignQuery + ':' + signValue));
+			} catch (NotConnectedException) {
+				DoConnecting();
+				return;
+			}
+
+			ptpClient.StartReceiving();
 		}
+
+		if (needToCancelConnecting) {
+			needToCancelConnecting = false;
+			CancelConnecting();
+		}
+
 		if (connected) {
 			SceneArgsManager.NextSceneArgs.Add("cell-sign", localCellSign);
 			SceneArgsManager.NextSceneArgs.Add("ptp-client", ptpClient);
 			SceneManager.LoadScene((int)SceneIndeces.TicTacToe);
 		}
-	}
-
-	async void ShowNoWifiPopup() {
-		ButtonPopupController popup = PopupsManager.ShowConfirmPopup("Check your WiFi connection.");
-		await popup.WaitForClickOrCloseAsync();
-		popup.Close();
 	}
 
 	void DoConnecting() {
@@ -82,28 +98,19 @@ public class MainMenu : Unique<MainMenu> {
 		}
 
 		if (networkAvailable) {
-			PopupsManager.ShowLoadingCancelPopup(connectingPopupMessage);
+			ShowConnectingPopup();
 
-			uiCanvasGroup.interactable = false;
-
-			connectingTask.ContinueWith((Task) => {
-				if (Task.Status != TaskStatus.RanToCompletion) {
+			connectingTask.ContinueWith((task) => {
+				if (task.Status != TaskStatus.RanToCompletion) {
 					Debug.LogError("connectingTask not completed successfully. Its status: " +
 						connectingTask.Status + '.');
 					return;
 				}
 
-				string signValue =
-					localCellSign == CellSign.Cross ? crossSignValue : noughtSignValue;
-
-				try {
-					ptpClient.Send(Encoding.UTF8.GetBytes(myCellSignQuery + ':' + signValue));
-				} catch (NotConnectedException) {
-					needToDoConnecting = true;
+				if (task.Result) {
+					Debug.Log("Connected");
+					needToSendSign = true;
 				}
-
-				ptpClient.PackageReceived.AddListener(OnPackageReceived);
-				ptpClient.StartReceiving();
 			});
 
 		} else {
@@ -111,7 +118,23 @@ public class MainMenu : Unique<MainMenu> {
 		}
 	}
 
+	async void ShowNoWifiPopup() {
+		ButtonPopupController popup = PopupsManager.ShowConfirmPopup(noWifiMessage);
+		await popup.WaitForClickOrCloseAsync();
+		popup.Close();
+	}
+
+	async void ShowConnectingPopup() {
+		ButtonPopupController popup = PopupsManager.ShowLoadingCancelPopup(connectingPopupMessage);
+		bool canceled = await popup.WaitForClickOrCloseAsync();
+		if (canceled) {
+			needToCancelConnecting = true;
+		}
+		popup.Close();
+	}
+
 	void OnPackageReceived(byte[] data) {
+		Debug.Log("There");
 		ptpClient.StopReceiving();
 
 		string queryStr = Encoding.UTF8.GetString(data);
@@ -127,14 +150,21 @@ public class MainMenu : Unique<MainMenu> {
 
 			if (expectedSignValue == queryStr.Substring(myCellSignQuery.Length + 1)) {
 				connected = true;
+				ptpClient.PackageReceived.RemoveListener(OnPackageReceived);
+
 			} else {
 				Debug.Log("Other player had same sign. Reconnecting.");
-				ptpClient.Disconnect();
-				needToDoConnecting = true;
+				DoConnecting();
 			}
 
 		} else {
 			Debug.LogError("Bad query received: \"" + queryStr + "\".");
 		}
+	}
+
+	void OnDisconnected() {
+		needToSendSign = false;
+		connected = false;
+		DoConnecting();
 	}
 }
