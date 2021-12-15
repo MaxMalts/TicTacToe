@@ -19,7 +19,6 @@ public class LocalPlayerController : MonoBehaviour, PlayerController {
 
 	[SerializeField] new Camera camera;
 	
-	PlayerInput playerInput;
 	[SerializeField] InputActionAsset actionsAsset;
 	InputAction pointerPosAction;  // to get the position of tap
 
@@ -94,9 +93,6 @@ public class LocalPlayerController : MonoBehaviour, PlayerController {
 	}
 
 	void Awake() {
-		playerInput = GetComponent<PlayerInput>();
-		Assert.IsNotNull(playerInput, "No Player Input Component on Player.");
-
 		PlayerApi = GetComponent<PlayerAPI>();
 		Assert.IsNotNull(PlayerApi, "No PlayerAPI script on PlayerApi.");
 		PlayerApi.Type = PlayerAPI.PlayerType.Local;

@@ -11,4 +11,8 @@ public class MainMenuAPI : Unique<MainMenuAPI> {
 	public void StartGame(CellSign sign) {
 		MainMenu.Instance.ConnectAndStartGame(sign);
 	}
+
+	public void Back() {
+		MainMenu.Instance.Back();
+	}
 }

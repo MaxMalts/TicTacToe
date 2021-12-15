@@ -25,8 +25,7 @@ public class MainMenu : Unique<MainMenu> {
 	Task connectingTask;
 	bool connected;
 	volatile bool needToSendSign = false;
-	volatile bool needToCancelConnecting = false;
-	volatile bool connectionCanceled = true;
+	volatile bool connecting = false;
 	CellSign localCellSign;
 
 
@@ -35,7 +34,7 @@ public class MainMenu : Unique<MainMenu> {
 
 		localCellSign = sign;
 
-		if (connectionCanceled) {
+		if (!connecting) {
 			GameObject ptpObject =
 				new GameObject("PeerToPeerClient", typeof(PeerToPeerClient));
 			ptpClient = ptpObject.GetComponent<PeerToPeerClient>();
@@ -47,16 +46,20 @@ public class MainMenu : Unique<MainMenu> {
 		}
 	}
 
+	public void Back() {
+		if (!connecting) {
+			Application.Quit();
+#if UNITY_EDITOR
+			UnityEditor.EditorApplication.isPlaying = false;
+#endif
+		}
+	}
+
 	void Awake() {
 		Assert.IsNotNull(canvas, "Canvas was not assigned in inspector.");
 	}
 
 	void Update() {
-		if (needToCancelConnecting) {
-			needToCancelConnecting = false;
-			CancelConnecting();
-		}
-
 		if (needToSendSign) {
 			needToSendSign = false;
 			string signValue =
@@ -85,11 +88,12 @@ public class MainMenu : Unique<MainMenu> {
 
 		needToSendSign = false;
 		connected = false;
-		connectionCanceled = true;
+		connecting = false;
 		localCellSign = CellSign.Empty;
 	}
 
 	void DoConnecting() {
+		connecting = true;
 		bool networkAvailable = true;
 		if (PeerToPeerClient.NetworkAvailable) {
 			try {
@@ -143,7 +147,7 @@ public class MainMenu : Unique<MainMenu> {
 		ButtonPopupController popup = PopupsManager.ShowLoadingCancelPopup(connectingPopupMessage);
 		bool canceled = await popup.WaitForClickOrCloseAsync();
 		if (canceled) {
-			needToCancelConnecting = true;
+			CancelConnecting();
 		}
 		popup.Close();
 	}
