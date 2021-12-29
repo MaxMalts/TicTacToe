@@ -37,6 +37,7 @@ public class PopupsManager : Singleton<PopupsManager> {
 
 	[SerializeField] GameObject simplePopupPrefab;
 	[SerializeField] GameObject confirmPopupPrefab;
+	[SerializeField] GameObject confirmCancelPopupPrefab;
 	[SerializeField] GameObject loadingPopupPrefab;
 	[SerializeField] GameObject loadingCancelPopupPrefab;
 
@@ -73,6 +74,31 @@ public class PopupsManager : Singleton<PopupsManager> {
 		GameObject parent = null) {
 
 		return ShowButtonPopup(Instance.confirmPopupPrefab, message, buttonLabel, parent);
+	}
+
+	/// <summary>
+	/// Shows popup with a text and confirmation button and cancellation in it.
+	/// </summary>
+	/// <param name="message">Message to be displayed</param>
+	/// <param name="buttonLabel">Text inside the confirmation button</param>
+	/// <param name="parent">
+	/// Ui obeject to whick popup will be attached.
+	/// If null, then overlay canvas will be automatically searched for
+	/// </param>
+	/// <returns>Created popup</returns>
+	public static ConfirmCancelPopupController ShowConfirmCancelPopup(
+		string message,
+		string confirmButtonLabel = "OK",
+		string cancelButtonLabel = "Cancel",
+		GameObject parent = null) {
+
+		return ShowConfirmCancelPopup(
+			Instance.confirmCancelPopupPrefab,
+			message,
+			confirmButtonLabel,
+			cancelButtonLabel,
+			parent
+		);
 	}
 
 	/// <summary>
@@ -160,6 +186,27 @@ public class PopupsManager : Singleton<PopupsManager> {
 
 		buttonPopupController.ButtonTextMesh.text = buttonLabel;
 		return buttonPopupController;
+	}
+
+	static ConfirmCancelPopupController ShowConfirmCancelPopup(
+		GameObject prefab,
+		string message,
+		string confirmButtonLabel,
+		string cancelButtonLabel,
+		GameObject parent) {
+
+		PopupController popupController = ShowPopup(prefab, message, parent);
+		if (popupController == null) {
+			return null;
+		}
+
+		ConfirmCancelPopupController confirmCancelPopupController =
+			popupController as ConfirmCancelPopupController;
+		Assert.IsNotNull(confirmCancelPopupController);
+
+		confirmCancelPopupController.ConfirmButtonTextMesh.text = confirmButtonLabel;
+		confirmCancelPopupController.CancelButtonTextMesh.text = cancelButtonLabel;
+		return confirmCancelPopupController;
 	}
 
 	static GameObject SearchForParentForPopup(GameObject preferred = null) {

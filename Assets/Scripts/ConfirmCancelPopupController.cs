@@ -10,14 +10,21 @@ using UnityEngine.Assertions;
 
 
 /// <summary>
-/// Popup with confirmation button (e.g. "Ok")
+/// Popup with confirmation and cancellation button (e.g. "Ok" and "Cancel")
 /// </summary>
-public class ButtonPopupController : PopupController {
+public class ConfirmCancelPopupController : PopupController {
 
-	[SerializeField] TextMeshProUGUI buttonTextMesh;
-	public TextMeshProUGUI ButtonTextMesh {
+	[SerializeField] TextMeshProUGUI confirmButtonTextMesh;
+	public TextMeshProUGUI ConfirmButtonTextMesh {
 		get {
-			return buttonTextMesh;
+			return confirmButtonTextMesh;
+		}
+	}
+
+	[SerializeField] TextMeshProUGUI cancelButtonTextMesh;
+	public TextMeshProUGUI CancelButtonTextMesh {
+		get {
+			return cancelButtonTextMesh;
 		}
 	}
 
@@ -30,18 +37,10 @@ public class ButtonPopupController : PopupController {
 	/// </summary>
 	/// <returns>
 	/// Task which returns: <br/>
-	/// <see langword="true"/> if button was clicked <br/>
-	/// <see langword="false"/> if closed
+	/// <see langword="true"/> if confirm button was clicked <br/>
+	/// <see langword="false"/> if cancel button was clicked or popup was closed
 	/// </returns>
 	public Task<bool> WaitForClickOrCloseAsync() {
-		//await Task.Run(() => {
-		//	lock (closingLock) {
-		//		while (!IsClosed) {
-		//			Monitor.Wait(closingLock);
-		//		}
-		//	}
-		//});
-
 		if (waitForClickTask == null) {
 			waitForClickTask = new TaskCompletionSource<bool>();
 		}
@@ -61,13 +60,18 @@ public class ButtonPopupController : PopupController {
 		}
 	}
 
-	public void OnButtonClicked() {
+	public void OnConfirmButtonClicked() {
 		waitForClickTask?.TrySetResult(true);
+	}
+
+	public void OnCancelButtonClicked() {
+		waitForClickTask?.TrySetResult(false);
 	}
 
 	protected override void Awake() {
 		base.Awake();
 
-		Assert.IsNotNull(buttonTextMesh, "Button Text Mesh was not assigned in inspector.");
+		Assert.IsNotNull(confirmButtonTextMesh, "Confirm button Text Mesh was not assigned in inspector.");
+		Assert.IsNotNull(cancelButtonTextMesh, "Cancel button Text Mesh was not assigned in inspector.");
 	}
 }
