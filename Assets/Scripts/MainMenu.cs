@@ -10,6 +10,11 @@ using Network;
 
 
 
+/// <summary>
+/// Compared to MainMenuAPI, does not know anything about UI and is used as a
+/// lower level abstraction. All main menu features logic is here.
+/// </summary>
+
 public class MainMenu : Unique<MainMenu> {
 
 	const string connectingPopupMessage = "Connecting to other player...";
@@ -18,6 +23,16 @@ public class MainMenu : Unique<MainMenu> {
 	const string myCellSignQuery = "my-cell-sign";
 	const string crossSignValue = "cross";
 	const string noughtSignValue = "nought";
+
+	public enum GameMode {
+		Singleplayer,
+		Multiplayer
+	}
+
+	public enum Difficulty {
+		Easy,
+		Hard
+	}
 
 	volatile bool connecting = false;
 	public bool Connecting {
@@ -35,7 +50,40 @@ public class MainMenu : Unique<MainMenu> {
 	CellSign localCellSign;
 
 
-	public void ConnectAndStartGame(CellSign sign) {
+	public void StartGame(GameMode gameMode, Difficulty? difficulty = null, CellSign? cellSign = null) {
+		switch (gameMode) {
+			case GameMode.Singleplayer:
+				Assert.IsTrue(difficulty != null, "gameMode singleplayer but difficulty is null.");
+				StartSingleplayer(difficulty.Value);
+				break;
+
+			case GameMode.Multiplayer:
+				Assert.IsTrue(cellSign != null, "gameMode multiplayer but cellSign is null.");
+				ConnectAndStartGame(cellSign.Value);
+				break;
+
+			default:
+				Assert.IsTrue(false, "Bad gameMode value.");
+				break;
+		}
+	}
+
+	void StartSingleplayer(Difficulty difficulty) {
+		throw new NotImplementedException();
+		switch (difficulty) {
+			case Difficulty.Easy:
+				break;
+
+			case Difficulty.Hard:
+				break;
+
+			default:
+				Assert.IsTrue(false, "Bad difficulty value.");
+				break;
+		}
+	}
+
+	void ConnectAndStartGame(CellSign sign) {
 		ShowConnectingPopup();
 
 		localCellSign = sign;

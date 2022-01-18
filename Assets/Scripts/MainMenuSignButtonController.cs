@@ -5,13 +5,12 @@ using UnityEngine.UI;
 
 
 
-[RequireComponent(typeof(Button))]
 public class MainMenuSignButtonController : MonoBehaviour {
 
 	public CellSign buttonSign;
 
 
 	public void OnButtonClicked() {
-		MainMenuAPI.Instance.StartGame(buttonSign);
+		MainMenuAPI.Instance.SetSignAndStart(buttonSign);
 	}
 }

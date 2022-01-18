@@ -39,7 +39,7 @@ public class Singleton<T> : MonoBehaviour where T : Singleton<T> {
 			Assert.IsNotNull(instance);
 			DontDestroyOnLoad(gameObject);
 
-		} else {
+		} else if (instance != this as T) {
 			Destroy(gameObject);
 		}
 	}

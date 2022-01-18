@@ -2,19 +2,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Events;
 
 
 
-public class BackButtonHandler : MonoBehaviour {
+public class BackHandler : Singleton<BackHandler> {
 
-	public void OnBack() {
-		MainMenuAPI.Instance.Back();
-	}
+	public UnityEvent OnBack { get; private set; } = new UnityEvent();
 
-	void Update() {
+
+	public void Update() {
 		// Input actions escape key does not work >:(
 		if (UnityEngine.InputSystem.Keyboard.current.escapeKey.wasReleasedThisFrame) {
-			OnBack();
+			OnBack.Invoke();
 		}
 	}
 }
