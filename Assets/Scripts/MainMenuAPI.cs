@@ -13,6 +13,8 @@ public class MainMenuAPI : Unique<MainMenuAPI> {
 	}
 
 	public void Back() {
-		MainMenu.Instance.Back();
+		if (!MainMenu.Instance.Connecting) {
+			MainMenu.Instance.Quit();
+		}
 	}
 }

@@ -15,17 +15,23 @@ public class MainMenu : Unique<MainMenu> {
 	const string connectingPopupMessage = "Connecting to other player...";
 	const string noWifiMessage = "Check your WiFi connection.";
 
-	[SerializeField] GameObject canvas;
-
 	const string myCellSignQuery = "my-cell-sign";
 	const string crossSignValue = "cross";
 	const string noughtSignValue = "nought";
+
+	volatile bool connecting = false;
+	public bool Connecting {
+		get {
+			return connecting;
+		}
+	}
+
+	[SerializeField] GameObject canvas;
 
 	PeerToPeerClient ptpClient;
 	Task connectingTask;
 	bool connected;
 	volatile bool needToSendSign = false;
-	volatile bool connecting = false;
 	CellSign localCellSign;
 
 
@@ -46,13 +52,15 @@ public class MainMenu : Unique<MainMenu> {
 		}
 	}
 
-	public void Back() {
-		if (!connecting) {
-			Application.Quit();
-#if UNITY_EDITOR
-			UnityEditor.EditorApplication.isPlaying = false;
-#endif
+	public void Quit() {
+		if (connecting) {
+			CancelConnecting();
 		}
+
+		Application.Quit();
+#if UNITY_EDITOR
+		UnityEditor.EditorApplication.isPlaying = false;
+#endif
 	}
 
 	void Awake() {
