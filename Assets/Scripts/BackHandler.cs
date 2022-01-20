@@ -8,7 +8,7 @@ using UnityEngine.Events;
 
 public class BackHandler : Singleton<BackHandler> {
 
-	public UnityEvent OnBack { get; private set; } = new UnityEvent();
+	public UnityEvent OnBack { get; } = new UnityEvent();
 
 
 	public void Update() {

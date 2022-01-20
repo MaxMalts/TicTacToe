@@ -6,8 +6,8 @@ using UnityEngine;
 
 public class DifficultyButtonController : MonoBehaviour {
 
-	[SerializeField] MainMenu.Difficulty difficulty;
-	public MainMenu.Difficulty CorrespDifficulty {
+	[SerializeField] GameDifficulty difficulty;
+	public GameDifficulty CorrespDifficulty {
 		get {
 			return difficulty;
 		}

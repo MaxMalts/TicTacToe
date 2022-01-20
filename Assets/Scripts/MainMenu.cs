@@ -17,29 +17,19 @@ using Network;
 
 public class MainMenu : Unique<MainMenu> {
 
-	const string connectingPopupMessage = "Connecting to other player...";
-	const string noWifiMessage = "Check your WiFi connection.";
-
-	const string myCellSignQuery = "my-cell-sign";
-	const string crossSignValue = "cross";
-	const string noughtSignValue = "nought";
-
-	public enum GameMode {
-		Singleplayer,
-		Multiplayer
-	}
-
-	public enum Difficulty {
-		Easy,
-		Hard
-	}
-
 	volatile bool connecting = false;
 	public bool Connecting {
 		get {
 			return connecting;
 		}
 	}
+
+	const string connectingPopupMessage = "Connecting to other player...";
+	const string noWifiMessage = "Check your WiFi connection.";
+
+	const string myCellSignQuery = "my-cell-sign";
+	const string crossSignValue = "cross";
+	const string noughtSignValue = "nought";
 
 	[SerializeField] GameObject canvas;
 
@@ -50,7 +40,7 @@ public class MainMenu : Unique<MainMenu> {
 	CellSign localCellSign;
 
 
-	public void StartGame(GameMode gameMode, Difficulty? difficulty = null, CellSign? cellSign = null) {
+	public void StartGame(GameMode gameMode, GameDifficulty? difficulty = null, CellSign? cellSign = null) {
 		switch (gameMode) {
 			case GameMode.Singleplayer:
 				Assert.IsTrue(difficulty != null, "gameMode singleplayer but difficulty is null.");
@@ -68,19 +58,10 @@ public class MainMenu : Unique<MainMenu> {
 		}
 	}
 
-	void StartSingleplayer(Difficulty difficulty) {
-		throw new NotImplementedException();
-		switch (difficulty) {
-			case Difficulty.Easy:
-				break;
-
-			case Difficulty.Hard:
-				break;
-
-			default:
-				Assert.IsTrue(false, "Bad difficulty value.");
-				break;
-		}
+	void StartSingleplayer(GameDifficulty difficulty) {
+		SceneArgsManager.NextSceneArgs.Add("game-mode", GameMode.Singleplayer);
+		SceneArgsManager.NextSceneArgs.Add("game-difficulty", difficulty);
+		SceneManager.LoadScene((int)SceneIndeces.TicTacToe);
 	}
 
 	void ConnectAndStartGame(CellSign sign) {
@@ -131,6 +112,7 @@ public class MainMenu : Unique<MainMenu> {
 		}
 
 		if (connected) {
+			SceneArgsManager.NextSceneArgs.Add("game-mode", GameMode.Multiplayer);
 			SceneArgsManager.NextSceneArgs.Add("cell-sign", localCellSign);
 			SceneArgsManager.NextSceneArgs.Add("ptp-client", ptpClient);
 			SceneManager.LoadScene((int)SceneIndeces.TicTacToe);

@@ -7,6 +7,7 @@ using UnityEngine.Events;
 
 
 
+// To do: think about naming and difference with PlayerController
 public class PlayerAPI : MonoBehaviour {
 
 	public enum PlayerType {
@@ -61,8 +62,12 @@ public class PlayerAPI : MonoBehaviour {
 			Assert.IsTrue(Enum.IsDefined(typeof(CellSign), value) && value != CellSign.Empty,
 				"Bad newSign value.");
 
-			sign = value;
-		}	
+			if (!GameManager.Instance.GameRunning) {
+				sign = value;
+			} else {
+				Debug.LogWarning("Trying to set player sign when game is running. Ignoring.", this);
+			}
+		}
 	}
 
 	[SerializeField] CellsManager cellsManager;

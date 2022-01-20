@@ -81,6 +81,6 @@ public class RestartController : MonoBehaviour {
 			restartText.SetActive(false);
 		}
 
-		gameStarter.StartNewGame();
+		gameStarter.RestartGame();
 	}
 }

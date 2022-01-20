@@ -14,3 +14,13 @@ public enum CellSign {
 	Cross,
 	Nought
 }
+
+public enum GameMode {
+	Singleplayer,
+	Multiplayer
+}
+
+public enum GameDifficulty {
+	Easy,
+	Hard
+}

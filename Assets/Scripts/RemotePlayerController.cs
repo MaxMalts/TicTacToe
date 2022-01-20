@@ -42,8 +42,8 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 		InputEnabled = false;
 	}
 
-	public void StartGame(CellSign sign) {
-		Assert.IsTrue(sign == CellSign.Cross || sign == CellSign.Nought);
+	public void StartGame() {
+		Assert.IsTrue(PlayerApi.Sign == CellSign.Cross || PlayerApi.Sign == CellSign.Nought);
 		Assert.IsNotNull(ptpClient);
 
 		if (!inited) {
@@ -51,15 +51,19 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 			inited = true;
 		}
 
-		PlayerApi.Sign = sign;
+		Assert.IsTrue(ReferenceEquals(this, gameManager.Player1) || ReferenceEquals(this, gameManager.Player2));
+		PlayerController otherPlayer =
+			ReferenceEquals(this, gameManager.Player1) ? gameManager.Player2 : gameManager.Player1;
+		Assert.IsNotNull(otherPlayer);
+
+		PlayerAPI otherPlayerApi = otherPlayer.PlayerApi;
+		Assert.IsNotNull(otherPlayerApi);
+
+		otherPlayerApi.CellPlaced.AddListener(OnLocalCellPlaced);
+
 		InputEnabled = false;
 
 		Assert.IsNotNull(gameManager);
-
-		PlayerAPI localPlayerApi =
-			gameManager.LocalPlayer.GetComponent<PlayerAPI>();
-		Assert.IsNotNull(localPlayerApi,
-			"No PlayerAPI component on local player GameObject.");
 
 		try {
 			ptpClient.StartReceiving();
@@ -111,13 +115,6 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 	void Init() {
 		gameManager = GameManager.Instance;
 		Assert.IsNotNull(gameManager);
-
-		PlayerAPI localPlayerApi =
-			gameManager.LocalPlayer.GetComponent<PlayerAPI>();
-		Assert.IsNotNull(localPlayerApi,
-			"No PlayerAPI component on local player GameObject.");
-
-		localPlayerApi.CellPlaced.AddListener(OnLocalCellPlaced);
 
 		ptpClient.PackageReceived.AddListener(OnPackageReceived);
 		ptpClient.Disconnected.AddListener(OnDisconnected);
@@ -190,12 +187,11 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 	}
 
 	void HandleCellSignQuery(string value) {
-		Assert.IsTrue(PlayerApi.Sign == CellSign.Cross ||
-			PlayerApi.Sign == CellSign.Nought);
+		Assert.IsTrue(PlayerApi.Sign == CellSign.Cross || PlayerApi.Sign == CellSign.Nought);
 
-		string localSignValue =
+		string otherPlayerSignValue =
 			PlayerApi.Sign == CellSign.Cross ? noughtSignValue : crossSignValue;
-		if (localSignValue != value) {
+		if (otherPlayerSignValue != value) {
 			Debug.LogError("Remote player sign mismatch. value received: \"" +
 				value + "\".");
 		}

@@ -6,8 +6,8 @@ using UnityEngine;
 
 public class GameModeButtonController : MonoBehaviour {
 
-	[SerializeField] MainMenu.GameMode gameMode;
-	public MainMenu.GameMode CorrespGameMode {
+	[SerializeField] GameMode gameMode;
+	public GameMode CorrespGameMode {
 		get {
 			return gameMode;
 		}

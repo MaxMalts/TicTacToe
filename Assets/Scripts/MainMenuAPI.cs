@@ -17,23 +17,23 @@ public class MainMenuAPI : Unique<MainMenuAPI> {
 	[SerializeField] GameObject difficultyScreen;
 	[SerializeField] GameObject signChoiceScreen;
 
-	MainMenu.GameMode? curGameMode = null;
+	GameMode? curGameMode = null;
 
 
-	public void SetGameMode(MainMenu.GameMode gameMode) {
+	public void SetGameMode(GameMode gameMode) {
 		curGameMode = gameMode;
 	}
 
-	public void SetDifficultyAndStart(MainMenu.Difficulty difficulty) {
+	public void SetDifficultyAndStart(GameDifficulty difficulty) {
 		Assert.IsTrue(curGameMode != null, "Game difficulty set but game mode not set.");
-		Assert.IsTrue(curGameMode == MainMenu.GameMode.Singleplayer);
+		Assert.IsTrue(curGameMode == GameMode.Singleplayer);
 
 		MainMenu.Instance.StartGame(curGameMode.Value, difficulty);
 	}
 
 	public void SetSignAndStart(CellSign sign) {
 		Assert.IsTrue(curGameMode != null, "Game difficulty set but game mode not set.");
-		Assert.IsTrue(curGameMode == MainMenu.GameMode.Multiplayer);
+		Assert.IsTrue(curGameMode == GameMode.Multiplayer);
 
 		MainMenu.Instance.StartGame(curGameMode.Value, null, sign);
 	}

@@ -24,10 +24,9 @@ public class LocalPlayerController : MonoBehaviour, PlayerController {
 
 
 
-	public void StartGame(CellSign sign) {
-		Assert.IsTrue(sign == CellSign.Cross || sign == CellSign.Nought);
+	public void StartGame() {
+		Assert.IsTrue(PlayerApi.Sign == CellSign.Cross || PlayerApi.Sign == CellSign.Nought);
 
-		PlayerApi.Sign = sign;
 		InputEnabled = false;
 	}
 

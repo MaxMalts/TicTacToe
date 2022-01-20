@@ -23,32 +23,46 @@ public class GameManager : Unique<GameManager> {
 		}
 	}
 
-	[SerializeField] GameObject localPlayer;
-	public GameObject LocalPlayer {
+	PlayerController player1;
+	public PlayerController Player1 {
 		get {
-			return localPlayer;
+			return player1;
+		}
+
+		set {
+			if (GameRunning) {
+				Debug.LogWarning("Trying to set player1 while game is running. Ignoring.", this);
+			} else {
+				player1 = value;
+			}
 		}
 	}
 
-	[SerializeField] GameObject remotePlayer;
-	public GameObject RemotePlayer {
+	PlayerController player2;
+	public PlayerController Player2 {
 		get {
-			return remotePlayer;
+			return player2;
+		}
+
+		set {
+			if (GameRunning) {
+				Debug.LogWarning("Trying to set player2 while game is running. Ignoring.", this);
+			} else {
+				player2 = value;
+			}
 		}
 	}
 
-	public GameObject CurrentPlayer { get; private set; }
+	public PlayerController CurrentPlayer { get; private set; }
 
-	const string yourTurnStatus = "Your turn";
-	const string opponentTurnStatus = "Opponent's turn";
-	const string youWonStatus = "You won";
-	const string youLostStatus = "You lost";
+	public bool GameRunning { get { throw new NotImplementedException(); } private set { } }
+
+	// To do: custom text on different modes
+	const string player1TurnStatus = "Your turn";
+	const string player2TurnStatus = "Opponent's turn";
+	const string player1WonStatus = "You won";
+	const string player2WonStatus = "You lost";
 	const string drawStatus = "Draw";
-
-	PlayerAPI localPlayerAPI;
-	LocalPlayerController localPlayerController;
-	PlayerAPI remotePlayerAPI;
-	RemotePlayerController remotePlayerController;
 
 	[SerializeField] WinningLine winLine;
 	[SerializeField] TextMeshProUGUI statusText;
@@ -56,50 +70,56 @@ public class GameManager : Unique<GameManager> {
 	delegate bool WinIterationProcessor(ref Vector2Int? winPos1, ref Vector2Int? winPos2);
 
 
-	public void StartGame(CellSign localSign) {
-		Assert.IsTrue(localSign == CellSign.Cross ||
-			localSign == CellSign.Nought);
+	public void StartGame() {
+		Assert.IsTrue(player1 != null, "player1 not set on game start.");
+		Assert.IsTrue(player2 != null, "player2 not set on game start.");
+		Assert.IsTrue(
+			(player1.PlayerApi.Sign == CellSign.Cross &&
+			player2.PlayerApi.Sign == CellSign.Nought) ||
+			(player1.PlayerApi.Sign == CellSign.Nought &&
+			player2.PlayerApi.Sign == CellSign.Cross),
+			"Players have not corresponding cell signs."
+		);
+
+		player1.PlayerApi.CellPlaced.AddListener(OnCellPlaced);
+		player2.PlayerApi.CellPlaced.AddListener(OnCellPlaced);
 
 		cellsManager.ResetAllCells();
 		winLine.Hide();
 
-		CellSign remoteSign =
-			localSign == CellSign.Cross ? CellSign.Nought : CellSign.Cross;
+		player1.StartGame();
+		player2.StartGame();
 
-
-		localPlayerController.StartGame(localSign);
-		remotePlayerController.StartGame(remoteSign);
-
-		if (localSign == CellSign.Cross) {
-			CurrentPlayer = localPlayer;
-			localPlayerController.EnableInput();
-			statusText.text = yourTurnStatus;
+		if (player1.PlayerApi.Sign == CellSign.Cross) {
+			CurrentPlayer = player1;
+			player1.EnableInput();
+			statusText.text = player1TurnStatus;
 
 		} else {
-			CurrentPlayer = remotePlayer;
-			remotePlayerController.EnableInput();
-			statusText.text = opponentTurnStatus;
+			Assert.IsTrue(player2.PlayerApi.Sign == CellSign.Cross);
+
+			CurrentPlayer = player2;
+			player2.EnableInput();
+			statusText.text = player2TurnStatus;
 		}
 	}
 
 	public void SuspendGame() {
-		localPlayerController.DisableInput();
-		remotePlayerController.DisableInput();
+		player1.DisableInput();
+		player2.DisableInput();
 	}
 
 	public void UnsuspendGame() {
-		if (ReferenceEquals(CurrentPlayer, localPlayer)) {
-			Assert.IsFalse(remotePlayerController.InputEnabled,
-				"Not current player has input enabled.");
+		if (ReferenceEquals(CurrentPlayer, player1)) {
+			Assert.IsFalse(player2.InputEnabled, "Not current player has input enabled.");
 
-			localPlayerController.EnableInput();
+			player1.EnableInput();
 
 		} else {
-			Assert.IsTrue(ReferenceEquals(CurrentPlayer, remotePlayer));
-			Assert.IsFalse(localPlayerController.InputEnabled,
-				"Not current player has input enabled.");
+			Assert.IsTrue(ReferenceEquals(CurrentPlayer, player2));
+			Assert.IsFalse(player1.InputEnabled, "Not current player has input enabled.");
 
-			remotePlayerController.EnableInput();
+			player2.EnableInput();
 		}
 	}
 
@@ -110,31 +130,14 @@ public class GameManager : Unique<GameManager> {
 
 	void Awake() {
 		Assert.IsNotNull(cellsManager, "Cells Manager was not assigned in inspector.");
-		Assert.IsNotNull(localPlayer, "Local Player was not assigned in inspector.");
-		Assert.IsNotNull(remotePlayer, "Remote Player was not assigned in inspector.");
 		Assert.IsNotNull(winLine, "Winning Line was not assigned in inspector.");
 		Assert.IsNotNull(statusText, "Status Text was not assigned in inspector.");
-
-		localPlayerAPI = localPlayer.GetComponent<PlayerAPI>();
-		Assert.IsNotNull(localPlayerAPI, "No PlayerAPI on LocalPlayer object.");
-
-		localPlayerController = localPlayer.GetComponent<LocalPlayerController>();
-		Assert.IsNotNull(localPlayerController, "No LocalPlayerController on Local Player object.");
-
-		remotePlayerAPI = remotePlayer.GetComponent<PlayerAPI>();
-		Assert.IsNotNull(remotePlayerAPI, "No PlayerAPI on RemotePlayer object.");
-
-		remotePlayerController = remotePlayer.GetComponent<RemotePlayerController>();
-		Assert.IsNotNull(remotePlayerController, "No RemotePlayerController on Remote Player object.");
-
-		localPlayerAPI.CellPlaced.AddListener(OnCellPlaced);
-		remotePlayerAPI.CellPlaced.AddListener(OnCellPlaced);
 	}
 
 	void OnCellPlaced(PlayerAPI.PlaceContext context) {
 
 		if (context.PlayerType == PlayerAPI.PlayerType.Local) {
-			localPlayerController.DisableInput();
+			player1.DisableInput();
 		}
 
 		Vector2Int? winPos1, winPos2;
@@ -269,15 +272,15 @@ public class GameManager : Unique<GameManager> {
 	}
 
 	void HandleCurrentWin(Vector2Int fieldPos1, Vector2Int fieldPos2) {
-		if (ReferenceEquals(CurrentPlayer, localPlayer)) {
-			statusText.text = youWonStatus;
+		if (ReferenceEquals(CurrentPlayer, player1)) {
+			statusText.text = player1WonStatus;
 			Debug.Log("Local player won.");
 
 		} else {
-			Assert.IsTrue(ReferenceEquals(CurrentPlayer, remotePlayer),
+			Assert.IsTrue(ReferenceEquals(CurrentPlayer, player2),
 				"CurrentPlayer not valid.");
 
-			statusText.text = youLostStatus;
+			statusText.text = player2WonStatus;
 			Debug.Log("Local player lost.");
 		}
 
@@ -286,20 +289,20 @@ public class GameManager : Unique<GameManager> {
 	}
 
 	void SwitchTurn() {
-		if (ReferenceEquals(CurrentPlayer, localPlayer)) {
-			localPlayerController.DisableInput();
-			CurrentPlayer = remotePlayer;
-			statusText.text = opponentTurnStatus;
-			remotePlayerController.EnableInput();
+		if (ReferenceEquals(CurrentPlayer, player1)) {
+			player1.DisableInput();
+			CurrentPlayer = player2;
+			statusText.text = player2TurnStatus;
+			player2.EnableInput();
 
 		} else {
-			Assert.IsTrue(ReferenceEquals(CurrentPlayer, remotePlayer),
+			Assert.IsTrue(ReferenceEquals(CurrentPlayer, player2),
 				"CurrentPlayer not valid.");
 
-			remotePlayerController.DisableInput();
-			CurrentPlayer = localPlayer;
-			statusText.text = yourTurnStatus;
-			localPlayerController.EnableInput();
+			player2.DisableInput();
+			CurrentPlayer = player1;
+			statusText.text = player1TurnStatus;
+			player1.EnableInput();
 		}
 	}
 

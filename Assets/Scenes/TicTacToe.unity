@@ -390,8 +390,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cellsManager: {fileID: 188753870}
-  localPlayer: {fileID: 1271207608}
-  remotePlayer: {fileID: 1723389979}
   winLine: {fileID: 10517595}
   statusText: {fileID: 1995605866}
 --- !u!114 &128625036
@@ -418,6 +416,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa85fa3cb58679f4688e72a415b981b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  userPlayerPrefab: {fileID: 1509355167535150089, guid: d19799972dd97d548bdbadd307b55550,
+    type: 3}
+  aiPlayerPrefab: {fileID: 0}
+  remotePlayerPrefab: {fileID: 5780046204209300535, guid: d119d538bbb2ce944a5c980ef5fe6841,
+    type: 3}
   restartLabel: {fileID: 0}
 --- !u!1 &188753868
 GameObject:
@@ -666,7 +669,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &397755578
 PrefabInstance:
@@ -1480,150 +1483,13 @@ RectTransform:
   m_Children:
   - {fileID: 1995605865}
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!1 &1271207608
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1271207612}
-  - component: {fileID: 1271207611}
-  - component: {fileID: 1271207610}
-  - component: {fileID: 1271207609}
-  - component: {fileID: 1271207613}
-  m_Layer: 0
-  m_Name: LocalPlayer
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1271207609
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1271207608}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 52d46be2fd817774394a20640cf5b9b5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cellsManager: {fileID: 188753870}
---- !u!114 &1271207610
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1271207608}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5fff4870b1cd8d04d9873107ff19d879, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cellsManager: {fileID: 188753870}
-  camera: {fileID: 519420031}
-  actionsAsset: {fileID: -944628639613478452, guid: bcfab4a894987494f9cf7c77bea694a8,
-    type: 3}
---- !u!114 &1271207611
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1271207608}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Actions: {fileID: -944628639613478452, guid: bcfab4a894987494f9cf7c77bea694a8,
-    type: 3}
-  m_NotificationBehavior: 2
-  m_UIInputModule: {fileID: 0}
-  m_DeviceLostEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_DeviceRegainedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ControlsChangedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ActionEvents:
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1271207610}
-        m_MethodName: OnTap
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 1271207613}
-        m_MethodName: OnTap
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: 651ac608-2c0e-4cc3-8b14-a22d886606e6
-    m_ActionName: Cells/Place[/Touchscreen/primaryTouch/tap]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 9a5c1f4a-2d72-46ed-9204-050f9b4d0d68
-    m_ActionName: Screen Interactions/Position[/Touchscreen/primaryTouch/position,/Touchscreen/primaryTouch/position,/Mouse/position]
-  m_NeverAutoSwitchControlSchemes: 1
-  m_DefaultControlScheme: Touch
-  m_DefaultActionMap: Screen Interactions
-  m_SplitScreenIndex: -1
-  m_Camera: {fileID: 0}
---- !u!4 &1271207612
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1271207608}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1271207613
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1271207608}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 706b2da6282ded842be2db83f8d33744, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  restartText: {fileID: 996877795}
 --- !u!4 &1331562875 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 9095915638255572855, guid: dd3684b9225fcfd46bc67d0621821f4f,
@@ -1728,7 +1594,7 @@ RectTransform:
   m_Children:
   - {fileID: 2104873459}
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -1826,63 +1692,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 426403228}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1723389979
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1723389980}
-  - component: {fileID: 1723389982}
-  - component: {fileID: 1723389981}
-  m_Layer: 0
-  m_Name: RemotePlayer
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1723389980
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1723389979}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 4
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1723389981
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1723389979}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 52d46be2fd817774394a20640cf5b9b5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cellsManager: {fileID: 188753870}
---- !u!114 &1723389982
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1723389979}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 55b6f6e3be84f0d4babaacaa95bd0d7d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1995605864
 GameObject:
   m_ObjectHideFlags: 0
