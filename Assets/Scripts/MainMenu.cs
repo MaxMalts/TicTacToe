@@ -113,7 +113,7 @@ public class MainMenu : Unique<MainMenu> {
 
 		if (connected) {
 			SceneArgsManager.NextSceneArgs.Add("game-mode", GameMode.Multiplayer);
-			SceneArgsManager.NextSceneArgs.Add("cell-sign", localCellSign);
+			SceneArgsManager.NextSceneArgs.Add("local-cell-sign", localCellSign);
 			SceneArgsManager.NextSceneArgs.Add("ptp-client", ptpClient);
 			SceneManager.LoadScene((int)SceneIndeces.TicTacToe);
 		}

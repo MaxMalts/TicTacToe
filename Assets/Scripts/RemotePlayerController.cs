@@ -59,9 +59,8 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 		PlayerAPI otherPlayerApi = otherPlayer.PlayerApi;
 		Assert.IsNotNull(otherPlayerApi);
 
+		otherPlayerApi.CellPlaced.RemoveListener(OnLocalCellPlaced);
 		otherPlayerApi.CellPlaced.AddListener(OnLocalCellPlaced);
-
-		InputEnabled = false;
 
 		Assert.IsNotNull(gameManager);
 
@@ -125,7 +124,7 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 	}
 
 	void OnLocalCellPlaced(PlayerAPI.PlaceContext placeContext) {
-		Assert.IsTrue(placeContext.PlayerType == PlayerAPI.PlayerType.Local);
+		Assert.IsTrue(placeContext.PlayerType == PlayerAPI.PlayerType.User);
 		Assert.IsTrue(placeContext.Sign != PlayerApi.Sign);
 
 		string queryStr =
@@ -218,7 +217,7 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 
 	void SendSign() {
 		string signValue =
-				PlayerApi.Sign == CellSign.Cross ? crossSignValue : noughtSignValue;
+			PlayerApi.Sign == CellSign.Cross ? crossSignValue : noughtSignValue;
 
 		try {
 			ptpClient.Send(Encoding.UTF8.GetBytes(remoteCellSignQuery + ':' + signValue));

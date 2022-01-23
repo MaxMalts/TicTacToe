@@ -15,19 +15,16 @@ public class LocalPlayerController : MonoBehaviour, PlayerController {
 
 	public bool InputEnabled { get; private set; } = false;
 
-	[SerializeField] CellsManager cellsManager;
-
-	[SerializeField] new Camera camera;
-	
 	[SerializeField] InputActionAsset actionsAsset;
 	InputAction pointerPosAction;  // to get the position of tap
 
+	new Camera camera;
+	CellsManager cellsManager;
+	InputActionEvent tapEvent;
 
 
 	public void StartGame() {
 		Assert.IsTrue(PlayerApi.Sign == CellSign.Cross || PlayerApi.Sign == CellSign.Nought);
-
-		InputEnabled = false;
 	}
 
 	//public void Update() {
@@ -46,10 +43,20 @@ public class LocalPlayerController : MonoBehaviour, PlayerController {
 	//}
 
 	public void EnableInput() {
+		if (tapEvent == null) {
+			tapEvent = PlayerInputEvents.Instance?.TapEvent;
+			Assert.IsNotNull(tapEvent);
+		}
+
+		tapEvent.AddListener(OnTap);
 		InputEnabled = true;
 	}
 
 	public void DisableInput() {
+		if (tapEvent != null) {
+			tapEvent.RemoveListener(OnTap);
+		}
+
 		InputEnabled = false;
 	}
 
@@ -92,12 +99,19 @@ public class LocalPlayerController : MonoBehaviour, PlayerController {
 	}
 
 	void Awake() {
+		Assert.IsNotNull(actionsAsset, "actionAsset was not assigned in inspector");
+
+		camera = Camera.main;
+
 		PlayerApi = GetComponent<PlayerAPI>();
 		Assert.IsNotNull(PlayerApi, "No PlayerAPI script on PlayerApi.");
-		PlayerApi.Type = PlayerAPI.PlayerType.Local;
+		PlayerApi.Type = PlayerAPI.PlayerType.User;
 	}
 
 	void Start() {
 		pointerPosAction = actionsAsset.FindAction("Screen Interactions/Position", true);
+
+		cellsManager = CellsManager.Instance;
+		Assert.IsNotNull(cellsManager, "No CellsManager instance on LocalPlayerController start.");
 	}
 }

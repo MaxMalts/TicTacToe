@@ -7,11 +7,14 @@ using UnityEngine.Events;
 
 
 
-// To do: think about naming and difference with PlayerController
+/// <summary>
+/// This classed is used for PlayerController to control player. But it can also be used
+/// to get player information and events.
+/// </summary>
 public class PlayerAPI : MonoBehaviour {
 
 	public enum PlayerType {
-		Local,
+		User,
 		Remote
 	}
 
@@ -70,15 +73,19 @@ public class PlayerAPI : MonoBehaviour {
 		}
 	}
 
-	[SerializeField] CellsManager cellsManager;
+	CellsManager cellsManager;
 
 
 	public void Place(Vector2Int pos) {
-
 		cellsManager.SetCellSign(pos, Sign);
 		cellsManager.DisableCellInput(pos);
 
 		PlaceContext context = new PlaceContext(Type, Sign, pos, this);
 		CellPlaced.Invoke(context);
+	}
+
+	void Start() {
+		cellsManager = CellsManager.Instance;
+		Assert.IsNotNull(cellsManager, "No CellsManager instance on PlayerAPI start.");
 	}
 }

@@ -8,7 +8,7 @@ using UnityEngine.Assertions;
 
 
 
-public class CellsManager : MonoBehaviour {
+public class CellsManager : Unique<CellsManager> {
 
 	const int fieldSize = GameManager.fieldSize;
 

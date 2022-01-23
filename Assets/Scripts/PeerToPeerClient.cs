@@ -346,6 +346,7 @@ namespace Network {
 		void SearchAndConnect(CancellationToken token) {
 			try {
 				if (disposed) {
+					token.ThrowIfCancellationRequested();
 					throw new ObjectDisposedException("PeerToPeerClient");
 				}
 				token.ThrowIfCancellationRequested();
@@ -355,6 +356,7 @@ namespace Network {
 
 				while (!Connected) {
 					if (disposed) {
+						token.ThrowIfCancellationRequested();
 						throw new ObjectDisposedException("PeerToPeerClient");
 					}
 					token.ThrowIfCancellationRequested();
@@ -362,6 +364,7 @@ namespace Network {
 					try {
 						broadcastClient.Send(beaconMessage);
 					} catch (ObjectDisposedException exception) {
+						token.ThrowIfCancellationRequested();
 						throw new ObjectDisposedException("broadcastClient needed to search " +
 							"for other PeerToPeerClient disposed", exception);
 					}

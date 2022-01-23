@@ -8,31 +8,26 @@ using UnityEngine.Assertions;
 
 public class RestartController : MonoBehaviour {
 
+	[SerializeField] GameObject restartText;
+
 	GameStarter gameStarter;
 	GameManager gameManager;
 
-	PlayerInput playerInput;
+	InputActionEvent tapEvent;
 	bool inputEnabled = false;
-	int inputChangedFrame = -1;
-
-	[SerializeField] GameObject restartText;
+	//int inputChangedFrame = -1;
 
 
 	public void OnTap(InputAction.CallbackContext context) {
-		// The action that invoked this event is the tap action,
-		// not the position action.
-
-		if (context.phase == InputActionPhase.Performed && inputEnabled &&
-			inputChangedFrame < Time.frameCount) {
+		if (context.phase == InputActionPhase.Performed && inputEnabled) {// &&
+			//inputChangedFrame < Time.frameCount) {
+			Assert.IsTrue(inputEnabled);
 
 			OnPointerRelease();
 		}
 	}
 
 	void Awake() {
-		playerInput = GetComponent<PlayerInput>();
-		Assert.IsNotNull(playerInput, "No Player Input Component on Player.");
-
 		if (restartText != null) {
 			if (restartText.activeSelf) {
 				Debug.LogWarning("Restart Text GameObject was active by default. " +
@@ -55,16 +50,23 @@ public class RestartController : MonoBehaviour {
 	}
 
 	void EnableInput() {
+		if (tapEvent == null) {
+			tapEvent = PlayerInputEvents.Instance?.TapEvent;
+			Assert.IsNotNull(tapEvent);
+		}
+
 		if (!inputEnabled) {
 			inputEnabled = true;
-			inputChangedFrame = Time.frameCount;
+			tapEvent.AddListener(OnTap);
+			//inputChangedFrame = Time.frameCount;
 		}
 	}
 
 	void DisableInput() {
 		if (inputEnabled) {
 			inputEnabled = false;
-			inputChangedFrame = Time.frameCount;
+			tapEvent.RemoveListener(OnTap);
+			//inputChangedFrame = Time.frameCount;
 		}
 	}
 

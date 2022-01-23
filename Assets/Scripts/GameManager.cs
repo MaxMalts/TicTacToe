@@ -55,7 +55,7 @@ public class GameManager : Unique<GameManager> {
 
 	public PlayerController CurrentPlayer { get; private set; }
 
-	public bool GameRunning { get { throw new NotImplementedException(); } private set { } }
+	public bool GameRunning { get; private set; }
 
 	// To do: custom text on different modes
 	const string player1TurnStatus = "Your turn";
@@ -70,7 +70,7 @@ public class GameManager : Unique<GameManager> {
 	delegate bool WinIterationProcessor(ref Vector2Int? winPos1, ref Vector2Int? winPos2);
 
 
-	public void StartGame() {
+	public void StartNewGame() {
 		Assert.IsTrue(player1 != null, "player1 not set on game start.");
 		Assert.IsTrue(player2 != null, "player2 not set on game start.");
 		Assert.IsTrue(
@@ -81,11 +81,15 @@ public class GameManager : Unique<GameManager> {
 			"Players have not corresponding cell signs."
 		);
 
+		player1.PlayerApi.CellPlaced.RemoveListener(OnCellPlaced);
+		player2.PlayerApi.CellPlaced.RemoveListener(OnCellPlaced);
 		player1.PlayerApi.CellPlaced.AddListener(OnCellPlaced);
 		player2.PlayerApi.CellPlaced.AddListener(OnCellPlaced);
 
 		cellsManager.ResetAllCells();
 		winLine.Hide();
+
+		GameRunning = true;
 
 		player1.StartGame();
 		player2.StartGame();
@@ -135,8 +139,7 @@ public class GameManager : Unique<GameManager> {
 	}
 
 	void OnCellPlaced(PlayerAPI.PlaceContext context) {
-
-		if (context.PlayerType == PlayerAPI.PlayerType.Local) {
+		if (context.PlayerType == PlayerAPI.PlayerType.User) {
 			player1.DisableInput();
 		}
 
@@ -158,9 +161,11 @@ public class GameManager : Unique<GameManager> {
 		}
 	}
 
-	bool CheckCurrentWin(Vector2Int fieldPos,
+	bool CheckCurrentWin(
+		Vector2Int fieldPos,
 		out Vector2Int? winPos1,
-		out Vector2Int? winPos2) {
+		out Vector2Int? winPos2
+	) {
 
 		const int winNumInRow = 3;
 
@@ -308,6 +313,7 @@ public class GameManager : Unique<GameManager> {
 
 	void HandleGameFinished() {
 		Debug.Log("Game finished.");
+		GameRunning = false;
 		GameFinished.Invoke();
 	}
 }

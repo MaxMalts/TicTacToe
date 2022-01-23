@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-// To do: refactor to new player initialization system
+
 
 /// <summary>
 /// Manages sign swap between games and starts or restarts the game.
@@ -28,7 +28,16 @@ public class GameStarter : Unique<GameStarter> {
 			restartLabel.SetActive(false);
 		}
 
-		//GameManager.Instance.StartGame();
+		PlayerAPI player1 = GameManager.Instance.Player1.PlayerApi;
+		PlayerAPI player2 = GameManager.Instance.Player2.PlayerApi;
+		Assert.IsNotNull(player1);
+		Assert.IsNotNull(player2);
+
+		CellSign t = player1.Sign;
+		player1.Sign = player2.Sign;
+		player2.Sign = t;
+
+		GameManager.Instance.StartNewGame();
 	}
 
 	void Awake() {
@@ -59,7 +68,7 @@ public class GameStarter : Unique<GameStarter> {
 
 	void Start() {
 		Assert.IsNotNull(GameManager.Instance);
-		GameManager.Instance.StartGame();
+		GameManager.Instance.StartNewGame();
 	}
 
 	void InitSingleplayer() {
@@ -74,7 +83,7 @@ public class GameStarter : Unique<GameStarter> {
 			localSign = CellSign.Cross;
 		}
 		if (localSign != CellSign.Cross && localSign != CellSign.Nought) {
-			throw new ArgumentException("Bad local-cell-sign value passed to scene.", "cell-sign");
+			throw new ArgumentException("Bad local-cell-sign value passed to scene.", "local-cell-sign");
 		}
 
 		PlayerController localPlayer = Instantiate(userPlayerPrefab).GetComponent<PlayerController>();
