@@ -11,22 +11,18 @@ using UnityEngine.Assertions;
 /// </summary>
 public class GameStarter : Unique<GameStarter> {
 
-	const float easyProb = 0.7f;  // probability of wrong cell in easy mode  
-	const float hardProb = 0.0f;  // probability of wrong cell in hard mode
+	// probabilities of ai placing random cell in different game modes
+	const float easyProb = 1.0f;
+	const float normalProb = 0.25f;
+	const float hardcoreProb = 0.0f;
 
 	[SerializeField] GameObject userPlayerPrefab;
 	[SerializeField] GameObject aiPlayerPrefab;
 	[SerializeField] GameObject remotePlayerPrefab;
 
-	[SerializeField] GameObject restartLabel;
-
 
 	public void RestartGame() {
 		Assert.IsNotNull(GameManager.Instance);
-
-		if (restartLabel != null) {
-			restartLabel.SetActive(false);
-		}
 
 		PlayerAPI player1 = GameManager.Instance.Player1.PlayerApi;
 		PlayerAPI player2 = GameManager.Instance.Player2.PlayerApi;
@@ -42,7 +38,7 @@ public class GameStarter : Unique<GameStarter> {
 
 	void Awake() {
 		Assert.IsNotNull(userPlayerPrefab, "userPlayerPrefab was not assigned in inspector.");
-		//Assert.IsNotNull(aiPlayerPrefab, "aiPlayerPrefab was not assigned in inspector.");
+		Assert.IsNotNull(aiPlayerPrefab, "aiPlayerPrefab was not assigned in inspector.");
 		Assert.IsNotNull(remotePlayerPrefab, "remotePlayerPrefab was not assigned in inspector.");
 
 		GameMode gameMode;
@@ -72,7 +68,44 @@ public class GameStarter : Unique<GameStarter> {
 	}
 
 	void InitSingleplayer() {
-		throw new NotImplementedException();
+		CellSign userSign = UnityEngine.Random.value > 0.5f ? CellSign.Cross : CellSign.Nought;
+
+		PlayerController userPlayer = Instantiate(userPlayerPrefab).GetComponent<PlayerController>();
+		Assert.IsNotNull(userPlayer, "No PlayerController component on userPlayerPrefab.");
+
+		AIPlayerController aiPlayer = Instantiate(aiPlayerPrefab).GetComponent<AIPlayerController>();
+		Assert.IsNotNull(aiPlayer, "No AIPlayerController component on aiPlayerPrefab.");
+
+		userPlayer.PlayerApi.Sign = userSign;
+		aiPlayer.PlayerApi.Sign = userSign == CellSign.Cross ? CellSign.Nought : CellSign.Cross;
+
+		GameDifficulty difficulty;
+		if (!SceneArgsManager.TryGetArg("game-difficulty", out difficulty)) {
+			Debug.LogWarning("No or wrong type of game-difficulty passed to current scene. " +
+				"Using normal difficulty by default.");
+			difficulty = GameDifficulty.Normal;
+		}
+
+		switch(difficulty) {
+			case GameDifficulty.Easy:
+				aiPlayer.RandomCellProb = easyProb;
+				break;
+
+			case GameDifficulty.Normal:
+				aiPlayer.RandomCellProb = normalProb;
+				break;
+
+			case GameDifficulty.Hardcore:
+				aiPlayer.RandomCellProb = hardcoreProb;
+				break;
+
+			default:
+				throw new ArgumentException("Bad game-difficulty value passed to scene",
+					"game-difficulty");
+		}
+
+		GameManager.Instance.Player1 = userPlayer;
+		GameManager.Instance.Player2 = aiPlayer;
 	}
 
 	void InitMultiplayer() {

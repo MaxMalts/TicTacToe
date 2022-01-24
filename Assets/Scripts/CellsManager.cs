@@ -12,14 +12,11 @@ public class CellsManager : Unique<CellsManager> {
 
 	const int fieldSize = GameManager.fieldSize;
 
-	CellController[][] cells = new CellController[fieldSize][] {
-		new CellController[fieldSize],
-		new CellController[fieldSize],
-		new CellController[fieldSize]
-	};
+	CellController[][] cells;
 
 	PlayerInput playerInput;
 	bool cellsRegistered = false;
+
 
 	public CellController GetCellController(Vector2Int pos) {
 		Assert.IsTrue(FieldPosInRange(pos), "Position out of range.");
@@ -120,6 +117,13 @@ public class CellsManager : Unique<CellsManager> {
 				curCell.SetSign(CellSign.Empty);
 				curCell.EnableClickCollider();
 			}
+		}
+	}
+
+	void Awake() {
+		cells = new CellController[fieldSize][];
+		for (int i = 0; i < fieldSize; ++i) {
+			cells[i] = new CellController[fieldSize];
 		}
 	}
 

@@ -42,7 +42,7 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 		InputEnabled = false;
 	}
 
-	public void StartGame() {
+	public void StarNewGame() {
 		Assert.IsTrue(PlayerApi.Sign == CellSign.Cross || PlayerApi.Sign == CellSign.Nought);
 		Assert.IsNotNull(ptpClient);
 
@@ -50,6 +50,8 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 			Init();
 			inited = true;
 		}
+
+		Assert.IsNotNull(gameManager);
 
 		Assert.IsTrue(ReferenceEquals(this, gameManager.Player1) || ReferenceEquals(this, gameManager.Player2));
 		PlayerController otherPlayer =
@@ -62,7 +64,7 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 		otherPlayerApi.CellPlaced.RemoveListener(OnLocalCellPlaced);
 		otherPlayerApi.CellPlaced.AddListener(OnLocalCellPlaced);
 
-		Assert.IsNotNull(gameManager);
+		DisableInput();
 
 		try {
 			ptpClient.StartReceiving();
@@ -87,7 +89,7 @@ public class RemotePlayerController : MonoBehaviour, PlayerController {
 
 	void Awake() {
 		PlayerApi = GetComponent<PlayerAPI>();
-		Assert.IsNotNull(PlayerApi, "No PlayerAPI script on PlayerApi.");
+		Assert.IsNotNull(PlayerApi, "No PlayerAPI script on RemotePlayerController.");
 		PlayerApi.Type = PlayerAPI.PlayerType.Remote;
 
 		object ptpClientObj;

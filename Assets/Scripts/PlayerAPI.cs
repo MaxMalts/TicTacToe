@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.Events;
 
-
+// To do: merge this class with PlayerController and make it a base class for all players
 
 /// <summary>
 /// This classed is used for PlayerController to control player. But it can also be used
@@ -15,7 +15,8 @@ public class PlayerAPI : MonoBehaviour {
 
 	public enum PlayerType {
 		User,
-		Remote
+		Remote,
+		AI
 	}
 
 	public struct PlaceContext {

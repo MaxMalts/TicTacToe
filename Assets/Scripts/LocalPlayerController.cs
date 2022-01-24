@@ -23,8 +23,9 @@ public class LocalPlayerController : MonoBehaviour, PlayerController {
 	InputActionEvent tapEvent;
 
 
-	public void StartGame() {
+	public void StarNewGame() {
 		Assert.IsTrue(PlayerApi.Sign == CellSign.Cross || PlayerApi.Sign == CellSign.Nought);
+		DisableInput();
 	}
 
 	//public void Update() {
@@ -104,7 +105,7 @@ public class LocalPlayerController : MonoBehaviour, PlayerController {
 		camera = Camera.main;
 
 		PlayerApi = GetComponent<PlayerAPI>();
-		Assert.IsNotNull(PlayerApi, "No PlayerAPI script on PlayerApi.");
+		Assert.IsNotNull(PlayerApi, "No PlayerAPI script on LocalPlayerController.");
 		PlayerApi.Type = PlayerAPI.PlayerType.User;
 	}
 

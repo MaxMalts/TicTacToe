@@ -418,10 +418,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   userPlayerPrefab: {fileID: 1509355167535150089, guid: d19799972dd97d548bdbadd307b55550,
     type: 3}
-  aiPlayerPrefab: {fileID: 0}
+  aiPlayerPrefab: {fileID: 1509355167535150089, guid: 45a572687cfe74740be993172c67a7c6,
+    type: 3}
   remotePlayerPrefab: {fileID: 5780046204209300535, guid: d119d538bbb2ce944a5c980ef5fe6841,
     type: 3}
-  restartLabel: {fileID: 0}
 --- !u!1 &188753868
 GameObject:
   m_ObjectHideFlags: 0

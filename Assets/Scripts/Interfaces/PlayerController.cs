@@ -1,14 +1,11 @@
-﻿using UnityEngine;
-
-
-
+﻿
 public interface PlayerController {
 
 	PlayerAPI PlayerApi { get; }
 
 	bool InputEnabled { get; }
 
-	void StartGame();
+	void StarNewGame();
 
 	void EnableInput();
 

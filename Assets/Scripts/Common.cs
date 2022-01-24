@@ -22,5 +22,6 @@ public enum GameMode {
 
 public enum GameDifficulty {
 	Easy,
-	Hard
+	Normal,
+	Hardcore
 }

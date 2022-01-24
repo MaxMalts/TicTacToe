@@ -91,8 +91,8 @@ public class GameManager : Unique<GameManager> {
 
 		GameRunning = true;
 
-		player1.StartGame();
-		player2.StartGame();
+		player1.StarNewGame();
+		player2.StarNewGame();
 
 		if (player1.PlayerApi.Sign == CellSign.Cross) {
 			CurrentPlayer = player1;
@@ -139,9 +139,9 @@ public class GameManager : Unique<GameManager> {
 	}
 
 	void OnCellPlaced(PlayerAPI.PlaceContext context) {
-		if (context.PlayerType == PlayerAPI.PlayerType.User) {
-			player1.DisableInput();
-		}
+		//if (context.PlayerType == PlayerAPI.PlayerType.User) {
+		//	player1.DisableInput();
+		//}
 
 		Vector2Int? winPos1, winPos2;
 		if (CheckCurrentWin(context.FieldPos, out winPos1, out winPos2)) {
@@ -313,6 +313,8 @@ public class GameManager : Unique<GameManager> {
 
 	void HandleGameFinished() {
 		Debug.Log("Game finished.");
+		player1.DisableInput();
+		player2.DisableInput();
 		GameRunning = false;
 		GameFinished.Invoke();
 	}
