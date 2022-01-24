@@ -33,14 +33,14 @@ public class ConfirmCancelPopupController : PopupController {
 
 
 	/// <summary>
-	/// Wait for button click or closing of the popup.
+	/// Wait for confirm button click or closing of the popup.
 	/// </summary>
 	/// <returns>
 	/// Task which returns: <br/>
 	/// <see langword="true"/> if confirm button was clicked <br/>
 	/// <see langword="false"/> if cancel button was clicked or popup was closed
 	/// </returns>
-	public Task<bool> WaitForClickOrCloseAsync() {
+	public Task<bool> WaitForConfirmOrCloseAsync() {
 		if (waitForClickTask == null) {
 			waitForClickTask = new TaskCompletionSource<bool>();
 		}

@@ -37,7 +37,7 @@ public class MainMenuAPI : Unique<MainMenuAPI> {
 
 	public void SetSignAndStart(CellSign sign) {
 		Assert.IsTrue(curGameMode != null, "Game difficulty set but game mode not set.");
-		Assert.IsTrue(curGameMode == GameMode.Multiplayer);
+		Assert.IsTrue(curGameMode == GameMode.WifiMultiplayer);
 
 		MainMenu.Instance.StartGame(curGameMode.Value, null, sign);
 	}

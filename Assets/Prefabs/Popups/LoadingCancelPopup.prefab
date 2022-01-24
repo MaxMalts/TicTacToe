@@ -114,7 +114,7 @@ MonoBehaviour:
     m_Top: 80
     m_Bottom: 40
   m_ChildAlignment: 4
-  m_Spacing: 40
+  m_Spacing: 60
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1
@@ -240,8 +240,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 90
-  m_fontSizeBase: 90
+  m_fontSize: 75
+  m_fontSizeBase: 75
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -437,7 +437,7 @@ PrefabInstance:
     - target: {fileID: 8409070993115091951, guid: 4ead1757268fa04458f4a3e44aef8102,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 337.31
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8409070993115091951, guid: 4ead1757268fa04458f4a3e44aef8102,
         type: 3}
@@ -482,7 +482,7 @@ PrefabInstance:
     - target: {fileID: 8409070993115091951, guid: 4ead1757268fa04458f4a3e44aef8102,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 420
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8409070993115091951, guid: 4ead1757268fa04458f4a3e44aef8102,
         type: 3}

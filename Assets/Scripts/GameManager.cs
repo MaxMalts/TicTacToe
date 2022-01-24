@@ -137,6 +137,26 @@ public class GameManager : Unique<GameManager> {
 		Assert.IsNotNull(statusText, "Status Text was not assigned in inspector.");
 	}
 
+	void Start() {
+		BackHandler.Instance.OnBack.AddListener(async () => {
+			SuspendGame();
+
+			PopupsManager.Instance.BgdRaycastTarget = true;
+			PopupsManager.Instance.DimmerBgd = true;
+
+			ConfirmCancelPopupController popup =
+				PopupsManager.ShowConfirmCancelPopup("Sure you want to stop the game?", "Yes", "No");
+
+			bool confirmed = await popup.WaitForConfirmOrCloseAsync();
+			if (confirmed) {
+				ReturnToMainMenu();
+			} else {
+				UnsuspendGame();
+				popup.Close();
+			}
+		});
+	}
+
 	void OnCellPlaced(PlayerAPI.PlaceContext context) {
 		//if (context.PlayerType == PlayerAPI.PlayerType.User) {
 		//	player1.DisableInput();

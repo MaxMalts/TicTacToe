@@ -18,19 +18,26 @@ public class PopupsManager : Singleton<PopupsManager> {
 		}
 
 		set {
-			bgdImage.enabled = value;
+			if (bgdImage != null) {
+				bgdImage.enabled = value;
+			}
 			dimmerBackground = value;
 		}
 	}
 
 	[SerializeField] bool backgroundRaycastTarget = true;
+	/// <summary>
+	/// Block all iteractions except the popup.
+	/// </summary>
 	public bool BgdRaycastTarget {
 		get {
 			return backgroundRaycastTarget;
 		}
 
 		set {
-			bgdImage.raycastTarget = value;
+			if (bgdImage != null) {
+				bgdImage.raycastTarget = value;
+			}
 			backgroundRaycastTarget = value;
 		}
 	}
@@ -257,6 +264,7 @@ public class PopupsManager : Singleton<PopupsManager> {
 			rectTrans.pivot = new Vector2(0.5f, 0.5f);
 			rectTrans.anchoredPosition = new Vector2(0.0f, 0.0f);
 			rectTrans.sizeDelta = new Vector2(0.0f, 0.0f);
+			rectTrans.localScale = new Vector3(1.0f, 1.0f, 1.0f);
 
 			Instance.bgdImage.enabled = Instance.DimmerBgd;
 			Instance.bgdImage.color = Instance.bgdColor;
