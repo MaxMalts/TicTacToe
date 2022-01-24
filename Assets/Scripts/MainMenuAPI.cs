@@ -21,7 +21,11 @@ public class MainMenuAPI : Unique<MainMenuAPI> {
 
 
 	public void SetGameMode(GameMode gameMode) {
-		curGameMode = gameMode;
+		if (gameMode == GameMode.Multiplayer) {
+			MainMenu.Instance.StartGame(gameMode);
+		} else {
+			curGameMode = gameMode;
+		}
 	}
 
 	public void SetDifficultyAndStart(GameDifficulty difficulty) {

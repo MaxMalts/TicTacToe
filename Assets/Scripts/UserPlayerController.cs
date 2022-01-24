@@ -9,7 +9,7 @@ using UnityEngine.Assertions;
 
 
 [RequireComponent(typeof(PlayerAPI))]
-public class LocalPlayerController : MonoBehaviour, PlayerController {
+public class UserPlayerController : MonoBehaviour, PlayerController {
 
 	public PlayerAPI PlayerApi { get; private set; }
 
@@ -105,7 +105,7 @@ public class LocalPlayerController : MonoBehaviour, PlayerController {
 		camera = Camera.main;
 
 		PlayerApi = GetComponent<PlayerAPI>();
-		Assert.IsNotNull(PlayerApi, "No PlayerAPI script on LocalPlayerController.");
+		Assert.IsNotNull(PlayerApi, "No PlayerAPI script on UserPlayerController.");
 		PlayerApi.Type = PlayerAPI.PlayerType.User;
 	}
 
@@ -113,6 +113,6 @@ public class LocalPlayerController : MonoBehaviour, PlayerController {
 		pointerPosAction = actionsAsset.FindAction("Screen Interactions/Position", true);
 
 		cellsManager = CellsManager.Instance;
-		Assert.IsNotNull(cellsManager, "No CellsManager instance on LocalPlayerController start.");
+		Assert.IsNotNull(cellsManager, "No CellsManager instance on UserPlayerController start.");
 	}
 }

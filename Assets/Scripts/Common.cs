@@ -17,7 +17,8 @@ public enum CellSign {
 
 public enum GameMode {
 	Singleplayer,
-	Multiplayer
+	Multiplayer,
+	WifiMultiplayer
 }
 
 public enum GameDifficulty {

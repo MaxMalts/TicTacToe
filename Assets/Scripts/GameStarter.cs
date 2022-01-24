@@ -11,6 +11,12 @@ using UnityEngine.Assertions;
 /// </summary>
 public class GameStarter : Unique<GameStarter> {
 
+	const string remotePlayerTurnStatus = "Your turn";
+	const string player2TurnStatus = "Opponent's turn";
+	const string player1WonStatus = "You won";
+	const string player2WonStatus = "You lost";
+	const string drawStatus = "Draw";
+
 	// probabilities of ai placing random cell in different game modes
 	const float easyProb = 1.0f;
 	const float normalProb = 0.25f;
@@ -55,6 +61,10 @@ public class GameStarter : Unique<GameStarter> {
 
 			case GameMode.Multiplayer:
 				InitMultiplayer();
+				break;
+
+			case GameMode.WifiMultiplayer:
+				InitWifiMultiplayer();
 				break;
 
 			default:
@@ -106,9 +116,33 @@ public class GameStarter : Unique<GameStarter> {
 
 		GameManager.Instance.Player1 = userPlayer;
 		GameManager.Instance.Player2 = aiPlayer;
+
+		GameManager.Instance.Player1TurnStatus = "Your turn";
+		GameManager.Instance.Player2TurnStatus = "Your turn";  // otherwise feels like a lag
+		GameManager.Instance.Player1WinStatus = "You won";
+		GameManager.Instance.Player2WinStatus = "You lost";
 	}
 
 	void InitMultiplayer() {
+		PlayerController userPlayer1 = Instantiate(userPlayerPrefab).GetComponent<PlayerController>();
+		Assert.IsNotNull(userPlayer1, "No PlayerController component on userPlayerPrefab.");
+
+		PlayerController userPlayer2 = Instantiate(userPlayerPrefab).GetComponent<PlayerController>();
+		Assert.IsNotNull(userPlayer2, "No PlayerController component on userPlayerPrefab.");
+
+		userPlayer1.PlayerApi.Sign = CellSign.Cross;
+		userPlayer2.PlayerApi.Sign = CellSign.Nought;
+
+		GameManager.Instance.Player1 = userPlayer1;
+		GameManager.Instance.Player2 = userPlayer2;
+
+		GameManager.Instance.Player1TurnStatus = "Cross turn";
+		GameManager.Instance.Player2TurnStatus = "Nought turn";
+		GameManager.Instance.Player1WinStatus = "Cross won";
+		GameManager.Instance.Player2WinStatus = "Nought won";
+	}
+
+	void InitWifiMultiplayer() {
 		CellSign localSign;
 		if (!SceneArgsManager.TryGetArg("local-cell-sign", out localSign)) {
 			Debug.LogWarning("No or wrong type of local-cell-sign passed to current scene. " +

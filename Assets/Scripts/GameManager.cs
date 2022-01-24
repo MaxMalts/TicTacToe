@@ -57,12 +57,11 @@ public class GameManager : Unique<GameManager> {
 
 	public bool GameRunning { get; private set; }
 
-	// To do: custom text on different modes
-	const string player1TurnStatus = "Your turn";
-	const string player2TurnStatus = "Opponent's turn";
-	const string player1WonStatus = "You won";
-	const string player2WonStatus = "You lost";
-	const string drawStatus = "Draw";
+	public string Player1TurnStatus { get; set; } = "Player 1 turn";
+	public string Player2TurnStatus { get; set; } = "Player 2 turn";
+	public string Player1WinStatus { get; set; } = "Player 1 won";
+	public string Player2WinStatus { get; set; } = "Player 2 won";
+	public string drawStatus { get; set; } = "Draw";
 
 	[SerializeField] WinningLine winLine;
 	[SerializeField] TextMeshProUGUI statusText;
@@ -97,14 +96,14 @@ public class GameManager : Unique<GameManager> {
 		if (player1.PlayerApi.Sign == CellSign.Cross) {
 			CurrentPlayer = player1;
 			player1.EnableInput();
-			statusText.text = player1TurnStatus;
+			statusText.text = Player1TurnStatus;
 
 		} else {
 			Assert.IsTrue(player2.PlayerApi.Sign == CellSign.Cross);
 
 			CurrentPlayer = player2;
 			player2.EnableInput();
-			statusText.text = player2TurnStatus;
+			statusText.text = Player2TurnStatus;
 		}
 	}
 
@@ -278,14 +277,14 @@ public class GameManager : Unique<GameManager> {
 
 	void HandleCurrentWin(Vector2Int fieldPos1, Vector2Int fieldPos2) {
 		if (ReferenceEquals(CurrentPlayer, player1)) {
-			statusText.text = player1WonStatus;
+			statusText.text = Player1WinStatus;
 			Debug.Log("Local player won.");
 
 		} else {
 			Assert.IsTrue(ReferenceEquals(CurrentPlayer, player2),
 				"CurrentPlayer not valid.");
 
-			statusText.text = player2WonStatus;
+			statusText.text = Player2WinStatus;
 			Debug.Log("Local player lost.");
 		}
 
@@ -297,7 +296,7 @@ public class GameManager : Unique<GameManager> {
 		if (ReferenceEquals(CurrentPlayer, player1)) {
 			player1.DisableInput();
 			CurrentPlayer = player2;
-			statusText.text = player2TurnStatus;
+			statusText.text = Player2TurnStatus;
 			player2.EnableInput();
 
 		} else {
@@ -306,7 +305,7 @@ public class GameManager : Unique<GameManager> {
 
 			player2.DisableInput();
 			CurrentPlayer = player1;
-			statusText.text = player1TurnStatus;
+			statusText.text = Player1TurnStatus;
 			player1.EnableInput();
 		}
 	}

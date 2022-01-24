@@ -48,8 +48,12 @@ public class MainMenu : Unique<MainMenu> {
 				break;
 
 			case GameMode.Multiplayer:
+				StartMultiplayer();
+				break;
+
+			case GameMode.WifiMultiplayer:
 				Assert.IsTrue(cellSign != null, "gameMode multiplayer but cellSign is null.");
-				ConnectAndStartGame(cellSign.Value);
+				StartWifiMultiplayer(cellSign.Value);
 				break;
 
 			default:
@@ -64,7 +68,12 @@ public class MainMenu : Unique<MainMenu> {
 		SceneManager.LoadScene((int)SceneIndeces.TicTacToe);
 	}
 
-	void ConnectAndStartGame(CellSign sign) {
+	void StartMultiplayer() {
+		SceneArgsManager.NextSceneArgs.Add("game-mode", GameMode.Multiplayer);
+		SceneManager.LoadScene((int)SceneIndeces.TicTacToe);
+	}
+
+	void StartWifiMultiplayer(CellSign sign) {
 		ShowConnectingPopup();
 
 		localCellSign = sign;
@@ -112,7 +121,7 @@ public class MainMenu : Unique<MainMenu> {
 		}
 
 		if (connected) {
-			SceneArgsManager.NextSceneArgs.Add("game-mode", GameMode.Multiplayer);
+			SceneArgsManager.NextSceneArgs.Add("game-mode", GameMode.WifiMultiplayer);
 			SceneArgsManager.NextSceneArgs.Add("local-cell-sign", localCellSign);
 			SceneArgsManager.NextSceneArgs.Add("ptp-client", ptpClient);
 			SceneManager.LoadScene((int)SceneIndeces.TicTacToe);
