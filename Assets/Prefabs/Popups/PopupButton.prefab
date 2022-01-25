@@ -145,7 +145,6 @@ GameObject:
   - component: {fileID: 708734922420408146}
   - component: {fileID: 8904220093229395278}
   - component: {fileID: 1295522083335141645}
-  - component: {fileID: 5776971252372134958}
   - component: {fileID: 8623661610368103589}
   - component: {fileID: 6323421944265628028}
   m_Layer: 5
@@ -196,14 +195,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.78039217, g: 0.7082342, b: 0.55407846, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
+  m_Sprite: {fileID: 21300000, guid: a266a815532b20447b08cf6ef020d0d7, type: 3}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -266,21 +265,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &5776971252372134958
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8998873114642580754}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_EffectColor: {r: 0.38679248, g: 0.3730723, b: 0.3010413, a: 1}
-  m_EffectDistance: {x: 5, y: 5}
-  m_UseGraphicAlpha: 1
 --- !u!95 &8623661610368103589
 Animator:
   serializedVersion: 3
@@ -313,10 +297,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Padding:
-    m_Left: 30
-    m_Right: 30
-    m_Top: 20
-    m_Bottom: 20
+    m_Left: 35
+    m_Right: 35
+    m_Top: 25
+    m_Bottom: 25
   m_ChildAlignment: 4
   m_Spacing: 10
   m_ChildForceExpandWidth: 0

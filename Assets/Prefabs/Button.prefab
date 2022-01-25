@@ -146,7 +146,6 @@ GameObject:
   - component: {fileID: 8904220093229395278}
   - component: {fileID: 1295522083335141645}
   - component: {fileID: 3753200266358909503}
-  - component: {fileID: 5776971252372134958}
   - component: {fileID: 8623661610368103589}
   - component: {fileID: 6323421944265628028}
   - component: {fileID: 5301072480056648186}
@@ -198,14 +197,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.83699995, g: 0.7741384, b: 0.63444597, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
+  m_Sprite: {fileID: 21300000, guid: fca9f94633a2c764bbcd232cc52e907b, type: 3}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -280,23 +279,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.101960786}
-  m_EffectDistance: {x: 20, y: -15}
-  m_UseGraphicAlpha: 1
---- !u!114 &5776971252372134958
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8998873114642580754}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_EffectColor: {r: 0.38679248, g: 0.3730723, b: 0.3010413, a: 1}
-  m_EffectDistance: {x: 8, y: 8}
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.14901961}
+  m_EffectDistance: {x: 10, y: -8}
   m_UseGraphicAlpha: 1
 --- !u!95 &8623661610368103589
 Animator:
@@ -330,10 +314,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Padding:
-    m_Left: 30
-    m_Right: 30
-    m_Top: 30
-    m_Bottom: 30
+    m_Left: 40
+    m_Right: 40
+    m_Top: 40
+    m_Bottom: 40
   m_ChildAlignment: 4
   m_Spacing: 10
   m_ChildForceExpandWidth: 0
