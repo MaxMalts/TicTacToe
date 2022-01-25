@@ -19,7 +19,7 @@ public class GameStarter : Unique<GameStarter> {
 
 	// probabilities of ai placing random cell in different game modes
 	const float easyProb = 1.0f;
-	const float normalProb = 0.25f;
+	const float normalProb = 0.18f;
 	const float hardcoreProb = 0.0f;
 
 	[SerializeField] GameObject userPlayerPrefab;

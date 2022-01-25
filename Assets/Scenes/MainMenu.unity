@@ -996,6 +996,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17ec26cf1a624834cb22344260486e84, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  backAction:
+    m_Name: Back
+    m_Type: 1
+    m_ExpectedControlType: Button
+    m_Id: 435ee203-a665-47d3-9702-372b5bcda5df
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 6a907814-9384-4093-9323-2ecc772fe98c
+      m_Path: '*/{Cancel}'
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Back
+      m_Flags: 0
+    - m_Name: 
+      m_Id: 72fac633-8085-42f4-b39e-214e4dfb75d3
+      m_Path: '*/{Back}'
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Back
+      m_Flags: 0
+    m_Flags: 0
 --- !u!4 &1021467960
 Transform:
   m_ObjectHideFlags: 0
@@ -2720,6 +2745,11 @@ PrefabInstance:
       propertyPath: m_fontColor32.rgba
       value: 4279177233
       objectReference: {fileID: 0}
+    - target: {fileID: 5776971252372134958, guid: 61294c90e9df8334c8f704c4b1b79ce1,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8409070993115091951, guid: 61294c90e9df8334c8f704c4b1b79ce1,
         type: 3}
       propertyPath: m_Pivot.x
@@ -2855,10 +2885,20 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8904220093229395278, guid: 61294c90e9df8334c8f704c4b1b79ce1,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8998873114642580754, guid: 61294c90e9df8334c8f704c4b1b79ce1,
         type: 3}
       propertyPath: m_Name
       value: SingleplayerButton
+      objectReference: {fileID: 0}
+    - target: {fileID: 8998873114642580754, guid: 61294c90e9df8334c8f704c4b1b79ce1,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 61294c90e9df8334c8f704c4b1b79ce1, type: 3}

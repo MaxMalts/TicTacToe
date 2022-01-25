@@ -27,7 +27,8 @@ public class PopupsManager : Singleton<PopupsManager> {
 
 	[SerializeField] bool backgroundRaycastTarget = true;
 	/// <summary>
-	/// Block all iteractions except the popup.
+	/// Block all iteractions except the popup. DimmerBgd need to be set to
+	/// <see langword="true"/>, otherwise ignored.
 	/// </summary>
 	public bool BgdRaycastTarget {
 		get {
@@ -181,7 +182,8 @@ public class PopupsManager : Singleton<PopupsManager> {
 		GameObject prefab,
 		string message,
 		string buttonLabel,
-		GameObject parent) {
+		GameObject parent
+	) {
 
 		PopupController popupController = ShowPopup(prefab, message, parent);
 		if (popupController == null) {
@@ -277,7 +279,6 @@ public class PopupsManager : Singleton<PopupsManager> {
 	void OnPopupClosing() {
 		Assert.IsNotNull(Instance.ActivePopup, "Popup closed but ActivePopup was null in PopupsManager.");
 		Instance.bgdImage.gameObject.SetActive(false);
-		Instance.bgdImage.enabled = false;
 		Instance.ActivePopup = null;
 	}
 
