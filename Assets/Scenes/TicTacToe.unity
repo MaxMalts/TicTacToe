@@ -165,6 +165,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f25e2d5f4bb4fee48aa8ca8a82c5ed4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  animate: 1
+  animationDurationMs: 200
 --- !u!120 &10517596
 LineRenderer:
   m_ObjectHideFlags: 0
@@ -942,7 +944,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5.843478
+  orthographic size: 4.8
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -1956,7 +1958,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 124.4
+  m_fontSize: 149.25
   m_fontSizeBase: 130
   m_fontWeight: 400
   m_enableAutoSizing: 1
