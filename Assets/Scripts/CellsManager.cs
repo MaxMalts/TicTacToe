@@ -10,7 +10,11 @@ using UnityEngine.Assertions;
 
 public class CellsManager : Unique<CellsManager> {
 
+	public List<CellSign> PlaceAudioCellSigns { get; set; }
+
 	const int fieldSize = GameManager.fieldSize;
+
+	[SerializeField] AudioSource placingAudio;
 
 	CellController[][] cells;
 
@@ -36,7 +40,18 @@ public class CellsManager : Unique<CellsManager> {
 			RegisterCells();
 			cellsRegistered = true;
 		}
-		cells[pos.x - 1][pos.y - 1].SetSign(sign);
+
+		CellController curCell = cells[pos.x - 1][pos.y - 1];
+		if (curCell.Sign != sign) {
+			cells[pos.x - 1][pos.y - 1].SetSign(sign);
+
+			if (placingAudio != null &&
+				PlaceAudioCellSigns != null &&
+				PlaceAudioCellSigns.Contains(sign)) {
+
+				placingAudio.Play();
+			}
+		}
 	}
 
 	public CellSign GetCellSign(Vector2Int pos) {
@@ -124,6 +139,10 @@ public class CellsManager : Unique<CellsManager> {
 		cells = new CellController[fieldSize][];
 		for (int i = 0; i < fieldSize; ++i) {
 			cells[i] = new CellController[fieldSize];
+		}
+
+		if (placingAudio == null) {
+			Debug.LogWarning("PlacingAudio was not assigned in inspector.");
 		}
 	}
 

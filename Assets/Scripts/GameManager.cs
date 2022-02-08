@@ -62,9 +62,14 @@ public class GameManager : Unique<GameManager> {
 	public string Player1WinStatus { get; set; } = "Player 1 won";
 	public string Player2WinStatus { get; set; } = "Player 2 won";
 	public string drawStatus { get; set; } = "Draw";
+	public AudioClip Player1WinAudio { get; set; }
+	public AudioClip Player2WinAudio { get; set; }
+	public AudioClip DrawAudio { get; set; }
 
 	[SerializeField] WinningLine winLine;
 	[SerializeField] TextMeshProUGUI statusText;
+
+	[SerializeField] AudioSource winLooseAudioSource;
 
 	delegate bool WinIterationProcessor(ref Vector2Int? winPos1, ref Vector2Int? winPos2);
 
@@ -135,6 +140,10 @@ public class GameManager : Unique<GameManager> {
 		Assert.IsNotNull(cellsManager, "Cells Manager was not assigned in inspector.");
 		Assert.IsNotNull(winLine, "Winning Line was not assigned in inspector.");
 		Assert.IsNotNull(statusText, "Status Text was not assigned in inspector.");
+		
+		if (winLooseAudioSource == null) {
+			Debug.LogWarning("WinLooseAudioSource was not assigned in inspector.");
+		}
 	}
 
 	void Start() {
@@ -292,24 +301,34 @@ public class GameManager : Unique<GameManager> {
 
 	void HandleDraw() {
 		statusText.text = drawStatus;
+		if (winLooseAudioSource != null) {
+			winLooseAudioSource.clip = DrawAudio;
+		}
 		Debug.Log("Draw.");
 	}
 
 	void HandleCurrentWin(Vector2Int fieldPos1, Vector2Int fieldPos2) {
 		if (ReferenceEquals(CurrentPlayer, player1)) {
 			statusText.text = Player1WinStatus;
-			Debug.Log("Local player won.");
+			if (winLooseAudioSource != null) {
+				winLooseAudioSource.clip = Player1WinAudio;
+			}
+			Debug.Log("Player 1 won.");
 
 		} else {
 			Assert.IsTrue(ReferenceEquals(CurrentPlayer, player2),
 				"CurrentPlayer not valid.");
 
 			statusText.text = Player2WinStatus;
-			Debug.Log("Local player lost.");
+			if (winLooseAudioSource != null) {
+				winLooseAudioSource.clip = Player2WinAudio;
+			}
+			Debug.Log("Player 2 won.");
 		}
 
 		winLine.SetLine(fieldPos1, fieldPos2);
 		winLine.Show();
+		winLooseAudioSource.Play();
 	}
 
 	void SwitchTurn() {

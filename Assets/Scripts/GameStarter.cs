@@ -11,12 +11,6 @@ using UnityEngine.Assertions;
 /// </summary>
 public class GameStarter : Unique<GameStarter> {
 
-	const string remotePlayerTurnStatus = "Your turn";
-	const string player2TurnStatus = "Opponent's turn";
-	const string player1WonStatus = "You won";
-	const string player2WonStatus = "You lost";
-	const string drawStatus = "Draw";
-
 	// probabilities of ai placing random cell in different game modes
 	const float easyProb = 1.0f;
 	const float normalProb = 0.18f;
@@ -25,6 +19,9 @@ public class GameStarter : Unique<GameStarter> {
 	[SerializeField] GameObject userPlayerPrefab;
 	[SerializeField] GameObject aiPlayerPrefab;
 	[SerializeField] GameObject remotePlayerPrefab;
+
+	[SerializeField] AudioClip winAudio;
+	[SerializeField] AudioClip looseAudio;
 
 
 	public void RestartGame() {
@@ -46,7 +43,9 @@ public class GameStarter : Unique<GameStarter> {
 		Assert.IsNotNull(userPlayerPrefab, "userPlayerPrefab was not assigned in inspector.");
 		Assert.IsNotNull(aiPlayerPrefab, "aiPlayerPrefab was not assigned in inspector.");
 		Assert.IsNotNull(remotePlayerPrefab, "remotePlayerPrefab was not assigned in inspector.");
+	}
 
+	void Start() {
 		GameMode gameMode;
 		if (!SceneArgsManager.TryGetArg("game-mode", out gameMode)) {
 			Debug.LogWarning("No or wrong type of game-mode passed to current scene. " +
@@ -70,9 +69,7 @@ public class GameStarter : Unique<GameStarter> {
 			default:
 				throw new ArgumentException("Bad game-mode value passed to scene", "game-mode");
 		}
-	}
 
-	void Start() {
 		Assert.IsNotNull(GameManager.Instance);
 		GameManager.Instance.StartNewGame();
 	}
@@ -121,6 +118,11 @@ public class GameStarter : Unique<GameStarter> {
 		GameManager.Instance.Player2TurnStatus = "Your turn";  // otherwise feels like a lag
 		GameManager.Instance.Player1WinStatus = "You won";
 		GameManager.Instance.Player2WinStatus = "You lost";
+		GameManager.Instance.Player1WinAudio = winAudio;
+		GameManager.Instance.Player2WinAudio = looseAudio;
+
+		// This works under an assumption that AI places cell immediately.
+		CellsManager.Instance.PlaceAudioCellSigns = new List<CellSign> { CellSign.Cross };
 	}
 
 	void InitMultiplayer() {
@@ -140,6 +142,10 @@ public class GameStarter : Unique<GameStarter> {
 		GameManager.Instance.Player2TurnStatus = "Nought turn";
 		GameManager.Instance.Player1WinStatus = "Cross won";
 		GameManager.Instance.Player2WinStatus = "Nought won";
+		GameManager.Instance.Player1WinAudio = winAudio;
+		GameManager.Instance.Player2WinAudio = winAudio;
+
+		CellsManager.Instance.PlaceAudioCellSigns = new List<CellSign> { CellSign.Cross, CellSign.Nought };
 	}
 
 	void InitWifiMultiplayer() {
@@ -164,5 +170,14 @@ public class GameStarter : Unique<GameStarter> {
 
 		GameManager.Instance.Player1 = localPlayer;
 		GameManager.Instance.Player2 = remotePlayer;
+
+		GameManager.Instance.Player1TurnStatus = "Your turn";
+		GameManager.Instance.Player2TurnStatus = "Opponent's turn";
+		GameManager.Instance.Player1WinStatus = "You won";
+		GameManager.Instance.Player2WinStatus = "You lost";
+		GameManager.Instance.Player1WinAudio = winAudio;
+		GameManager.Instance.Player2WinAudio = looseAudio;
+
+		CellsManager.Instance.PlaceAudioCellSigns = new List<CellSign> { CellSign.Cross, CellSign.Nought };
 	}
 }

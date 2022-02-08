@@ -43,11 +43,24 @@ public class PopupsManager : Singleton<PopupsManager> {
 		}
 	}
 
+	[SerializeField] bool playAudioOnClose = true;
+	public bool PlayAudioOnClose {
+		get {
+			return playAudioOnClose;
+		}
+
+		set {
+			playAudioOnClose = value;
+		}
+	}
+
 	[SerializeField] GameObject simplePopupPrefab;
 	[SerializeField] GameObject confirmPopupPrefab;
 	[SerializeField] GameObject confirmCancelPopupPrefab;
 	[SerializeField] GameObject loadingPopupPrefab;
 	[SerializeField] GameObject loadingCancelPopupPrefab;
+
+	[SerializeField] AudioSource closingAudio;
 
 	readonly Color bgdColor = new Color(0.0f, 0.0f, 0.0f, 0.2f);
 	Image bgdImage;
@@ -153,6 +166,10 @@ public class PopupsManager : Singleton<PopupsManager> {
 		Assert.IsNotNull(confirmPopupPrefab, "Confirm popup prefab was not assigned in inspector.");
 		Assert.IsNotNull(loadingPopupPrefab, "Loading popup prefab was not assigned in inspector.");
 		Assert.IsNotNull(loadingCancelPopupPrefab, "Loading cancel popup prefab was not assigned in inspector.");
+
+		if (closingAudio == null) {
+			Debug.LogWarning("ClosingAudio was not assigned in inspector.");
+		}
 	}
 
 	static PopupController ShowPopup(GameObject prefab, string message, GameObject parent) {
@@ -280,6 +297,10 @@ public class PopupsManager : Singleton<PopupsManager> {
 		Assert.IsNotNull(Instance.ActivePopup, "Popup closed but ActivePopup was null in PopupsManager.");
 		Instance.bgdImage.gameObject.SetActive(false);
 		Instance.ActivePopup = null;
+
+		if (closingAudio != null && playAudioOnClose) {
+			closingAudio.Play();
+		}
 	}
 
 	static Canvas FindOverlayCanvas() {
