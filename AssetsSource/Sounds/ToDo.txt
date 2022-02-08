@@ -1,2 +1,3 @@
 Popup closed and loose - higher pitch
 Less transient on click
+Popup closed - faster
