@@ -17,7 +17,7 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.03
+  m_TransitionDuration: 0.04
   m_TransitionOffset: 0
   m_ExitTime: 0.7507969
   m_HasExitTime: 0
@@ -45,7 +45,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: 5dfe9a32d4ed0d0428d44672c1b5730d, type: 2}
+  m_Motion: {fileID: 7400000, guid: 05329895a9f454d49a020d01ba67df62, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -68,7 +68,7 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.08
+  m_TransitionDuration: 0.05
   m_TransitionOffset: 0
   m_ExitTime: 0.75
   m_HasExitTime: 0
@@ -96,7 +96,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: e519d229af1c3c34699e9620258b717b, type: 2}
+  m_Motion: {fileID: 7400000, guid: 322eccb6001bb634789ebfb18caccdbd, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -141,7 +141,7 @@ AnimatorController:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: ButtonAnimator
+  m_Name: MuteButtonAnimator
   serializedVersion: 5
   m_AnimatorParameters:
   - m_Name: Normal
@@ -207,7 +207,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: d8593c49fbc728a459f2f4eb283ef2fe, type: 2}
+  m_Motion: {fileID: 7400000, guid: 8d2dd5c84dcb1f84ab9215c67e488135, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -255,7 +255,7 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.08
+  m_TransitionDuration: 0.05
   m_TransitionOffset: 0
   m_ExitTime: 0.75
   m_HasExitTime: 0
@@ -280,7 +280,7 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.08
+  m_TransitionDuration: 0.05
   m_TransitionOffset: 0
   m_ExitTime: 0.75
   m_HasExitTime: 0
