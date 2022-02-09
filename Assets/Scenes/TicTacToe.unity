@@ -395,7 +395,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cellsManager: {fileID: 188753870}
   winLine: {fileID: 10517595}
-  statusText: {fileID: 1995605866}
+  statusText: {fileID: 1995605868}
   winLooseAudioSource: {fileID: 128625039}
 --- !u!114 &128625036
 MonoBehaviour:
@@ -1460,6 +1460,7 @@ GameObject:
   - component: {fileID: 996877796}
   - component: {fileID: 996877798}
   - component: {fileID: 996877797}
+  - component: {fileID: 996877799}
   m_Layer: 5
   m_Name: RestartText
   m_TagString: Untagged
@@ -1532,15 +1533,15 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 60
-  m_fontSizeBase: 60
+  m_fontSize: 70
+  m_fontSizeBase: 70
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 2
   m_HorizontalAlignment: 2
-  m_VerticalAlignment: 256
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -1582,6 +1583,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 996877795}
   m_CullTransparentMesh: 0
+--- !u!111 &996877799
+Animation:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 996877795}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Animation: {fileID: 7400000, guid: 0459f5406df36a04c836525eb31c94fb, type: 2}
+  m_Animations:
+  - {fileID: 7400000, guid: 0459f5406df36a04c836525eb31c94fb, type: 2}
+  m_WrapMode: 0
+  m_PlayAutomatically: 1
+  m_AnimatePhysics: 0
+  m_CullingType: 0
 --- !u!4 &1040187296 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 9095915638255572855, guid: dd3684b9225fcfd46bc67d0621821f4f,
@@ -2111,6 +2128,8 @@ GameObject:
   - component: {fileID: 1995605865}
   - component: {fileID: 1995605867}
   - component: {fileID: 1995605866}
+  - component: {fileID: 1995605869}
+  - component: {fileID: 1995605868}
   m_Layer: 5
   m_Name: GameStatusText
   m_TagString: Untagged
@@ -2234,6 +2253,34 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1995605864}
   m_CullTransparentMesh: 0
+--- !u!114 &1995605868
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1995605864}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3e00f0afaafc0c49a4969fef5df8bf0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!111 &1995605869
+Animation:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1995605864}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Animation: {fileID: 7400000, guid: aca2dcf7ae6690c4aacc81c04cae1cb7, type: 2}
+  m_Animations:
+  - {fileID: 7400000, guid: aca2dcf7ae6690c4aacc81c04cae1cb7, type: 2}
+  m_WrapMode: 0
+  m_PlayAutomatically: 0
+  m_AnimatePhysics: 0
+  m_CullingType: 0
 --- !u!1 &2104873458
 GameObject:
   m_ObjectHideFlags: 0

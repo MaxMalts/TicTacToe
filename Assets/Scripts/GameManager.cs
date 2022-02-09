@@ -67,7 +67,7 @@ public class GameManager : Unique<GameManager> {
 	public AudioClip DrawAudio { get; set; }
 
 	[SerializeField] WinningLine winLine;
-	[SerializeField] TextMeshProUGUI statusText;
+	[SerializeField] StatusTextController statusText;
 
 	[SerializeField] AudioSource winLooseAudioSource;
 
@@ -101,14 +101,14 @@ public class GameManager : Unique<GameManager> {
 		if (player1.PlayerApi.Sign == CellSign.Cross) {
 			CurrentPlayer = player1;
 			player1.EnableInput();
-			statusText.text = Player1TurnStatus;
+			statusText.Text = Player1TurnStatus;
 
 		} else {
 			Assert.IsTrue(player2.PlayerApi.Sign == CellSign.Cross);
 
 			CurrentPlayer = player2;
 			player2.EnableInput();
-			statusText.text = Player2TurnStatus;
+			statusText.Text = Player2TurnStatus;
 		}
 	}
 
@@ -300,7 +300,7 @@ public class GameManager : Unique<GameManager> {
 	}
 
 	void HandleDraw() {
-		statusText.text = drawStatus;
+		statusText.SetTextAndAnimate(drawStatus);
 		if (winLooseAudioSource != null) {
 			winLooseAudioSource.clip = DrawAudio;
 		}
@@ -309,7 +309,7 @@ public class GameManager : Unique<GameManager> {
 
 	void HandleCurrentWin(Vector2Int fieldPos1, Vector2Int fieldPos2) {
 		if (ReferenceEquals(CurrentPlayer, player1)) {
-			statusText.text = Player1WinStatus;
+			statusText.SetTextAndAnimate(Player1WinStatus);
 			if (winLooseAudioSource != null) {
 				winLooseAudioSource.clip = Player1WinAudio;
 			}
@@ -319,7 +319,7 @@ public class GameManager : Unique<GameManager> {
 			Assert.IsTrue(ReferenceEquals(CurrentPlayer, player2),
 				"CurrentPlayer not valid.");
 
-			statusText.text = Player2WinStatus;
+			statusText.SetTextAndAnimate(Player2WinStatus);
 			if (winLooseAudioSource != null) {
 				winLooseAudioSource.clip = Player2WinAudio;
 			}
@@ -335,7 +335,7 @@ public class GameManager : Unique<GameManager> {
 		if (ReferenceEquals(CurrentPlayer, player1)) {
 			player1.DisableInput();
 			CurrentPlayer = player2;
-			statusText.text = Player2TurnStatus;
+			statusText.SetTextAndAnimate(Player2TurnStatus);
 			player2.EnableInput();
 
 		} else {
@@ -344,7 +344,7 @@ public class GameManager : Unique<GameManager> {
 
 			player2.DisableInput();
 			CurrentPlayer = player1;
-			statusText.text = Player1TurnStatus;
+			statusText.SetTextAndAnimate(Player1TurnStatus);
 			player1.EnableInput();
 		}
 	}
