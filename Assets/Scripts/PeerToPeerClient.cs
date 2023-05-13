@@ -426,7 +426,8 @@ namespace Network {
 						// There is a bug in TcpClient, NullReferenceException is
 						// thrown instead ObjectDisposedException
 						return;
-					} catch (SocketException) {
+					} catch (SocketException e) {
+						UnityEngine.Debug.Log("Unable to connet to other client. " + e.ToString());
 						return;
 					}
 
